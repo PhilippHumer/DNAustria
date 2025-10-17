@@ -1,0 +1,179 @@
+{
+  "project": "Discover.DNAustria",
+  "purpose": "Prototype a complete event management system for FH Upper Austria to collect, manage and export educational events to the national DNAustria platform. Provide a runnable local demo with a modern Angular SPA frontend, .NET backend, and PostgreSQL database.",
+  "architecture": "Clean Architecture (Domain, Application, Infrastructure, API)",
+  "constraints": {
+    "frontend_framework": "Angular (latest stable)",
+    "backend_framework": "dotnet (latest LTS or current supported)",
+    "database": "PostgreSQL (latest stable)",
+    "packages": "Use current stable package versions unless otherwise required",
+    "tests": "Optional; integration tests disabled by default via env var"
+  },
+  "scope": {
+    "must": [
+      "CRUD API for Events, Contacts, and Organizations",
+      "Public export endpoint returning DNAustria-compatible JSON for Approved/Transferred events",
+      "Angular SPA with list and form UIs for events, contacts, organizations",
+      "Local run descriptor (docker-compose or equivalent) to start API, frontend, and DB",
+      "Seed data for demo (>=2 events, 1 organization, 1 contact)"
+    ],
+    "should": [
+      "OpenAPI/Swagger for backend API",
+      "Client + server validation for required fields",
+      "Map empty client dates to null in DTOs"
+    ],
+    "may": [
+      "Role separation (Admin / Editor)",
+      "E2E smoke tests (Playwright/Cypress)",
+      "AI-assisted import (text/HTML to event mapping via LLM/NLP)"
+    ]
+  },
+  "domain_model": {
+    "Event": {
+      "fields": {
+        "id": "GUID",
+        "title": "string (required)",
+        "description": "string|null",
+        "topics": "list<int>|null",
+        "date_start": "datetime|null",
+        "date_end": "datetime|null",
+        "organization_id": "GUID|null",
+        "contact_id": "GUID|null",
+        "target_audience": "list<int>|null",
+        "is_online": "bool",
+        "event_link": "string|null",
+        "status": "enum [Draft, Approved, Transferred]",
+        "created_by": "string|null",
+        "modified_by": "string|null",
+        "modified_at": "datetime"
+      },
+      "rules": [
+        "Editable only when status in [Draft, Approved]",
+        "Auto-set created/modified timestamps",
+        "Accept null dates; frontend converts empty/invalid to null"
+      ]
+    },
+    "Contact": {
+      "fields": {
+        "id": "GUID",
+        "name": "string (required)",
+        "email": "string|null",
+        "phone": "string|null",
+        "organization_id": "GUID|null"
+      }
+    },
+    "Organization": {
+      "fields": {
+        "id": "GUID",
+        "name": "string (required)",
+        "address_street": "string|null",
+        "address_city": "string|null",
+        "address_zip": "string|null",
+        "region_id": "int|null"
+      }
+    }
+  },
+  "api_contract": {
+    "endpoints": [
+      { "name": "ListEvents", "method": "GET", "path": "/server/api/events", "params": ["filter", "search", "page", "pageSize"], "auth": "internal" },
+      { "name": "CreateEvent", "method": "POST", "path": "/server/api/events", "body": "Event", "auth": "internal" },
+      { "name": "UpdateEvent", "method": "PUT", "path": "/server/api/events/{id}", "body": "Event", "auth": "internal" },
+      { "name": "DeleteEvent", "method": "DELETE", "path": "/server/api/events/{id}", "auth": "internal" },
+      { "name": "ImportEvent", "method": "POST", "path": "/server/api/events/import", "body": "raw text/html", "response": "Event", "auth": "internal" },
+      { "name": "ListContacts", "method": "GET", "path": "/server/api/contacts", "auth": "internal" },
+      { "name": "ListOrganizations", "method": "GET", "path": "/server/api/organizations", "auth": "internal" },
+      { "name": "PublicExport", "method": "GET", "path": "/server/api/public/events", "response": "DNAustria export JSON", "auth": "public" }
+    ],
+    "validation": {
+      "required": {
+        "Event": ["title"],
+        "Contact": ["name"],
+        "Organization": ["name"]
+      },
+      "date_format": "ISO-8601 when present; accept empty as null"
+    }
+  },
+  "export_schema": {
+    "summary": "Return essential fields in DNAustria-compliant JSON for each approved/transferred event",
+    "fields": [
+      "event_title",
+      "event_description",
+      "event_start",
+      "event_end",
+      "event_link",
+      "event_topics",
+      "event_target_audience",
+      "event_is_online",
+      "organization_name",
+      "event_contact_email",
+      "event_contact_phone",
+      "event_address_street",
+      "event_address_city",
+      "event_address_zip",
+      "event_address_state",
+      "location (optional)"
+    ],
+    "filter_rule": "Include only events where status ∈ [Approved, Transferred]"
+  },
+  "frontend_requirements": {
+    "features": [
+      "Angular Material UI with navigation and table layout",
+      "Filter and search in event list",
+      "Editable forms for all entities",
+      "Client-side validation for required fields",
+      "Confirmation dialogs on delete"
+    ]
+  },
+  "operational": {
+    "local_run": {
+      "command": "docker-compose up --build",
+      "ports": { "frontend": 8080, "backend": 5000 },
+      "env": {
+        "POSTGRES_USER": "appuser",
+        "POSTGRES_PASSWORD": "password",
+        "POSTGRES_DB": "discoverdnaustria"
+      }
+    },
+    "integration_tests": {
+      "env_toggle": "INTEGRATION_TESTS",
+      "default": "false"
+    },
+    "seed_data": "Include 2 sample events, 1 organization, 1 contact as JSON"
+  },
+  "non_functional": {
+    "performance": "API response < 2 seconds",
+    "maintainability": "Export schema and event model easily extendable",
+    "documentation": "Swagger or equivalent enabled by default",
+    "security": "Internal endpoints require auth token or same-origin policy",
+    "naming": "Consistent naming across all layers"
+  },
+  "deliverables": [
+    "Backend source (controllers, services, DTOs, EF migrations)",
+    "Frontend source (Angular SPA with forms & lists)",
+    "PostgreSQL schema and seed data",
+    "Docker Compose setup (API + Frontend + DB)",
+    "Swagger API documentation",
+    "Example export JSON conforming to DNAustria schema"
+  ],
+  "agent_guidelines": {
+    "design_freedom": "Agent may select file layout and frameworks within stated constraints",
+    "non_functional_musts": [
+      "Use PostgreSQL for persistence",
+      "Frontend must be Angular",
+      "Backend must be .NET",
+      "No secrets embedded"
+    ],
+    "testing": "Tests optional; integration tests disabled unless INTEGRATION_TESTS=true",
+    "output_format": [
+      "For code edits: provide machine-readable diff",
+      "For run steps: provide executable shell commands"
+    ]
+  },
+  "success_criteria": {
+    "smoke": [
+      "POST minimal Event → 201 Created with valid GUID",
+      "GET /server/api/public/events returns array matching export_schema",
+      "Frontend available at localhost:8080 showing seeded events"
+    ]
+  }
+}
