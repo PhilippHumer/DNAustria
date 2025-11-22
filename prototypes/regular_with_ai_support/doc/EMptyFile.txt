@@ -1,0 +1,1 @@
+Basic html + css layout of frontend: ~3h
