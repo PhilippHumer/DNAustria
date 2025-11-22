@@ -1,0 +1,6 @@
+@Discover.DNAustria.Api_HostAddress = http://localhost:5160
+
+GET {{Discover.DNAustria.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
