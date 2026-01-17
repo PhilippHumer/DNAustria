@@ -10,7 +10,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<AddressService>();
 builder.Services.AddScoped<ContactService>();
-builder.Services.AddScoped<LlmService>();
+builder.Services.AddHttpClient<LlmService>();
 
 builder.Services.AddCors(options =>
 {
