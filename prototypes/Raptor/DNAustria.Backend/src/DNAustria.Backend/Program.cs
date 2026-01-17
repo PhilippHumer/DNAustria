@@ -59,6 +59,18 @@ builder.Services.AddControllers()
         opts.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
     });
 
+// CORS: allow local frontend during development (http://localhost:4200)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocal4200", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200", "https://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -127,6 +139,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Apply CORS policy for local frontend
+app.UseCors("AllowLocal4200");
+
 app.UseAuthorization();
 app.MapControllers();
 
