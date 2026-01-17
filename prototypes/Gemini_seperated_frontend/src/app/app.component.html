@@ -1,0 +1,33 @@
+<!-- <mat-toolbar color="primary" class="!fixed top-0 z-20 w-full">
+  <button mat-icon-button (click)="drawer.toggle()" aria-label="Menu">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <a routerLink="/" class="text-white no-underline text-lg font-medium cursor-pointer ml-2">{{ title }}</a>
+  <span class="flex-auto"></span>
+</mat-toolbar> -->
+
+<!-- Adjusted height and top padding for fixed toolbar -->
+<mat-drawer-container class="h-screen pt-[64px] bg-gray-50">
+  <mat-drawer #drawer mode="side" opened class="w-64 border-r">
+    <mat-nav-list class="pt-4">
+      <a mat-list-item routerLink="/events" routerLinkActive="!bg-indigo-50 !text-indigo-700">
+        <mat-icon matListItemIcon>event</mat-icon>
+        <span matListItemTitle>Events</span>
+      </a>
+      <a mat-list-item routerLink="/contacts" routerLinkActive="!bg-indigo-50 !text-indigo-700">
+        <mat-icon matListItemIcon>people</mat-icon>
+        <span matListItemTitle>Contacts</span>
+      </a>
+      <a mat-list-item routerLink="/organizations" routerLinkActive="!bg-indigo-50 !text-indigo-700">
+        <mat-icon matListItemIcon>business</mat-icon>
+        <span matListItemTitle>Organizations</span>
+      </a>
+    </mat-nav-list>
+  </mat-drawer>
+
+  <mat-drawer-content class="p-8">
+    <div class="max-w-7xl mx-auto">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-drawer-content>
+</mat-drawer-container>

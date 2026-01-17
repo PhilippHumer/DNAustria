@@ -1,0 +1,25 @@
+@tailwind base;
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+@tailwind components;
+@tailwind utilities;
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* FIX: Specific hack to remove vertical lines in Material inputs caused by Tailwind */
+.mdc-notched-outline__notch {
+    border-left: none !important;
+    border-right: none !important;
+}
+
+/* Ensure leading has no right border */
+.mdc-notched-outline__leading {
+    border-right: none !important;
+}
+
+/* Ensure trailing has no left border */
+.mdc-notched-outline__trailing {
+    border-left: none !important;
+}
+
+

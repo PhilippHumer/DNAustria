@@ -1,0 +1,29 @@
+<div class="p-6 max-w-lg mx-auto bg-white rounded-lg shadow mt-6">
+  <h2 class="text-xl font-bold mb-4">New Contact</h2>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+    <mat-form-field appearance="outline">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Phone</mat-label>
+      <input matInput formControlName="phone">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Organization</mat-label>
+      <mat-select formControlName="org">
+        <mat-option *ngFor="let org of organizations$ | async" [value]="org.name">
+          {{org.name}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <div class="flex justify-end gap-2">
+      <button mat-button routerLink="/contacts">Cancel</button>
+      <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">Save</button>
+    </div>
+  </form>
+</div>

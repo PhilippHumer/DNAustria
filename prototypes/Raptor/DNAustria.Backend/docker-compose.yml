@@ -18,10 +18,10 @@ services:
     depends_on:
       - db
     ports:
-      - "5000:5000"
+      - "5500:5500"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:5000
+      - ASPNETCORE_URLS=http://+:5500
       - ConnectionStrings__DefaultConnection=Host=db;Database=dnaustria;Username=postgres;Password=postgres
       # To enable HTTPS in Docker, mount your certificate and set these env vars:
       # - ENABLE_HTTPS=true

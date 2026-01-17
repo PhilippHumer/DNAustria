@@ -1,0 +1,220 @@
+<div class="p-6 max-w-4xl mx-auto bg-white rounded-lg shadow-md mt-6">
+  <h2 class="text-2xl font-bold mb-6 text-gray-800">Create New Event</h2>
+
+  <mat-tab-group animationDuration="0ms">
+    <mat-tab label="Manual Entry">
+      <div class="p-6">
+        <form [formGroup]="eventForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+          <!-- Title -->
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Title</mat-label>
+            <input matInput formControlName="title" placeholder="Event Title">
+            <mat-icon matSuffix>edit</mat-icon>
+            <mat-error *ngIf="eventForm.get('title')?.hasError('required')">Title is required</mat-error>
+          </mat-form-field>
+
+          <!-- Organization Selection -->
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Organization</mat-label>
+            <mat-select formControlName="organizationId">
+              @for (org of organizations$ | async; track org.id) {
+                <mat-option [value]="org.id">{{ org.name }}</mat-option>
+              }
+            </mat-select>
+            <mat-error *ngIf="eventForm.get('organizationId')?.hasError('required')">Organization is required</mat-error>
+          </mat-form-field>
+
+          <!-- Description -->
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" rows="4" placeholder="Detailed description..."></textarea>
+          </mat-form-field>
+
+          <!-- Dates -->
+          <div class="flex flex-col md:flex-row gap-4">
+            <mat-form-field appearance="outline" class="flex-1">
+              <mat-label>Start Date</mat-label>
+              <input matInput [matDatepicker]="pickerStart" formControlName="dateStart">
+              <mat-datepicker-toggle matIconSuffix [for]="pickerStart"></mat-datepicker-toggle>
+              <mat-datepicker #pickerStart></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="flex-1">
+              <mat-label>End Date</mat-label>
+              <input matInput [matDatepicker]="pickerEnd" formControlName="dateEnd">
+              <mat-datepicker-toggle matIconSuffix [for]="pickerEnd"></mat-datepicker-toggle>
+              <mat-datepicker #pickerEnd></mat-datepicker>
+            </mat-form-field>
+          </div>
+
+          <!-- Metadata -->
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Event Link</mat-label>
+            <input matInput formControlName="eventLink">
+          </mat-form-field>
+
+           <div class="flex flex-col md:flex-row gap-4">
+             <mat-form-field appearance="outline" class="flex-1">
+               <mat-label>Status</mat-label>
+               <mat-select formControlName="status">
+                 @for (status of eventStatuses; track status) {
+                   <mat-option [value]="status">{{ getStatusLabel(status) }}</mat-option>
+                 }
+               </mat-select>
+             </mat-form-field>
+           </div>    
+
+          <div class="flex flex-wrap gap-4 items-center">
+             <mat-checkbox formControlName="isOnline">Online Event</mat-checkbox>
+             <mat-checkbox formControlName="fees">Requires Fees</mat-checkbox>
+             <mat-checkbox formControlName="schoolBookable">School Bookable</mat-checkbox>
+           </div>
+
+           <!-- Additional fields -->
+           <div class="flex flex-col md:flex-row gap-4">
+              <mat-form-field appearance="outline" class="flex-1">
+                  <mat-label>Program Name</mat-label>
+                  <input matInput formControlName="programName">
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="flex-1">
+                  <mat-label>Format</mat-label>
+                  <input matInput formControlName="format">
+              </mat-form-field>
+           </div>
+
+           <div class="flex flex-col md:flex-row gap-4">
+              <mat-form-field appearance="outline" class="flex-1">
+                  <mat-label>Age Minimum</mat-label>
+                  <input matInput type="number" formControlName="ageMinimum">
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="flex-1">
+                  <mat-label>Age Maximum</mat-label>
+                  <input matInput type="number" formControlName="ageMaximum">
+              </mat-form-field>
+           </div>
+
+           <!-- Location Group -->
+           <div formGroupName="location" class="flex flex-col gap-4 p-4 border rounded bg-gray-50">
+             <h3 class="font-semibold text-gray-700">Location Details</h3>
+             
+             <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Location Name</mat-label>
+                <input type="text"
+                       placeholder="Pick a location or enter new"
+                       matInput
+                       formControlName="name"
+                       [matAutocomplete]="auto">
+                <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onLocationSelected($event)">
+                  @for (option of filteredAddresses | async; track option.id) {
+                    <mat-option [value]="option.name">
+                      {{option.name}}
+                    </mat-option>
+                  }
+                </mat-autocomplete>
+             </mat-form-field>
+
+             <div class="flex flex-col md:flex-row gap-4">
+               <mat-form-field appearance="outline" class="flex-1">
+                 <mat-label>Street</mat-label>
+                 <input matInput formControlName="street">
+               </mat-form-field>
+               
+               <mat-form-field appearance="outline" class="w-32">
+                 <mat-label>ZIP</mat-label>
+                 <input matInput formControlName="zip">
+               </mat-form-field>
+             </div>
+
+             <div class="flex flex-col md:flex-row gap-4">
+                <mat-form-field appearance="outline" class="flex-1">
+                  <mat-label>City</mat-label>
+                  <input matInput formControlName="city">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="flex-1">
+                  <mat-label>State</mat-label>
+                  <input matInput formControlName="state">
+                </mat-form-field>
+             </div>
+           </div>
+           
+           <!-- Contact Details -->
+            <div formGroupName="contact" class="flex flex-col gap-4 p-4 border rounded bg-gray-50">
+              <h3 class="font-semibold text-gray-700">Contact</h3>
+              
+              <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Contact Name</mat-label>
+                  <input matInput formControlName="name">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Organization (Contact)</mat-label>
+                  <input matInput formControlName="org">
+              </mat-form-field>
+
+              <div class="flex flex-col md:flex-row gap-4">
+                  <mat-form-field appearance="outline" class="flex-1">
+                      <mat-label>Email</mat-label>
+                      <input matInput formControlName="email">
+
+                      <mat-label>Phone</mat-label>
+                      <input matInput formControlName="phone">
+                  </mat-form-field>
+              </div>
+            </div>
+
+           <!-- Arrays -->
+            <mat-form-field appearance="outline">
+              <mat-label>Target Audience</mat-label>
+              <mat-select formControlName="targetAudience" multiple>
+                @for (audience of targetAudiences; track audience) {
+                  <mat-option [value]="audience">{{ getTargetAudienceLabel(audience) }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+             <mat-form-field appearance="outline">
+              <mat-label>Topics</mat-label>
+              <mat-select formControlName="topics" multiple>
+                @for (topic of eventTopics; track topic) {
+                  <mat-option [value]="topic">{{ getTopicLabel(topic) }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-checkbox formControlName="isOnline">Online Event</mat-checkbox>
+
+          <div class="flex justify-end gap-4 mt-4">
+            <button mat-button type="button" routerLink="/events">Cancel</button>
+            <button mat-flat-button color="primary" type="submit" [disabled]="eventForm.invalid">Create Event</button>
+          </div>
+        </form>
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Import via AI">
+      <div class="p-6">
+        <p class="text-gray-600 mb-4">Paste unstructured text, email content, or an HTML snippet below. Our AI will extract the event details for you.</p>
+        
+        <form [formGroup]="importForm" (ngSubmit)="onImportSubmit()" class="flex flex-col gap-4">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Unstructured Data</mat-label>
+              <textarea matInput formControlName="unstructuredData" rows="10" placeholder="Paste text here..."></textarea>
+            </mat-form-field>
+            
+            <div class="flex justify-end">
+                <button mat-flat-button color="accent" type="submit" [disabled]="importForm.invalid || isImporting">
+                    @if (isImporting) {
+                        Processing...
+                    } @else {
+                        <ng-container>
+                            <mat-icon>auto_awesome</mat-icon> Extract Data
+                        </ng-container>
+                    }
+                </button>
+            </div>
+        </form>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

@@ -1,0 +1,53 @@
+<div class="p-6">
+  <div class="flex justify-between items-center mb-6 gap-4">
+    <mat-form-field appearance="outline" class="w-full max-w-md">
+      <mat-label>Search Events</mat-label>
+      <input matInput [(ngModel)]="searchTerm" (ngModelChange)="filterEvents()" placeholder="Ex. AI Workshop">
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <button mat-flat-button color="primary" routerLink="/events/create">
+      <mat-icon>add</mat-icon> Create Event
+    </button>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    @for (event of filteredEvents; track event.id) {
+      <mat-card class="cursor-pointer hover:shadow-lg transition-shadow" [routerLink]="['/events', event.id]">
+        <mat-card-header>
+            <div mat-card-avatar class="bg-indigo-100 flex items-center justify-center rounded-full text-indigo-600 font-bold overflow-hidden">
+                {{event.title.charAt(0)}}
+            </div>
+          <mat-card-title>{{event.title}}</mat-card-title>
+          <mat-card-subtitle>{{event.dateStart | date:'mediumDate'}}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="pt-4 h-32 overflow-hidden relative"> <!-- Fixed height container + overflow hidden -->
+          <p class="text-gray-600 line-clamp-3">{{event.description}}</p>
+          <div class="mt-2 flex flex-wrap gap-2">
+            <mat-chip-set aria-label="Audience">
+                @for (aud of event.targetAudience; track aud) {
+                     <!-- Showing just 1 for brevity in list if many -->
+                    @if ($index < 2) {
+                        <mat-chip class="!text-xs !min-h-6 !p-2">{{getAudienceLabel(aud)}}</mat-chip>
+                    }
+                }
+            </mat-chip-set>
+          </div>
+        </mat-card-content>
+        <mat-card-actions align="end">
+            <button mat-button (click)="$event.stopPropagation()" [routerLink]="['/events', event.id]">DETAILS</button>
+            <button mat-icon-button color="warn" (click)="deleteEvent(event, $event)">
+                <mat-icon>delete</mat-icon>
+            </button>
+        </mat-card-actions>
+      </mat-card>
+    }
+  </div>
+    
+  @if (filteredEvents.length === 0) {
+      <div class="text-center p-12 text-gray-500">
+          <mat-icon class="!w-12 !h-12 !text-5xl mb-4 text-gray-300">event_busy</mat-icon>
+          <p>No events found.</p>
+      </div>
+  }
+</div>

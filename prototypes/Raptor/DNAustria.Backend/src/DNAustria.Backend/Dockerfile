@@ -15,6 +15,6 @@ WORKDIR /app
 COPY --from=build /app/publish .
 
 # Bind to these addresses inside container
-ENV ASPNETCORE_URLS="http://+:5000;https://+:5001"
-EXPOSE 5000 5001
+ENV ASPNETCORE_URLS="http://+:5500;https://+:5501"
+EXPOSE 5500 5501
 ENTRYPOINT ["dotnet", "DNAustria.Backend.dll"]

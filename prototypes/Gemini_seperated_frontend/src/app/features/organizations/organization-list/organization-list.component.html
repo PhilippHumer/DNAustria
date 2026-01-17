@@ -1,0 +1,36 @@
+<div class="p-6">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-bold">Organizations</h2>
+    <button mat-flat-button color="primary" routerLink="/organizations/create">
+      <mat-icon>add</mat-icon> Add Organization
+    </button>
+  </div>
+
+  <table mat-table [dataSource]="organizations" class="w-full shadow-md rounded-lg overflow-hidden">
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef> Name </th>
+      <td mat-cell *matCellDef="let org"> {{org.name}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="address">
+      <th mat-header-cell *matHeaderCellDef> Address </th>
+      <td mat-cell *matCellDef="let org"> 
+        {{org.street}}, {{org.zip}} {{org.city}}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef> </th>
+      <td mat-cell *matCellDef="let org" (click)="$event.stopPropagation()">
+        <button mat-icon-button color="warn" (click)="deleteOrg(org.id, $event)">
+            <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+        class="hover:bg-gray-50 cursor-pointer transition-colors"
+        [routerLink]="['/organizations', row.id]"></tr>
+  </table>
+</div>
