@@ -46,10 +46,10 @@ public class EventServiceTests
         var created = await svc.CreateEventAsync(dto);
 
         Assert.NotEqual(Guid.Empty, created.Id);
-        Assert.NotNull(created.LocationId);
-        var org = await db.Organizations.FindAsync(created.LocationId.Value);
-        Assert.NotNull(org);
-        Assert.Equal("Hall", org.Name);
+        // No Organization should be created when inline location doesn't match an existing Organization
+        Assert.Null(created.LocationId);
+        var orgCount = await db.Organizations.CountAsync();
+        Assert.Equal(0, orgCount);
     }
 
     [Fact]

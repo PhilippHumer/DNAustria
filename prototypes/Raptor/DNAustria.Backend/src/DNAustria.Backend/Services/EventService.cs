@@ -82,34 +82,26 @@ public class EventService : IEventService
         ev.Id = Guid.NewGuid();
         ev.ModifiedAt = DateTime.UtcNow;
 
-        // Location (Organization): reuse if LocationId provided, else try matching by Zip + Lat/Lon, else create
+        // Location (Organization): reuse only if LocationId provided or a matching Organization exists.
         if (dto.LocationId.HasValue)
         {
             var existing = await _db.Organizations.FindAsync(dto.LocationId.Value);
-            if (existing != null) { ev.Location = existing; ev.LocationId = existing.Id; }
+            if (existing != null)
+            {
+                ev.Location = existing;
+                ev.LocationId = existing.Id;
+            }
         }
         else if (dto.Location != null)
         {
             var a = dto.Location;
             var existing = await _db.Organizations.FirstOrDefaultAsync(x => x.Zip == a.Zip && x.Latitude == a.Latitude && x.Longitude == a.Longitude);
-            if (existing != null) { ev.Location = existing; ev.LocationId = existing.Id; }
-            else
+            if (existing != null)
             {
-                var newOrg = new Models.Organization
-                {
-                    Id = Guid.NewGuid(),
-                    Name = a.Name,
-                    City = a.City,
-                    Zip = a.Zip,
-                    State = a.State,
-                    Street = a.Street,
-                    Latitude = a.Latitude,
-                    Longitude = a.Longitude
-                };
-                _db.Organizations.Add(newOrg);
-                await _db.SaveChangesAsync();
-                ev.Location = newOrg; ev.LocationId = newOrg.Id;
+                ev.Location = existing;
+                ev.LocationId = existing.Id;
             }
+            // Do NOT create a new Organization when none is found. Inline location is ignored if no match exists.
         }
 
         // Contact: reuse if provided id, else create inline
@@ -142,34 +134,26 @@ public class EventService : IEventService
         _mapper.Map(dto, e);
         e.ModifiedAt = DateTime.UtcNow;
 
-        // Location (Organization) logic: LocationId has precedence; else if Location provided then try reuse or create
+        // Location (Organization) logic: LocationId has precedence; else if Location provided then try reuse only (do not create)
         if (dto.LocationId.HasValue)
         {
             var a = await _db.Organizations.FindAsync(dto.LocationId.Value);
-            if (a != null) { e.Location = a; e.LocationId = a.Id; }
+            if (a != null)
+            {
+                e.Location = a;
+                e.LocationId = a.Id;
+            }
         }
         else if (dto.Location != null)
         {
             var a = dto.Location;
             var existing = await _db.Organizations.FirstOrDefaultAsync(x => x.Zip == a.Zip && x.Latitude == a.Latitude && x.Longitude == a.Longitude);
-            if (existing != null) { e.Location = existing; e.LocationId = existing.Id; }
-            else
+            if (existing != null)
             {
-                var newOrg = new Models.Organization
-                {
-                    Id = Guid.NewGuid(),
-                    Name = a.Name,
-                    City = a.City,
-                    Zip = a.Zip,
-                    State = a.State,
-                    Street = a.Street,
-                    Latitude = a.Latitude,
-                    Longitude = a.Longitude
-                };
-                _db.Organizations.Add(newOrg);
-                await _db.SaveChangesAsync();
-                e.Location = newOrg; e.LocationId = newOrg.Id;
+                e.Location = existing;
+                e.LocationId = existing.Id;
             }
+            // If no existing organization found, do NOT create one. Inline location will be ignored.
         }
 
         // Contact logic
