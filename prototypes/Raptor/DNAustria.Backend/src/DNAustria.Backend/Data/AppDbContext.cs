@@ -8,7 +8,6 @@ public class AppDbContext : DbContext
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     public DbSet<Event> Events => Set<Event>();
-    public DbSet<Address> Addresses => Set<Address>();
     public DbSet<Contact> Contacts => Set<Contact>();
     public DbSet<Organization> Organizations => Set<Organization>();
 
@@ -17,7 +16,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Event>(eb =>
         {
             eb.HasKey(e => e.Id);
-            eb.HasOne(e => e.Address).WithMany().HasForeignKey(e => e.LocationId).OnDelete(DeleteBehavior.SetNull);
+            eb.HasOne(e => e.Location).WithMany().HasForeignKey(e => e.LocationId).OnDelete(DeleteBehavior.SetNull);
             eb.HasOne(e => e.Contact).WithMany().HasForeignKey(e => e.ContactId).OnDelete(DeleteBehavior.SetNull);
 
             // Persist enum lists as JSON
@@ -30,11 +29,7 @@ public class AppDbContext : DbContext
                 v => System.Text.Json.JsonSerializer.Deserialize<List<EventTopic>>(v, new System.Text.Json.JsonSerializerOptions()) ?? new List<EventTopic>());
         });
 
-        modelBuilder.Entity<Address>(ab =>
-        {
-            ab.HasKey(a => a.Id);
-            ab.HasIndex(a => new { a.Zip, a.Latitude, a.Longitude });
-        });
+
 
         modelBuilder.Entity<Contact>(cb =>
         {
@@ -42,7 +37,11 @@ public class AppDbContext : DbContext
             cb.HasIndex(c => c.Email).IsUnique(false);
         });
 
-        modelBuilder.Entity<Organization>(ob => ob.HasKey(o => o.Id));
+        modelBuilder.Entity<Organization>(ob =>
+        {
+            ob.HasKey(o => o.Id);
+            ob.HasIndex(o => new { o.Zip, o.Latitude, o.Longitude });
+        });
 
         base.OnModelCreating(modelBuilder);
     }

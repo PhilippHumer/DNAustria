@@ -23,7 +23,8 @@ public class Event
     public int? AgeMinimum { get; set; }
     public int? AgeMaximum { get; set; }
     public Guid? LocationId { get; set; }
-    public Address? Address { get; set; }
+    // Location represented by an Organization entity (replaces Address)
+    public Organization? Location { get; set; }
     public Guid? ContactId { get; set; }
     public Contact? Contact { get; set; }
     public EventStatus Status { get; set; } = EventStatus.Draft;

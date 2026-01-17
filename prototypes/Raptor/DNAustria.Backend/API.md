@@ -80,12 +80,12 @@ Response: 200 OK — parsed `EventCreateDto` (draft)
 
 ## Addresses
 
-Standard CRUD at `/api/address`.
-- GET `/api/address` — list
-- GET `/api/address/{id}` — get
-- POST `/api/address` — create
-- PUT `/api/address/{id}` — update
-- DELETE `/api/address/{id}` — delete
+Standard CRUD at `/api/organization`.
+- GET `/api/organization` — list
+- GET `/api/organization/{id}` — get
+- POST `/api/organization` — create
+- PUT `/api/organization/{id}` — update
+- DELETE `/api/organization/{id}` — delete
 
 ---
 

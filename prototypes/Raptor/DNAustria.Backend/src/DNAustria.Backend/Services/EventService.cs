@@ -71,7 +71,7 @@ public class EventService : IEventService
 
     public async Task<EventDetailDto?> GetEventAsync(Guid id)
     {
-        var e = await _db.Events.Include(x => x.Address).Include(x => x.Contact).FirstOrDefaultAsync(x => x.Id == id);
+        var e = await _db.Events.Include(x => x.Location).Include(x => x.Contact).FirstOrDefaultAsync(x => x.Id == id);
         if (e is null) return null;
         return _mapper.Map<EventDetailDto>(e);
     }
@@ -82,23 +82,23 @@ public class EventService : IEventService
         ev.Id = Guid.NewGuid();
         ev.ModifiedAt = DateTime.UtcNow;
 
-        // Address: reuse if LocationId provided, else try matching by Zip + Lat/Lon, else create
+        // Location (Organization): reuse if LocationId provided, else try matching by Zip + Lat/Lon, else create
         if (dto.LocationId.HasValue)
         {
-            var existing = await _db.Addresses.FindAsync(dto.LocationId.Value);
-            if (existing != null) { ev.Address = existing; ev.LocationId = existing.Id; }
+            var existing = await _db.Organizations.FindAsync(dto.LocationId.Value);
+            if (existing != null) { ev.Location = existing; ev.LocationId = existing.Id; }
         }
-        else if (dto.Address != null)
+        else if (dto.Location != null)
         {
-            var a = dto.Address;
-            var existing = await _db.Addresses.FirstOrDefaultAsync(x => x.Zip == a.Zip && x.Latitude == a.Latitude && x.Longitude == a.Longitude);
-            if (existing != null) { ev.Address = existing; ev.LocationId = existing.Id; }
+            var a = dto.Location;
+            var existing = await _db.Organizations.FirstOrDefaultAsync(x => x.Zip == a.Zip && x.Latitude == a.Latitude && x.Longitude == a.Longitude);
+            if (existing != null) { ev.Location = existing; ev.LocationId = existing.Id; }
             else
             {
-                var newAddr = new Models.Address
+                var newOrg = new Models.Organization
                 {
                     Id = Guid.NewGuid(),
-                    LocationName = a.LocationName,
+                    Name = a.Name,
                     City = a.City,
                     Zip = a.Zip,
                     State = a.State,
@@ -106,9 +106,9 @@ public class EventService : IEventService
                     Latitude = a.Latitude,
                     Longitude = a.Longitude
                 };
-                _db.Addresses.Add(newAddr);
+                _db.Organizations.Add(newOrg);
                 await _db.SaveChangesAsync();
-                ev.Address = newAddr; ev.LocationId = newAddr.Id;
+                ev.Location = newOrg; ev.LocationId = newOrg.Id;
             }
         }
 
@@ -134,7 +134,7 @@ public class EventService : IEventService
 
     public async Task<EventDetailDto?> UpdateEventAsync(Guid id, EventCreateDto dto)
     {
-        var e = await _db.Events.Include(x => x.Address).Include(x => x.Contact).FirstOrDefaultAsync(x => x.Id == id);
+        var e = await _db.Events.Include(x => x.Location).Include(x => x.Contact).FirstOrDefaultAsync(x => x.Id == id);
         if (e is null) return null;
         if (e.Status == EventStatus.Transferred) return null;
 
@@ -142,23 +142,23 @@ public class EventService : IEventService
         _mapper.Map(dto, e);
         e.ModifiedAt = DateTime.UtcNow;
 
-        // Address logic: LocationId has precedence; else if Address provided then try reuse or create
+        // Location (Organization) logic: LocationId has precedence; else if Location provided then try reuse or create
         if (dto.LocationId.HasValue)
         {
-            var a = await _db.Addresses.FindAsync(dto.LocationId.Value);
-            if (a != null) { e.Address = a; e.LocationId = a.Id; }
+            var a = await _db.Organizations.FindAsync(dto.LocationId.Value);
+            if (a != null) { e.Location = a; e.LocationId = a.Id; }
         }
-        else if (dto.Address != null)
+        else if (dto.Location != null)
         {
-            var a = dto.Address;
-            var existing = await _db.Addresses.FirstOrDefaultAsync(x => x.Zip == a.Zip && x.Latitude == a.Latitude && x.Longitude == a.Longitude);
-            if (existing != null) { e.Address = existing; e.LocationId = existing.Id; }
+            var a = dto.Location;
+            var existing = await _db.Organizations.FirstOrDefaultAsync(x => x.Zip == a.Zip && x.Latitude == a.Latitude && x.Longitude == a.Longitude);
+            if (existing != null) { e.Location = existing; e.LocationId = existing.Id; }
             else
             {
-                var newAddr = new Models.Address
+                var newOrg = new Models.Organization
                 {
                     Id = Guid.NewGuid(),
-                    LocationName = a.LocationName,
+                    Name = a.Name,
                     City = a.City,
                     Zip = a.Zip,
                     State = a.State,
@@ -166,9 +166,9 @@ public class EventService : IEventService
                     Latitude = a.Latitude,
                     Longitude = a.Longitude
                 };
-                _db.Addresses.Add(newAddr);
+                _db.Organizations.Add(newOrg);
                 await _db.SaveChangesAsync();
-                e.Address = newAddr; e.LocationId = newAddr.Id;
+                e.Location = newOrg; e.LocationId = newOrg.Id;
             }
         }
 
@@ -221,7 +221,7 @@ public class EventService : IEventService
     public async Task<Dtos.ExportEventsResultDto> GetApprovedEventsExportAsync()
     {
         var events = await _db.Events
-            .Include(e => e.Address)
+            .Include(e => e.Location)
             .Include(e => e.Contact)
             .Where(e => e.Status == EventStatus.Approved)
             .ToListAsync();
@@ -264,18 +264,18 @@ public class EventService : IEventService
                 Event_Age_Minimum = e.AgeMinimum,
                 Event_Age_Maximum = e.AgeMaximum,
 
-                Event_Location_Name = e.Address?.LocationName,
-                Event_Address_Street = e.Address?.Street,
-                Event_Address_City = e.Address?.City,
-                Event_Address_Zip = e.Address?.Zip,
-                Event_Address_State = NormalizeState(e.Address?.State),
+                        Event_Location_Name = e.Location?.Name,
+                Event_Address_Street = e.Location?.Street,
+                Event_Address_City = e.Location?.City,
+                Event_Address_Zip = e.Location?.Zip,
+                Event_Address_State = NormalizeState(e.Location?.State),
 
                 Event_Contact_Name = e.Contact?.Name,
                 Event_Contact_Org = e.Contact?.Org,
                 Event_Contact_Email = e.Contact?.Email,
                 Event_Contact_Phone = e.Contact?.Phone,
 
-                Location = (e.Address?.Latitude.HasValue == true && e.Address?.Longitude.HasValue == true) ? new List<double> { e.Address.Latitude!.Value, e.Address.Longitude!.Value } : null,
+                Location = (e.Location?.Latitude.HasValue == true && e.Location?.Longitude.HasValue == true) ? new List<double> { e.Location.Latitude!.Value, e.Location.Longitude!.Value } : null,
                 Group_Id = null
             };
 

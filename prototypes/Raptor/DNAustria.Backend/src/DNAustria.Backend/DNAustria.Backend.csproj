@@ -11,4 +11,12 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.0" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
   </ItemGroup>
+  
+  <!-- Exclude deprecated Address files from compilation (deleted logically) -->
+  <ItemGroup>
+    <Compile Remove="Services\IAddressService.cs" />
+    <Compile Remove="Services\AddressService.cs" />
+    <Compile Remove="Controllers\AddressController.cs" />
+    <Compile Remove="Models\Address.cs" />
+  </ItemGroup>
 </Project>

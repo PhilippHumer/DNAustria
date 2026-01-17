@@ -28,12 +28,12 @@ public class ExportApprovedTests : IClassFixture<WebApplicationFactory<Program>>
                 var sp = services.BuildServiceProvider();
                 using var scope = sp.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<DNAustria.Backend.Data.AppDbContext>();
-                db.Addresses.Add(new DNAustria.Backend.Models.Address { Id = Guid.NewGuid(), LocationName = "Loc", City = "City", Zip = "0001", State = "Wien", Street = "Street", Latitude = 1, Longitude = 2 });
+                db.Organizations.Add(new DNAustria.Backend.Models.Organization { Id = Guid.NewGuid(), Name = "Loc", City = "City", Zip = "0001", State = "Wien", Street = "Street", Latitude = 1, Longitude = 2, Address = "Street, City" });
                 db.Contacts.Add(new DNAustria.Backend.Models.Contact { Id = Guid.NewGuid(), Name = "C", Org = "O", Email = "c@o.com", Phone = "123" });
                 db.Organizations.Add(new DNAustria.Backend.Models.Organization { Id = Guid.NewGuid(), Name = "Org", Address = "Addr" });
                 db.SaveChanges();
 
-                var addr = db.Addresses.First();
+                var orgLoc = db.Organizations.First();
                 var contact = db.Contacts.First();
                 var org = db.Organizations.First();
                 db.Events.Add(new DNAustria.Backend.Models.Event
@@ -47,8 +47,8 @@ public class ExportApprovedTests : IClassFixture<WebApplicationFactory<Program>>
                     Fees = true,
                     IsOnline = false,
                     OrganizationId = org.Id,
-                    Address = addr,
-                    LocationId = addr.Id,
+                    Location = orgLoc,
+                    LocationId = orgLoc.Id,
                     Contact = contact,
                     ContactId = contact.Id,
                     Status = DNAustria.Backend.Models.EventStatus.Approved,

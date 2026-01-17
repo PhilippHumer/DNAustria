@@ -83,7 +83,8 @@ builder.Services.AddDbContext<AppDbContext>(opt => opt.UseNpgsql(connectionStrin
 
 // Services
 builder.Services.AddScoped<IEventService, EventService>();
-builder.Services.AddScoped<IAddressService, AddressService>();
+// Address API replaced with Organization API: register Organization service instead
+builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 builder.Services.AddScoped<IContactService, ContactService>();
 builder.Services.AddScoped<ILLMService, StubLLMService>();
 

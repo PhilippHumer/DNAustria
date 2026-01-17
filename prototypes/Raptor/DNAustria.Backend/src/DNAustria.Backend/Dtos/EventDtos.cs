@@ -24,15 +24,16 @@ public class EventDetailDto
     public int? AgeMinimum { get; set; }
     public int? AgeMaximum { get; set; }
     public Guid? LocationId { get; set; }
-    public Address? Address { get; set; }
+    // Location is now represented by an Organization
+    public Organization? Location { get; set; }
     public Guid? ContactId { get; set; }
     public Contact? Contact { get; set; }
     public EventStatus Status { get; set; }
 }
 
-public class AddressCreateDto
+public class OrganizationCreateDto
 {
-    public string LocationName { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty; // OrganizationName (replaces LocationName)
     public string City { get; set; } = string.Empty;
     public string Zip { get; set; } = string.Empty;
     public string State { get; set; } = string.Empty;
@@ -68,7 +69,7 @@ public class EventCreateDto
     public int? AgeMinimum { get; set; }
     public int? AgeMaximum { get; set; }
     public Guid? LocationId { get; set; }
-    public AddressCreateDto? Address { get; set; }
+    public OrganizationCreateDto? Location { get; set; }
     public Guid? ContactId { get; set; }
     public ContactCreateDto? Contact { get; set; }
     public EventStatus Status { get; set; } = EventStatus.Draft;

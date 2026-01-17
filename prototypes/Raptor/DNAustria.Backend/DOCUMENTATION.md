@@ -61,9 +61,9 @@ Integration checklist:
 
 ## Data-model notes & behavior 🔧
 - Event stores lists `TargetAudience` and `Topics` as JSON columns (EF conversions).
-- Address reuse: when creating/updating an Event, the system:
-  - Uses `LocationId` if provided to link to an existing address.
-  - If inline address is provided, tries to find an existing address by `Zip + Latitude + Longitude`. If not found, creates a new Address entity.
+- Location reuse: when creating/updating an Event, the system uses `Organization` as the location entity:
+  - Uses `LocationId` if provided to link to an existing `Organization`.
+  - If inline location is provided, tries to find an existing `Organization` by `Zip + Latitude + Longitude`. If not found, creates a new `Organization` entity.
 - Contact reuse: similar to address—`ContactId` takes precedence; inline contact creates a new Contact.
 - Events with status `Transferred` are immutable (cannot update or change status).
 

@@ -6,10 +6,10 @@ namespace DNAustria.Backend.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AddressController : ControllerBase
+public class OrganizationController : ControllerBase
 {
-    private readonly IAddressService _service;
-    public AddressController(IAddressService service) => _service = service;
+    private readonly IOrganizationService _service;
+    public OrganizationController(IOrganizationService service) => _service = service;
 
     [HttpGet]
     public async Task<IActionResult> GetAll() => Ok(await _service.GetAllAsync());
@@ -17,22 +17,22 @@ public class AddressController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id)
     {
-        var a = await _service.GetAsync(id);
-        if (a is null) return NotFound();
-        return Ok(a);
+        var o = await _service.GetAsync(id);
+        if (o is null) return NotFound();
+        return Ok(o);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(Address a)
+    public async Task<IActionResult> Create(Organization o)
     {
-        var created = await _service.CreateAsync(a);
+        var created = await _service.CreateAsync(o);
         return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, Address a)
+    public async Task<IActionResult> Update(Guid id, Organization o)
     {
-        var updated = await _service.UpdateAsync(id, a);
+        var updated = await _service.UpdateAsync(id, o);
         if (updated is null) return NotFound();
         return Ok(updated);
     }

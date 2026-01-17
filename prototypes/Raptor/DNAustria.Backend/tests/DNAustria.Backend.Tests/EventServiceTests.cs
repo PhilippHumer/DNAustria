@@ -40,37 +40,37 @@ public class EventServiceTests
             Description = "desc",
             DateStart = DateTime.UtcNow,
             DateEnd = DateTime.UtcNow.AddHours(2),
-            Address = new Dtos.AddressCreateDto { LocationName = "Hall", Zip = "4020", City = "Linz" }
+            Location = new Dtos.OrganizationCreateDto { Name = "Hall", Zip = "4020", City = "Linz" }
         };
 
         var created = await svc.CreateEventAsync(dto);
 
         Assert.NotEqual(Guid.Empty, created.Id);
         Assert.NotNull(created.LocationId);
-        var addr = await db.Addresses.FindAsync(created.LocationId.Value);
-        Assert.NotNull(addr);
-        Assert.Equal("Hall", addr.LocationName);
+        var org = await db.Organizations.FindAsync(created.LocationId.Value);
+        Assert.NotNull(org);
+        Assert.Equal("Hall", org.Name);
     }
 
     [Fact]
     public async Task CreateEvent_WithLocationId_UsesExistingAddress()
     {
         var db = CreateDbContext("create_with_locationid");
-        var addr = new Address { Id = Guid.NewGuid(), LocationName = "Existing", Zip = "4020", City = "Linz" };
-        db.Addresses.Add(addr);
+        var org = new Organization { Id = Guid.NewGuid(), Name = "Existing", Zip = "4020", City = "Linz" };
+        db.Organizations.Add(org);
         await db.SaveChangesAsync();
 
         var mapper = CreateMapper();
         var llm = new StubLLMService();
         var svc = new EventService(db, mapper, llm);
 
-        var dto = new Dtos.EventCreateDto { Title = "T2", DateStart = DateTime.UtcNow, DateEnd = DateTime.UtcNow.AddHours(1), LocationId = addr.Id };
+        var dto = new Dtos.EventCreateDto { Title = "T2", DateStart = DateTime.UtcNow, DateEnd = DateTime.UtcNow.AddHours(1), LocationId = org.Id };
         var created = await svc.CreateEventAsync(dto);
 
-        Assert.Equal(addr.Id, created.LocationId);
-        var ev = await db.Events.Include(e => e.Address).FirstOrDefaultAsync(e => e.Id == created.Id);
+        Assert.Equal(org.Id, created.LocationId);
+        var ev = await db.Events.Include(e => e.Location).FirstOrDefaultAsync(e => e.Id == created.Id);
         Assert.NotNull(ev);
-        Assert.Equal("Existing", ev.Address?.LocationName);
+        Assert.Equal("Existing", ev.Location?.Name);
     }
 
     [Fact]

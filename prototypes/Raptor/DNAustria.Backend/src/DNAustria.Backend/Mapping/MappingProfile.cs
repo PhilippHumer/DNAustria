@@ -10,9 +10,9 @@ public class MappingProfile : Profile
     {
         CreateMap<Event, EventDetailDto>().ReverseMap();
         CreateMap<EventCreateDto, Event>();
-        CreateMap<AddressCreateDto, Address>();
+        CreateMap<OrganizationCreateDto, Organization>();
         CreateMap<ContactCreateDto, Contact>();
-        CreateMap<Address, Dtos.AddressCreateDto>().ReverseMap();
+        CreateMap<Organization, Dtos.OrganizationCreateDto>().ReverseMap();
         CreateMap<Contact, Dtos.ContactCreateDto>().ReverseMap();
     }
 }

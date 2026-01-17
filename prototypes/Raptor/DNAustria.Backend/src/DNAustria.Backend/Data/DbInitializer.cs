@@ -9,18 +9,38 @@ public static class DbInitializer
     {
         // Ensure DB created (migrations already applied in Program)
         // Seed only when tables are empty
-        if (!await db.Addresses.AnyAsync())
+        // Seed organizations instead of addresses
+        if (!await db.Organizations.AnyAsync())
         {
-            var addr1 = new Address { Id = Guid.NewGuid(), LocationName = "FH OOE Campus Linz", City = "Linz", Zip = "4040", State = "Upper Austria", Street = "Hauptstraße 1", Latitude = 48.30694, Longitude = 14.28583 };
-            var addr2 = new Address { Id = Guid.NewGuid(), LocationName = "Kulturhaus", City = "Linz", Zip = "4020", State = "Upper Austria", Street = "Kulturstrasse 2", Latitude = 48.306, Longitude = 14.287 };
-            db.Addresses.AddRange(addr1, addr2);
-
             var contact1 = new Contact { Id = Guid.NewGuid(), Name = "Anna Müller", Org = "FH OOE", Email = "anna.mueller@fh-ooe.at", Phone = "+43 123 456" };
             var contact2 = new Contact { Id = Guid.NewGuid(), Name = "Max Mustermann", Org = "Culture Org", Email = "max@culture.at", Phone = "+43 987 654" };
             db.Contacts.AddRange(contact1, contact2);
 
-            var org1 = new Organization { Id = Guid.NewGuid(), Name = "FH OOE", Address = "Hauptstraße 1, 4040 Linz" };
-            db.Organizations.Add(org1);
+            var org1 = new Organization
+            {
+                Id = Guid.NewGuid(),
+                Name = "FH OOE",
+                Address = "Hauptstraße 1, 4040 Linz",
+                City = "Linz",
+                Zip = "4040",
+                State = "Upper Austria",
+                Street = "Hauptstraße 1",
+                Latitude = 48.30694,
+                Longitude = 14.28583
+            };
+            var org2 = new Organization
+            {
+                Id = Guid.NewGuid(),
+                Name = "Kulturhaus",
+                Address = "Kulturstrasse 2, 4020 Linz",
+                City = "Linz",
+                Zip = "4020",
+                State = "Upper Austria",
+                Street = "Kulturstrasse 2",
+                Latitude = 48.306,
+                Longitude = 14.287
+            };
+            db.Organizations.AddRange(org1, org2);
 
             await db.SaveChangesAsync();
 
@@ -42,8 +62,8 @@ public static class DbInitializer
                     SchoolBookable = true,
                     AgeMinimum = null,
                     AgeMaximum = null,
-                    Address = addr1,
-                    LocationId = addr1.Id,
+                    Location = org1,
+                    LocationId = org1.Id,
                     Contact = contact1,
                     ContactId = contact1.Id,
                     Status = EventStatus.Approved,
@@ -67,8 +87,8 @@ public static class DbInitializer
                     SchoolBookable = true,
                     AgeMinimum = 6,
                     AgeMaximum = 12,
-                    Address = addr2,
-                    LocationId = addr2.Id,
+                    Location = org2,
+                    LocationId = org2.Id,
                     Contact = contact2,
                     ContactId = contact2.Id,
                     Status = EventStatus.Draft,
