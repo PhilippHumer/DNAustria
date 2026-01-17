@@ -3,12 +3,15 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ApiService } from '../../services/api.service';
 import { Event } from '../../models/event.model';
 import { EventFormComponent } from '../event-form/event-form';
-import { EventStatus } from '../../models/enums';
+import { EventStatus, EventClassification } from '../../models/enums';
 
 import { Observable } from 'rxjs';
 
@@ -20,6 +23,9 @@ import { Observable } from 'rxjs';
     RouterModule,
     MatButtonModule,
     MatIconModule,
+    MatCardModule,
+    MatChipsModule,
+    MatDividerModule,
     MatDialogModule,
     MatSnackBarModule,
     EventFormComponent
@@ -30,6 +36,7 @@ import { Observable } from 'rxjs';
 export class EventDetailComponent implements OnInit {
   event$?: Observable<Event>;
   isEditing = false;
+  EventStatus = EventStatus; // Expose enum to template
 
   constructor(
     private route: ActivatedRoute,
@@ -37,6 +44,14 @@ export class EventDetailComponent implements OnInit {
     private apiService: ApiService,
     private snackBar: MatSnackBar
   ) {}
+
+  getStatusLabel(status: EventStatus | number): string {
+    return EventStatus[status] || 'Unknown';
+  }
+
+  getClassificationLabel(classification: EventClassification | number): string {
+     return EventClassification[classification] || 'Unknown';
+  }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');

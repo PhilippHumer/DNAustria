@@ -1,10 +1,14 @@
 <div class="app-container">
-  <mat-toolbar color="primary">
-    <span>University Event Management</span>
-    <span class="spacer"></span>
-    <a mat-button routerLink="/events" routerLinkActive="active">Events</a>
-    <a mat-button routerLink="/contacts" routerLinkActive="active">Contacts</a>
-    <a mat-button routerLink="/organizations" routerLinkActive="active">Organizations</a>
+  <mat-toolbar color="primary" class="main-toolbar shadow-lg">
+    <div class="container flex items-center">
+      <span class="logo-text">DNAustria Events</span>
+      <span class="spacer"></span>
+      <nav>
+        <a mat-button routerLink="/events" routerLinkActive="active-link">Events</a>
+        <a mat-button routerLink="/contacts" routerLinkActive="active-link">Contacts</a>
+        <a mat-button routerLink="/organizations" routerLinkActive="active-link">Organizations</a>
+      </nav>
+    </div>
   </mat-toolbar>
 
   <main class="content">

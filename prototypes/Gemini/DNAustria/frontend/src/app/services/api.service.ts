@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Event } from '../models/event.model';
 import { Contact } from '../models/contact.model';
 import { Organization } from '../models/organization.model';
-import { EventStatus } from '../models/enums';
+import { EventStatus, EventClassification } from '../models/enums';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +20,59 @@ export class ApiService {
     let params = new HttpParams();
     if (search) params = params.set('search', search);
     if (status !== undefined) params = params.set('status', status.toString());
-    return this.http.get<Event[]>(`${this.apiUrl}/events`, { params });
+    
+    return this.http.get<any>(`${this.apiUrl}/events`, { params }).pipe(
+      map(response => {
+        // Handle new backend wrapper { events: [...] }
+        const rawEvents = response.events || [];
+        return rawEvents.map((e: any) => this.mapDtoToEvent(e));
+      })
+    );
+  }
+
+  private mapDtoToEvent(dto: any): Event {
+    return {
+      id: dto.id || undefined, // Map the ID now that backend provides it
+      title: dto.event_title,
+      description: dto.event_description,
+      eventLink: dto.event_link,
+      targetAudience: dto.event_target_audience,
+      topics: dto.event_topics,
+      dateStart: dto.event_start,
+      dateEnd: dto.event_end,
+      // Map string back to enum if needed, or keep as string if model allows. 
+      // Model expects Enum. Backend sends lowercase string "scheduled".
+      classification: this.mapClassification(dto.event_classification),
+      fees: dto.event_has_fees,
+      isOnline: dto.event_is_online,
+      organizationId: '00000000-0000-0000-0000-000000000000', // Missing in DTO
+      programName: dto.program_name,
+      // ... map other fields
+      location: {
+         id: '00000000-0000-0000-0000-000000000000',
+         locationName: dto.event_location_name,
+         street: dto.event_address_street,
+         city: dto.event_address_city,
+         zip: dto.event_address_zip,
+         state: dto.event_address_state,
+         latitude: dto.location && dto.location.length > 0 ? dto.location[0] : 0,
+         longitude: dto.location && dto.location.length > 1 ? dto.location[1] : 0
+      } as any, // casting to avoid strict type checks for partial addr
+      contact: {
+         id: '00000000-0000-0000-0000-000000000000',
+         name: dto.event_contact_name,
+         email: dto.event_contact_email,
+         phone: dto.event_contact_phone,
+         org: dto.event_contact_org
+      } as any,
+      status: EventStatus.Draft // Defaulting as DTO doesn't seem to have status?
+    };
+  }
+
+  private mapClassification(val: string): EventClassification {
+     if (val === 'scheduled') return EventClassification.Scheduled;
+     if (val === 'ondemand') return EventClassification.OnDemand;
+     return EventClassification.Scheduled;
   }
 
   getEvent(id: string): Observable<Event> {

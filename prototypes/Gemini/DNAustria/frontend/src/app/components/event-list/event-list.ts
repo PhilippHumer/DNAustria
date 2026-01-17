@@ -9,7 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { Event } from '../../models/event.model';
-import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, switchMap, startWith } from 'rxjs/operators';
 
 @Component({
   selector: 'app-event-list',
@@ -34,9 +34,8 @@ export class EventListComponent implements OnInit {
   constructor(private apiService: ApiService) {}
 
   ngOnInit(): void {
-    this.loadEvents();
-
     this.searchControl.valueChanges.pipe(
+      startWith(''),
       debounceTime(300),
       distinctUntilChanged(),
       switchMap(term => this.apiService.getEvents(term || ''))
@@ -46,6 +45,7 @@ export class EventListComponent implements OnInit {
   }
 
   loadEvents() {
+    // Legacy method, can be removed or kept for manual refresh
     this.apiService.getEvents().subscribe(events => this.events = events);
   }
 }

@@ -84,6 +84,8 @@ export class EventFormComponent implements OnInit, OnChanges {
     if (this.event) {
       this.form.patchValue({
         ...this.event,
+        dateStart: this.event.dateStart ? new Date(this.event.dateStart) : null,
+        dateEnd: this.event.dateEnd ? new Date(this.event.dateEnd) : null,
         locationName: this.event.location?.locationName,
         city: this.event.location?.city,
         zip: this.event.location?.zip,
