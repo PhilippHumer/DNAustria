@@ -84,21 +84,39 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
     // Only apply migrations for relational database providers (skips InMemory used in tests)
     if (db.Database.IsRelational())
     {
         db.Database.Migrate();
-    }
 
-    // Seed sample data (idempotent)
-    try
-    {
-        DbInitializer.SeedAsync(db).GetAwaiter().GetResult();
-    }
-    catch (Exception ex)
-    {
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while seeding the database.");
+        // Determine whether to seed sample data. Default: true (preserves existing behavior).
+        // Set SEED_SAMPLE_DATA=false (env var) or SeedSampleData=false (config) to disable.
+        var seedEnv = Environment.GetEnvironmentVariable("SEED_SAMPLE_DATA");
+        var seedConfig = scope.ServiceProvider.GetRequiredService<Microsoft.Extensions.Configuration.IConfiguration>()["SeedSampleData"];
+        var seedValue = seedEnv ?? seedConfig;
+        var doSeed = true;
+        if (!string.IsNullOrEmpty(seedValue) && !bool.TryParse(seedValue, out doSeed))
+        {
+            doSeed = true;
+        }
+
+        if (doSeed)
+        {
+            try
+            {
+                DbInitializer.SeedAsync(db).GetAwaiter().GetResult();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while seeding the database.");
+            }
+        }
+        else
+        {
+            logger.LogInformation("Database seeding skipped (SEED_SAMPLE_DATA or SeedSampleData set to false).");
+        }
     }
 }
 

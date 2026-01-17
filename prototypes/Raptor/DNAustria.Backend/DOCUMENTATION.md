@@ -23,6 +23,11 @@ dotnet ef database update
 dotnet run
 ```
 
+> Note: On startup the app will automatically apply pending migrations and seed sample data when using a relational database (this is idempotent and only runs when the tables are empty).
+> 
+> - To disable automatic seeding, set the environment variable `SEED_SAMPLE_DATA=false` or add `SeedSampleData: false` to your configuration (e.g., `appsettings.json`).
+> - In Docker, set the same env var for the `app` service in `docker-compose.yml` (see below) to skip seeding when the container starts.
+
 5. Open Swagger UI: https://localhost:<port>/swagger (Development only).
 
 ---
@@ -92,6 +97,15 @@ If you want any of the next steps implemented, tell me which one and I'll add it
 ## Docker & ports
 - When running locally with `dotnet run` the app listens on **HTTP 5000** and **HTTPS 5001** by default (HTTPS requires a valid developer certificate).
 - `docker compose up -d` starts the `db` and `app` services. The `app` service listens on **HTTP 5000** (mapped to host port 5000) by default.
+- To skip seeding sample data when running in Docker, add the environment variable to the `app` service in `docker-compose.yml`:
+
+```yaml
+services:
+  app:
+    environment:
+      - SEED_SAMPLE_DATA=false
+```
+
 - HTTPS inside the container is disabled by default because containers don't have the developer cert. To enable HTTPS in Docker:
   1. Generate a PFX certificate and a password (or reuse an existing one).
   2. Mount it into the container (example):
