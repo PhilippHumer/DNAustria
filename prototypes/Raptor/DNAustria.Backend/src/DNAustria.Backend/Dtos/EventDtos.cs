@@ -24,7 +24,17 @@ public class EventDetailDto
     public int? AgeMinimum { get; set; }
     public int? AgeMaximum { get; set; }
     public Guid? LocationId { get; set; }
-    // Location is now represented by an Organization
+
+    // Inline location fields stored on the Event (preferred when provided)
+    public string? LocationName { get; set; }
+    public string? LocationStreet { get; set; }
+    public string? LocationCity { get; set; }
+    public string? LocationZip { get; set; }
+    public string? LocationState { get; set; }
+    public double? LocationLatitude { get; set; }
+    public double? LocationLongitude { get; set; }
+
+    // Location is now represented by an Organization for selection only
     public Organization? Location { get; set; }
     public Guid? ContactId { get; set; }
     public Contact? Contact { get; set; }
@@ -69,6 +79,16 @@ public class EventCreateDto
     public int? AgeMinimum { get; set; }
     public int? AgeMaximum { get; set; }
     public Guid? LocationId { get; set; }
+
+    // Inline location fields (if provided they will be saved on the Event)
+    public string? LocationName { get; set; }
+    public string? LocationStreet { get; set; }
+    public string? LocationCity { get; set; }
+    public string? LocationZip { get; set; }
+    public string? LocationState { get; set; }
+    public double? LocationLatitude { get; set; }
+    public double? LocationLongitude { get; set; }
+
     public OrganizationCreateDto? Location { get; set; }
     public Guid? ContactId { get; set; }
     public ContactCreateDto? Contact { get; set; }

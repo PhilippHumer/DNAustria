@@ -97,6 +97,27 @@ namespace DNAustria.Backend.Migrations
                     b.Property<Guid?>("LocationId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("LocationName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LocationStreet")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LocationCity")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LocationZip")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LocationState")
+                        .HasColumnType("text");
+
+                    b.Property<double?>("LocationLatitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("LocationLongitude")
+                        .HasColumnType("double precision");
+
                     b.Property<DateTime>("ModifiedAt")
                         .HasColumnType("timestamp with time zone");
 

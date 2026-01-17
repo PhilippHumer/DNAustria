@@ -25,6 +25,16 @@ public class Event
     public Guid? LocationId { get; set; }
     // Location represented by an Organization entity (replaces Address)
     public Organization? Location { get; set; }
+
+    // Inline location fields stored directly on the Event when provided by the client
+    public string? LocationName { get; set; }
+    public string? LocationStreet { get; set; }
+    public string? LocationCity { get; set; }
+    public string? LocationZip { get; set; }
+    public string? LocationState { get; set; }
+    public double? LocationLatitude { get; set; }
+    public double? LocationLongitude { get; set; }
+
     public Guid? ContactId { get; set; }
     public Contact? Contact { get; set; }
     public EventStatus Status { get; set; } = EventStatus.Draft;

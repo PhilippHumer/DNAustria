@@ -53,11 +53,17 @@ namespace DNAustria.Backend.Migrations
                 defaultValue: "");
 
             // Copy existing Addresses into Organizations (preserve Ids so Events.LocationId keeps pointing to the correct row)
-            // Note: this uses Postgres string concatenation operator (||) to build a free-form Address column.
+            // Use a guarded DO block so the migration is tolerant if Addresses table was already removed.
             migrationBuilder.Sql(@"
-                INSERT INTO ""Organizations"" (""Id"", ""Name"", ""Address"", ""City"", ""Zip"", ""State"", ""Street"", ""Latitude"", ""Longitude"")
-                SELECT ""Id"", ""LocationName"", (""Street"" || ', ' || ""City""), ""City"", ""Zip"", ""State"", ""Street"", ""Latitude"", ""Longitude""
-                FROM ""Addresses"";
+DO $$
+BEGIN
+    IF to_regclass('public.""Addresses""') IS NOT NULL THEN
+        INSERT INTO ""Organizations"" (""Id"", ""Name"", ""Address"", ""City"", ""Zip"", ""State"", ""Street"", ""Latitude"", ""Longitude"")
+        SELECT ""Id"", ""LocationName"", (""Street"" || ', ' || ""City""), ""City"", ""Zip"", ""State"", ""Street"", ""Latitude"", ""Longitude""
+        FROM ""Addresses"";
+    END IF;
+END
+$$;
             ");
 
             // Drop foreign key to Addresses, then remove Addresses table
@@ -114,9 +120,15 @@ namespace DNAustria.Backend.Migrations
 
             // Copy organizations back into Addresses (preserve Ids)
             migrationBuilder.Sql(@"
-                INSERT INTO ""Addresses"" (""Id"", ""LocationName"", ""City"", ""Zip"", ""State"", ""Street"", ""Latitude"", ""Longitude"")
-                SELECT ""Id"", ""Name"", ""City"", ""Zip"", ""State"", ""Street"", ""Latitude"", ""Longitude""
-                FROM ""Organizations"";
+DO $$
+BEGIN
+    IF to_regclass('public.""Organizations""') IS NOT NULL THEN
+        INSERT INTO ""Addresses"" (""Id"", ""LocationName"", ""City"", ""Zip"", ""State"", ""Street"", ""Latitude"", ""Longitude"")
+        SELECT ""Id"", ""Name"", ""City"", ""Zip"", ""State"", ""Street"", ""Latitude"", ""Longitude""
+        FROM ""Organizations"";
+    END IF;
+END
+$$;
             ");
 
             migrationBuilder.CreateIndex(

@@ -26,13 +26,15 @@ public class EventServiceTests
         return config.CreateMapper();
     }
 
+    private EventService CreateService(AppDbContext db, IMapper mapper, ILLMService llm) => new EventService(db, mapper, llm, null);
+
     [Fact]
-    public async Task CreateEvent_WithInlineAddress_CreatesAddressAndSetsLocationId()
+    public async Task CreateEvent_WithInlineLocation_SavesInlineFields_OnEvent()
     {
-        var db = CreateDbContext("create_with_address");
+        var db = CreateDbContext("create_with_inline_location");
         var mapper = CreateMapper();
         var llm = new StubLLMService();
-        var svc = new EventService(db, mapper, llm);
+        var svc = CreateService(db, mapper, llm);
 
         var dto = new Dtos.EventCreateDto
         {
@@ -50,6 +52,11 @@ public class EventServiceTests
         Assert.Null(created.LocationId);
         var orgCount = await db.Organizations.CountAsync();
         Assert.Equal(0, orgCount);
+
+        // Inline fields should be stored on the event DTO
+        Assert.Equal("Hall", created.LocationName);
+        Assert.Equal("4020", created.LocationZip);
+        Assert.Equal("Linz", created.LocationCity);
     }
 
     [Fact]
@@ -62,7 +69,7 @@ public class EventServiceTests
 
         var mapper = CreateMapper();
         var llm = new StubLLMService();
-        var svc = new EventService(db, mapper, llm);
+        var svc = CreateService(db, mapper, llm);
 
         var dto = new Dtos.EventCreateDto { Title = "T2", DateStart = DateTime.UtcNow, DateEnd = DateTime.UtcNow.AddHours(1), LocationId = org.Id };
         var created = await svc.CreateEventAsync(dto);
@@ -83,7 +90,7 @@ public class EventServiceTests
 
         var mapper = CreateMapper();
         var llm = new StubLLMService();
-        var svc = new EventService(db, mapper, llm);
+        var svc = CreateService(db, mapper, llm);
 
         var dto = new Dtos.EventCreateDto { Title = "New" };
         var updated = await svc.UpdateEventAsync(ev.Id, dto);
@@ -100,7 +107,7 @@ public class EventServiceTests
 
         var mapper = CreateMapper();
         var llm = new StubLLMService();
-        var svc = new EventService(db, mapper, llm);
+        var svc = CreateService(db, mapper, llm);
 
         var ok = await svc.UpdateStatusAsync(ev.Id, EventStatus.Approved);
         Assert.False(ok);
@@ -112,7 +119,7 @@ public class EventServiceTests
         var db = CreateDbContext("parse_event");
         var mapper = CreateMapper();
         var llm = new StubLLMService();
-        var svc = new EventService(db, mapper, llm);
+        var svc = CreateService(db, mapper, llm);
 
         var parsed = await svc.ParseEventAsync("<h1>My Event</h1>\n12.01.2026", true);
         Assert.NotNull(parsed);

@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using System;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace DNAustria.Backend.Tests.Integration;
@@ -15,8 +17,28 @@ public class ExportApprovedSchemaTests : IClassFixture<WebApplicationFactory<Pro
     [Fact]
     public async Task ExportApproved_JsonTypes_Are_Correct()
     {
-        var factory = _factory.WithWebHostBuilder(b => b.UseSetting("environment", "Development"));
+        var factory = _factory.WithWebHostBuilder(b => b.ConfigureServices(services =>
+        {
+            // Use InMemory DB for this integration test to avoid depending on local Postgres schema/migrations
+            var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(Microsoft.EntityFrameworkCore.DbContextOptions<DNAustria.Backend.Data.AppDbContext>));
+            if (descriptor != null) services.Remove(descriptor);
+            services.AddDbContext<DNAustria.Backend.Data.AppDbContext>(opt => opt.UseInMemoryDatabase("test-export-approved"));
+        }).UseSetting("environment", "Development"));
         var client = factory.CreateClient();
+
+        // Ensure there's at least one approved event (don't rely on DB seeding in tests)
+        var now = DateTime.UtcNow;
+        var create = new {
+            title = "IntegrationExportTest",
+            description = "desc",
+            datestart = now,
+            dateend = now.AddHours(1),
+            status = 1 // EventStatus.Approved
+        };
+        var json = System.Text.Json.JsonSerializer.Serialize(create);
+        var createResp = await client.PostAsync("/api/events", new System.Net.Http.StringContent(json, System.Text.Encoding.UTF8, "application/json"));
+        createResp.EnsureSuccessStatusCode();
+
         var resp = await client.GetAsync("/api/events/export/approved");
         resp.EnsureSuccessStatusCode();
 
