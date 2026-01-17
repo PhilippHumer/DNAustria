@@ -1,0 +1,27 @@
+<div class="container p-4">
+  <div class="flex justify-between items-center mb-4">
+    <h1 class="text-2xl font-bold">Create Event</h1>
+    <button mat-stroked-button color="primary" (click)="toggleImport()">
+      {{ showImport ? 'Hide Import' : 'Import from Text' }}
+    </button>
+  </div>
+
+  <div *ngIf="showImport" class="mb-4 p-4 border rounded bg-gray-50">
+    <h3 class="font-bold mb-2">Import Event from Text (LLM)</h3>
+    <mat-form-field appearance="fill" class="w-full">
+      <mat-label>Paste event description here...</mat-label>
+      <textarea matInput [(ngModel)]="importText" rows="5" placeholder="e.g. Tech Conference next Friday at 10am..."></textarea>
+    </mat-form-field>
+    <div class="flex justify-end mt-2">
+      <button mat-raised-button color="accent" (click)="onImport()" [disabled]="isImporting || !importText">
+        {{ isImporting ? 'Importing...' : 'Import' }}
+      </button>
+    </div>
+  </div>
+
+  <app-event-form 
+    [event]="importedEvent" 
+    (save)="onSave($event)" 
+    (cancel)="onCancel()">
+  </app-event-form>
+</div>
