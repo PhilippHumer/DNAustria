@@ -48,15 +48,16 @@ public class EventServiceTests
         var created = await svc.CreateEventAsync(dto);
 
         Assert.NotEqual(Guid.Empty, created.Id);
-        // No Organization should be created when inline location doesn't match an existing Organization
-        Assert.Null(created.LocationId);
+        // No OrganizationId should be set when inline location doesn't match an existing Organization
+        Assert.Null(created.OrganizationId);
         var orgCount = await db.Organizations.CountAsync();
         Assert.Equal(0, orgCount);
 
-        // Inline fields should be stored on the event DTO
-        Assert.Equal("Hall", created.LocationName);
-        Assert.Equal("4020", created.LocationZip);
-        Assert.Equal("Linz", created.LocationCity);
+        // Inline fields should be stored on the event DTO's nested Location object
+        Assert.NotNull(created.Location);
+        Assert.Equal("Hall", created.Location!.Name);
+        Assert.Equal("4020", created.Location.Zip);
+        Assert.Equal("Linz", created.Location.City);
     }
 
     [Fact]
@@ -71,13 +72,19 @@ public class EventServiceTests
         var llm = new StubLLMService();
         var svc = CreateService(db, mapper, llm);
 
-        var dto = new Dtos.EventCreateDto { Title = "T2", DateStart = DateTime.UtcNow, DateEnd = DateTime.UtcNow.AddHours(1), LocationId = org.Id };
+        var dto = new Dtos.EventCreateDto { Title = "T2", DateStart = DateTime.UtcNow, DateEnd = DateTime.UtcNow.AddHours(1), OrganizationId = org.Id };
         var created = await svc.CreateEventAsync(dto);
 
-        Assert.Equal(org.Id, created.LocationId);
+        Assert.Equal(org.Id, created.OrganizationId);
         var ev = await db.Events.Include(e => e.Location).FirstOrDefaultAsync(e => e.Id == created.Id);
         Assert.NotNull(ev);
         Assert.Equal("Existing", ev.Location?.Name);
+
+        // The returned DTO should include a nested Location populated from the selected Organization
+        Assert.NotNull(created.Location);
+        Assert.Equal("Existing", created.Location!.Name);
+        Assert.Equal("4020", created.Location.Zip);
+        Assert.Equal("Linz", created.Location.City);
     }
 
     [Fact]

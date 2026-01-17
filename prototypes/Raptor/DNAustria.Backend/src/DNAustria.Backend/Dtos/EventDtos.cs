@@ -23,19 +23,8 @@ public class EventDetailDto
     public bool? SchoolBookable { get; set; }
     public int? AgeMinimum { get; set; }
     public int? AgeMaximum { get; set; }
-    public Guid? LocationId { get; set; }
-
-    // Inline location fields stored on the Event (preferred when provided)
-    public string? LocationName { get; set; }
-    public string? LocationStreet { get; set; }
-    public string? LocationCity { get; set; }
-    public string? LocationZip { get; set; }
-    public string? LocationState { get; set; }
-    public double? LocationLatitude { get; set; }
-    public double? LocationLongitude { get; set; }
-
-    // Location is now represented by an Organization for selection only
-    public Organization? Location { get; set; }
+    // Location object stored directly on the event (preferred). This replaces separate inline fields and LocationId in the DTO.
+    public OrganizationCreateDto? Location { get; set; }
     public Guid? ContactId { get; set; }
     public Contact? Contact { get; set; }
     public EventStatus Status { get; set; }
@@ -78,17 +67,7 @@ public class EventCreateDto
     public bool? SchoolBookable { get; set; }
     public int? AgeMinimum { get; set; }
     public int? AgeMaximum { get; set; }
-    public Guid? LocationId { get; set; }
-
-    // Inline location fields (if provided they will be saved on the Event)
-    public string? LocationName { get; set; }
-    public string? LocationStreet { get; set; }
-    public string? LocationCity { get; set; }
-    public string? LocationZip { get; set; }
-    public string? LocationState { get; set; }
-    public double? LocationLatitude { get; set; }
-    public double? LocationLongitude { get; set; }
-
+    // Location object provided by client and saved on the Event.
     public OrganizationCreateDto? Location { get; set; }
     public Guid? ContactId { get; set; }
     public ContactCreateDto? Contact { get; set; }

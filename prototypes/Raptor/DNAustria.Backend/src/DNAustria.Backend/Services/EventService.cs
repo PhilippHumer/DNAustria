@@ -6,6 +6,7 @@ using DNAustria.Backend.Dtos;
 using DNAustria.Backend.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Npgsql;
 
 namespace DNAustria.Backend.Services;
 
@@ -71,9 +72,91 @@ public class EventService : IEventService
 
     public async Task<EventDetailDto?> GetEventAsync(Guid id)
     {
-        var e = await _db.Events.Include(x => x.Location).Include(x => x.Contact).FirstOrDefaultAsync(x => x.Id == id);
-        if (e is null) return null;
-        return _mapper.Map<EventDetailDto>(e);
+        try
+        {
+            var e = await _db.Events.Include(x => x.Location).Include(x => x.Contact).FirstOrDefaultAsync(x => x.Id == id);
+            if (e is null) return null;
+            return _mapper.Map<EventDetailDto>(e);
+        }
+        catch (PostgresException ex) when (ex.SqlState == "42703")
+        {
+            // Missing column (likely migrations not applied). Log and fall back to a safe projection without location scalar fields.
+            Console.Error.WriteLine($"Postgres missing column while loading event {id}: {ex.Message}. Returning event without location data.");
+
+            var ev = await _db.Events
+                .Where(x => x.Id == id)
+                .Select(x => new
+                {
+                    x.Id,
+                    x.Title,
+                    x.Description,
+                    x.EventLink,
+                    x.TargetAudience,
+                    x.Topics,
+                    x.DateStart,
+                    x.DateEnd,
+                    x.Classification,
+                    x.Fees,
+                    x.IsOnline,
+                    x.OrganizationId,
+                    x.ProgramName,
+                    x.Format,
+                    x.SchoolBookable,
+                    x.AgeMinimum,
+                    x.AgeMaximum,
+                    x.ContactId,
+                    x.Status
+                })
+                .SingleOrDefaultAsync();
+
+            if (ev == null) return null;
+
+            var dto = new EventDetailDto
+            {
+                Id = ev.Id,
+                Title = ev.Title,
+                Description = ev.Description,
+                EventLink = ev.EventLink,
+                TargetAudience = ev.TargetAudience ?? new List<TargetAudience>(),
+                Topics = ev.Topics ?? new List<EventTopic>(),
+                DateStart = ev.DateStart,
+                DateEnd = ev.DateEnd,
+                Classification = ev.Classification,
+                Fees = ev.Fees,
+                IsOnline = ev.IsOnline,
+                OrganizationId = ev.OrganizationId,
+                ProgramName = ev.ProgramName,
+                Format = ev.Format,
+                SchoolBookable = ev.SchoolBookable,
+                AgeMinimum = ev.AgeMinimum,
+                AgeMaximum = ev.AgeMaximum,
+                ContactId = ev.ContactId,
+                Contact = ev.ContactId.HasValue ? await _db.Contacts.FindAsync(ev.ContactId.Value) : null,
+                Location = null,
+                Status = ev.Status
+            };
+
+            // If scalar location fields are not present in the Events table (caught above), try to populate Location from the referenced Organization if available.
+            if (dto.Location == null && ev.OrganizationId.HasValue)
+            {
+                var org = await _db.Organizations.FindAsync(ev.OrganizationId.Value);
+                if (org != null)
+                {
+                    dto.Location = new OrganizationCreateDto
+                    {
+                        Name = org.Name ?? string.Empty,
+                        Street = org.Street ?? string.Empty,
+                        City = org.City ?? string.Empty,
+                        Zip = org.Zip ?? string.Empty,
+                        State = org.State ?? string.Empty,
+                        Latitude = org.Latitude,
+                        Longitude = org.Longitude
+                    };
+                }
+            }
+
+            return dto;
+        }
     }
 
     public async Task<EventDetailDto> CreateEventAsync(EventCreateDto dto)
@@ -85,53 +168,38 @@ public class EventService : IEventService
         // Ensure any mapped navigation is cleared so EF won't create an Organization entity from the DTO by accident.
         ev.Location = null;
 
-        // Location (Organization) logic: LocationId has precedence. Inline location fields are saved on the Event when provided.
-        if (dto.LocationId.HasValue)
+        // Location logic: prefer Organisation selection via OrganizationId (if provided), otherwise accept an inline Location object in the DTO and store it on the event.
+        if (dto.OrganizationId.HasValue)
         {
-            var existing = await _db.Organizations.FindAsync(dto.LocationId.Value);
-            if (existing != null)
+            var org = await _db.Organizations.FindAsync(dto.OrganizationId.Value);
+            if (org != null)
             {
-                ev.Location = existing;
-                ev.LocationId = existing.Id;
-                // also copy organization fields into event inline fields for export convenience
-                ev.LocationName = existing.Name;
-                ev.LocationStreet = existing.Street;
-                ev.LocationCity = existing.City;
-                ev.LocationZip = existing.Zip;
-                ev.LocationState = existing.State;
-                ev.LocationLatitude = existing.Latitude;
-                ev.LocationLongitude = existing.Longitude;
+                // Keep reference to organization id for domain usage but store the concrete address on the event as a location object
+                ev.OrganizationId = org.Id;
+                ev.LocationName = org.Name;
+                ev.LocationStreet = org.Street;
+                ev.LocationCity = org.City;
+                ev.LocationZip = org.Zip;
+                ev.LocationState = org.State;
+                ev.LocationLatitude = org.Latitude;
+                ev.LocationLongitude = org.Longitude;
+                ev.LocationId = org.Id; // keep existing FK if needed internally
+                ev.Location = org;
             }
         }
         else if (dto.Location != null)
         {
             var a = dto.Location;
-            var existing = await _db.Organizations.FirstOrDefaultAsync(x => x.Zip == a.Zip && x.Latitude == a.Latitude && x.Longitude == a.Longitude);
-            if (existing != null)
-            {
-                ev.Location = existing;
-                ev.LocationId = existing.Id;
-                ev.LocationName = existing.Name;
-                ev.LocationStreet = existing.Street;
-                ev.LocationCity = existing.City;
-                ev.LocationZip = existing.Zip;
-                ev.LocationState = existing.State;
-                ev.LocationLatitude = existing.Latitude;
-                ev.LocationLongitude = existing.Longitude;
-            }
-            else
-            {
-                // store inline organization fields on the event (do NOT create an Organization)
-                ev.LocationName = a.Name;
-                ev.LocationStreet = a.Street;
-                ev.LocationCity = a.City;
-                ev.LocationZip = a.Zip;
-                ev.LocationState = a.State;
-                ev.LocationLatitude = a.Latitude;
-                ev.LocationLongitude = a.Longitude;
-                ev.LocationId = null;
-                ev.Location = null;
-            }
+            // Do not create a new Organization; persist location details directly on Event
+            ev.LocationName = a.Name;
+            ev.LocationStreet = a.Street;
+            ev.LocationCity = a.City;
+            ev.LocationZip = a.Zip;
+            ev.LocationState = a.State;
+            ev.LocationLatitude = a.Latitude;
+            ev.LocationLongitude = a.Longitude;
+            ev.LocationId = null;
+            ev.Location = null;
         }
 
         // Contact: reuse if provided id, else create inline
@@ -164,72 +232,39 @@ public class EventService : IEventService
         _mapper.Map(dto, e);
         e.ModifiedAt = DateTime.UtcNow;
 
-        // Location (Organization) logic: LocationId has precedence.
-        // Inline location fields are saved on the Event when provided. Organization is used only for selection.
-        if (dto.LocationId.HasValue)
+        // Location logic on update: Organization selection (OrganizationId) has precedence; otherwise store provided inline Location object on the event.
+        if (dto.OrganizationId.HasValue)
         {
-            var a = await _db.Organizations.FindAsync(dto.LocationId.Value);
-            if (a != null)
+            var org = await _db.Organizations.FindAsync(dto.OrganizationId.Value);
+            if (org != null)
             {
-                e.Location = a;
-                e.LocationId = a.Id;
-                e.LocationName = a.Name;
-                e.LocationStreet = a.Street;
-                e.LocationCity = a.City;
-                e.LocationZip = a.Zip;
-                e.LocationState = a.State;
-                e.LocationLatitude = a.Latitude;
-                e.LocationLongitude = a.Longitude;
+                e.OrganizationId = org.Id;
+                e.LocationId = org.Id;
+                e.Location = org;
+                e.LocationName = org.Name;
+                e.LocationStreet = org.Street;
+                e.LocationCity = org.City;
+                e.LocationZip = org.Zip;
+                e.LocationState = org.State;
+                e.LocationLatitude = org.Latitude;
+                e.LocationLongitude = org.Longitude;
             }
         }
-        else
+        else if (dto.Location != null)
         {
-            // Prefer explicit inline fields from the DTO if provided
-            if (!string.IsNullOrWhiteSpace(dto.LocationName) || !string.IsNullOrWhiteSpace(dto.LocationCity) || !string.IsNullOrWhiteSpace(dto.LocationZip))
-            {
-                e.LocationName = dto.LocationName;
-                e.LocationStreet = dto.LocationStreet;
-                e.LocationCity = dto.LocationCity;
-                e.LocationZip = dto.LocationZip;
-                e.LocationState = dto.LocationState;
-                e.LocationLatitude = dto.LocationLatitude;
-                e.LocationLongitude = dto.LocationLongitude;
-                // Clear any previous LocationId/reference because inline fields are being used
-                e.LocationId = null;
-                e.Location = null;
-            }
-            else if (dto.Location != null)
-            {
-                var a = dto.Location;
-                var existing = await _db.Organizations.FirstOrDefaultAsync(x => x.Zip == a.Zip && x.Latitude == a.Latitude && x.Longitude == a.Longitude);
-                if (existing != null)
-                {
-                    e.Location = existing;
-                    e.LocationId = existing.Id;
-                    e.LocationName = existing.Name;
-                    e.LocationStreet = existing.Street;
-                    e.LocationCity = existing.City;
-                    e.LocationZip = existing.Zip;
-                    e.LocationState = existing.State;
-                    e.LocationLatitude = existing.Latitude;
-                    e.LocationLongitude = existing.Longitude;
-                }
-                else
-                {
-                    // store inline organization fields on the event (do NOT create an Organization)
-                    e.LocationName = a.Name;
-                    e.LocationStreet = a.Street;
-                    e.LocationCity = a.City;
-                    e.LocationZip = a.Zip;
-                    e.LocationState = a.State;
-                    e.LocationLatitude = a.Latitude;
-                    e.LocationLongitude = a.Longitude;
-                    e.LocationId = null;
-                    e.Location = null;
-                }
-            }
-            // If no inline fields provided, keep existing event location fields as they are
+            var a = dto.Location;
+            // Save inline location onto the event; do NOT create an Organization
+            e.LocationName = a.Name;
+            e.LocationStreet = a.Street;
+            e.LocationCity = a.City;
+            e.LocationZip = a.Zip;
+            e.LocationState = a.State;
+            e.LocationLatitude = a.Latitude;
+            e.LocationLongitude = a.Longitude;
+            e.LocationId = null;
+            e.Location = null;
         }
+        // If neither OrganizationId nor Location provided, keep existing event location fields unchanged.
 
         // Contact logic
         if (dto.ContactId.HasValue)
