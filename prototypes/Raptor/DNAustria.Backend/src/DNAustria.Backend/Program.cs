@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using DNAustria.Backend.Data;
 using DNAustria.Backend.Services;
 using Microsoft.EntityFrameworkCore;
@@ -6,15 +8,45 @@ using DNAustria.Backend.Mapping;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure default URLs. Always listen on HTTP port 5000. Only enable HTTPS port 5001
-// when a certificate is configured or HTTPS is explicitly enabled via env var.
-var urls = new List<string> { "http://0.0.0.0:5000" };
-var enableHttps = Environment.GetEnvironmentVariable("ENABLE_HTTPS") == "true" ||
-                  !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Path")) ||
-                  !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_HTTPS_PORT"));
-if (enableHttps)
+// Configure default URLs. Prefer ASPNETCORE_URLS if provided so ports can be controlled via launchSettings.json or Docker.
+// Normalize host placeholders to 0.0.0.0 so Kestrel listens on all interfaces when appropriate.
+var urls = new List<string>();
+var envUrls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS");
+if (!string.IsNullOrEmpty(envUrls))
 {
-    urls.Add("https://0.0.0.0:5001");
+    urls.AddRange(envUrls.Split(';', StringSplitOptions.RemoveEmptyEntries)
+        .Select(u =>
+        {
+            var uriStr = u.Trim();
+            try
+            {
+                var uri = new Uri(uriStr);
+                var host = uri.Host;
+                if (host == "+" || host == "0.0.0.0" || host == "localhost")
+                {
+                    host = "0.0.0.0";
+                }
+                var builderUri = new UriBuilder(uri) { Host = host };
+                return builderUri.Uri.ToString().TrimEnd('/');
+            }
+            catch
+            {
+                // Fallback replacements for non-parseable strings
+                return uriStr.Replace("localhost", "0.0.0.0").Replace("+", "0.0.0.0");
+            }
+        }));
+}
+else
+{
+    // Default behavior: HTTP 5000; optionally HTTPS 5001 when enabled via env vars/cert config.
+    urls.Add("http://0.0.0.0:5000");
+    var enableHttps = Environment.GetEnvironmentVariable("ENABLE_HTTPS") == "true" ||
+                      !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Path")) ||
+                      !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_HTTPS_PORT"));
+    if (enableHttps)
+    {
+        urls.Add("https://0.0.0.0:5001");
+    }
 }
 builder.WebHost.UseUrls(urls.ToArray());
 

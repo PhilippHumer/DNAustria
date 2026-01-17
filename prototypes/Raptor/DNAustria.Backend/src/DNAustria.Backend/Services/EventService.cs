@@ -1,8 +1,11 @@
+using System;
+using System.Linq;
 using AutoMapper;
 using DNAustria.Backend.Data;
 using DNAustria.Backend.Dtos;
 using DNAustria.Backend.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace DNAustria.Backend.Services;
 
@@ -11,12 +14,48 @@ public class EventService : IEventService
     private readonly AppDbContext _db;
     private readonly IMapper _mapper;
     private readonly ILLMService _llmService;
+    private readonly string _externalBaseUrl;
 
-    public EventService(AppDbContext db, IMapper mapper, ILLMService llmService)
+    public EventService(AppDbContext db, IMapper mapper, ILLMService llmService, IConfiguration? config)
     {
         _db = db;
         _mapper = mapper;
         _llmService = llmService;
+
+        // Determine external base URL for generating event links.
+        // Priority: EXTERNAL_BASE_URL env var, then ASPNETCORE_URLS env var, then configuration key "ExternalBaseUrl", fallback to http://localhost:5000
+        var external = Environment.GetEnvironmentVariable("EXTERNAL_BASE_URL") ?? Environment.GetEnvironmentVariable("ASPNETCORE_URLS") ?? config?["ExternalBaseUrl"];
+        if (!string.IsNullOrEmpty(external))
+        {
+            var candidate = external.Split(';', StringSplitOptions.RemoveEmptyEntries)
+                                     .Select(s => s.Trim())
+                                     .FirstOrDefault(s => s.StartsWith("http://") || s.StartsWith("https://"));
+            if (!string.IsNullOrEmpty(candidate))
+            {
+                try
+                {
+                    var uri = new Uri(candidate);
+                    var host = uri.Host;
+                    if (host == "+" || host == "0.0.0.0") host = "localhost";
+                    var ub = new UriBuilder(uri) { Host = host };
+                    _externalBaseUrl = ub.Uri.ToString().TrimEnd('/');
+                }
+                catch
+                {
+                    _externalBaseUrl = candidate.Replace("0.0.0.0", "localhost").Replace("+", "localhost").TrimEnd('/');
+                }
+            }
+            else
+            {
+                _externalBaseUrl = string.Empty;
+            }
+        }
+        else
+        {
+            _externalBaseUrl = string.Empty;
+        }
+
+        if (string.IsNullOrEmpty(_externalBaseUrl)) _externalBaseUrl = "http://localhost:5000";
     }
 
     public async Task<IEnumerable<EventListDto>> GetEventsAsync(EventStatus? status = null, string? q = null)
@@ -202,7 +241,7 @@ public class EventService : IEventService
             else
             {
                 // Fallback to an API URL that points to the event detail. This is intentionally HTTP to avoid requiring HTTPS in all environments.
-                link = $"http://localhost:5000/api/events/{e.Id}";
+                link = $"{_externalBaseUrl}/api/events/{e.Id}";
             }
 
             var dto = new Dtos.ExportEventDto
