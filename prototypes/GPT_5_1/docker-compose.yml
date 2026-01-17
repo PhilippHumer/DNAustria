@@ -1,0 +1,54 @@
+version: '3.9'
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: discoverdnaustria
+    ports:
+      - "5432:5432"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+      # Mount initialization SQL to run at first container startup
+      - ./backend/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "appuser"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      DATABASE_CONNECTION: Host=db;Port=5432;Database=discoverdnaustria;Username=appuser;Password=password
+      INTERNAL_API_KEY: dev-key
+      JWT_SECRET: dev-secret-change
+      ASPNETCORE_URLS: http://0.0.0.0:5100
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5100:5100"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5100/server/api/public/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    depends_on:
+      - backend
+    environment:
+      BACKEND_URL: http://backend:5100
+      INTERNAL_API_KEY: dev-key
+    ports:
+      - "8080:8080"
+volumes:
+  dbdata:

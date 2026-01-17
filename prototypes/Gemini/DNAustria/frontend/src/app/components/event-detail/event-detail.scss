@@ -1,55 +1,107 @@
-.container {
-  max-width: 1200px;
+.main-content-padding {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.event-card {
+  max-width: 1000px;
   margin: 0 auto;
+  overflow: hidden;
 }
 
-.flex {
+.event-header-image {
+  background-color: var(--primary-color);
+  color: white;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.content-grid {
   display: flex;
-}
-
-.justify-between {
-  justify-content: space-between;
-}
-
-.items-start {
-  align-items: flex-start;
-}
-
-.gap-2 {
-  gap: 8px;
-}
-
-.gap-4 {
-  gap: 16px;
-}
-
-.grid {
-  display: grid;
-}
-
-.grid-cols-1 {
-  grid-template-columns: 1fr;
-}
-
-@media (min-width: 768px) {
-  .grid-cols-2 {
-    grid-template-columns: repeat(2, 1fr);
+  flex-direction: column;
+  gap: 2rem;
+  
+  @media (min-width: 768px) {
+    flex-direction: row;
   }
 }
 
-.text-2xl {
-  font-size: 1.5rem;
-  line-height: 2rem;
+.description-section {
+  flex: 2;
+  padding-right: 1rem;
 }
 
-.font-bold {
-  font-weight: 700;
+.details-section {
+  flex: 1;
+  background-color: #fafafa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #eee;
 }
 
-.mb-4 {
-  margin-bottom: 16px;
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--primary-color);
+  border-bottom: 2px solid #eee;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
 
-.p-4 {
-  padding: 16px;
+.description-text {
+  line-height: 1.6;
+  font-size: 1rem;
+  white-space: pre-wrap;
 }
+
+.detail-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  
+  mat-icon {
+    margin-right: 16px;
+    color: var(--text-secondary);
+    min-width: 24px; /* Ensure icon doesn't shrink */
+  }
+  
+  .label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .value {
+    display: block;
+    font-size: 0.95rem;
+    color: var(--text-color);
+    font-weight: 400;
+  }
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.desktop-divider {
+  display: none;
+  @media (min-width: 768px) {
+    display: block;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ml-2 { margin-left: 0.5rem; }
+.mb-0 { margin-bottom: 0; }

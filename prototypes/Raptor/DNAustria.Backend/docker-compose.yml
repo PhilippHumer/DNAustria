@@ -1,0 +1,33 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: dnaustria
+    ports:
+      - "5432:5432"
+    volumes:
+      - data_db:/var/lib/postgresql/data
+
+  app:
+    build:
+      context: .
+      dockerfile: src/DNAustria.Backend/Dockerfile
+    depends_on:
+      - db
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=Host=db;Database=dnaustria;Username=postgres;Password=postgres
+      # To enable HTTPS in Docker, mount your certificate and set these env vars:
+      # - ENABLE_HTTPS=true
+      # - ASPNETCORE_Kestrel__Certificates__Default__Path=/secrets/aspnet/https.pfx
+      # - ASPNETCORE_Kestrel__Certificates__Default__Password=yourpassword
+      # Then map port 5001 and restart the container.
+
+volumes:
+  data_db:

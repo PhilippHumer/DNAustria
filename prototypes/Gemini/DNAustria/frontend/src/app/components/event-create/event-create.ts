@@ -46,8 +46,23 @@ export class EventCreateComponent {
 
     this.isImporting = true;
     this.apiService.importEvent(this.importText).subscribe({
-      next: (event) => {
-        this.importedEvent = event;
+      next: (event: any) => {
+        // Handle potential PascalCase from .NET backend
+        const normalizedEvent: Event = {
+          ...event,
+          title: event.title || event.Title || '',
+          description: event.description || event.Description || '',
+          dateStart: event.dateStart || event.DateStart,
+          dateEnd: event.dateEnd || event.DateEnd,
+          eventLink: event.eventLink || event.EventLink,
+          isOnline: event.isOnline || event.IsOnline,
+          programName: event.programName || event.ProgramName,
+          format: event.format || event.Format,
+          ageMinimum: event.ageMinimum || event.AgeMinimum,
+          ageMaximum: event.ageMaximum || event.AgeMaximum
+        };
+        
+        this.importedEvent = normalizedEvent;
         this.isImporting = false;
         this.showImport = false;
         this.snackBar.open('Event imported successfully. Please review and save.', 'Close', { duration: 3000 });

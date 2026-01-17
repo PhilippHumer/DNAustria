@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="862ebcab-1470-40a6-8699-d83ed3529da0" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/API/Controllers/ContactsController.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/API/Controllers/EventsController.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/API/Controllers/OrganizationsController.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/API/Controllers/PublicExportController.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/API/Middleware/ApiKeyMiddleware.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/Application/DTOs/ContactDto.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/Application/DTOs/EventDto.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/Application/DTOs/ExportEventDto.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/Application/DTOs/OrganizationDto.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/Application/Interfaces/IAppDbContext.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/Application/Interfaces/IContactService.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/Application/Interfaces/IEventImportService.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/Application/Interfaces/IEventService.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/Application/Interfaces/IOrganizationService.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/Application/Mapping/AppProfile.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/Domain/Entities/Contact.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/Domain/Entities/Event.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/Domain/Entities/EventStatus.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/Domain/Entities/Organization.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/Infrastructure/Extensions/ServiceCollectionExtensions.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/Infrastructure/Persistence/AppDbContext.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/Infrastructure/Persistence/DataSeeder.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/Infrastructure/Persistence/Migrations/20251122120000_InitialCreate.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/Infrastructure/Persistence/Migrations/AppDbContextModelSnapshot.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/Infrastructure/Services/ContactService.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/Infrastructure/Services/EventImportService.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/Infrastructure/Services/EventService.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/Infrastructure/Services/OrganizationService.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/IntegrationTests/CustomWebApplicationFactory.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/IntegrationTests/EventsCrudTests.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/IntegrationTests/IntegrationTests.csproj" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/IntegrationTests/PublicExportTests.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/init-db.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/export-sample.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/app/components/contacts-list.component.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/app/components/event-form.component.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/app/components/events-list.component.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/app/components/organizations-list.component.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/app/components/public-export.component.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/app/core/api.interceptor.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/app/core/api.tokens.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/app/services/contacts.service.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/app/services/events.service.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/app/services/organizations.service.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/environments/environment.prod.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/environments/environment.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/prompt.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/EMptyFile.txt" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;mwoeckingerfhooe&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/PhilippHumer/DNAustria.git&quot;,
+    &quot;accountId&quot;: &quot;e14c8f71-c0d1-469a-a212-ab87daf15fb3&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="363h5scrM9TZFhANxUb9kh3Pn7J" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.stylelint&quot;: &quot;&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;settings.qodana&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="Jetbrains" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="Jetbrains" />
+      <option name="filePath" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <module name="Jetbrains" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="Python.FlaskServer">
+      <module name="Jetbrains" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="launchJavascriptDebuger" value="false" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="Tox" factoryName="Tox">
+      <module name="Jetbrains" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="docs" factoryName="Docutils task">
+      <module name="Jetbrains" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="docutils_input_file" value="" />
+      <option name="docutils_output_file" value="" />
+      <option name="docutils_params" value="" />
+      <option name="docutils_task" value="" />
+      <option name="docutils_open_in_browser" value="false" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="docs" factoryName="Sphinx task">
+      <module name="Jetbrains" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="docutils_input_file" value="" />
+      <option name="docutils_output_file" value="" />
+      <option name="docutils_params" value="" />
+      <option name="docutils_task" value="" />
+      <option name="docutils_open_in_browser" value="false" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9f38398b9061-39b83d9b5494-intellij.indexing.shared.core-IU-241.19416.15" />
+        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-IU-241.19416.15" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="862ebcab-1470-40a6-8699-d83ed3529da0" name="Changes" comment="" />
+      <created>1743232625686</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1743232625686</updated>
+      <workItem from="1743232630300" duration="615000" />
+      <workItem from="1764240989158" duration="594000" />
+      <workItem from="1765451423016" duration="2052000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

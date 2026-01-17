@@ -1,0 +1,21 @@
+[
+  {
+    "event_title": "AI in Education",
+    "event_description": "Seminar zu KI-Anwendungen im Bildungsbereich",
+    "event_start": "2025-12-06T12:00:00Z",
+    "event_end": "2025-12-06T15:00:00Z",
+    "event_link": null,
+    "event_topics": [1,2],
+    "event_target_audience": [101,102],
+    "event_is_online": true,
+    "organization_name": "FH Upper Austria",
+    "event_contact_email": "max@example.com",
+    "event_contact_phone": "+43 123 4567",
+    "event_address_street": "Softwarepark 1",
+    "event_address_city": "Hagenberg",
+    "event_address_zip": "4232",
+    "event_address_state": "4",
+    "location": null
+  }
+]
+

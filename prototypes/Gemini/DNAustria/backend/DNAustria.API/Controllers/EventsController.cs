@@ -1,5 +1,6 @@
 using DNAustria.API.Data;
 using DNAustria.API.Models;
+using DNAustria.API.Models.Dtos;
 using DNAustria.API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +23,7 @@ public class EventsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Event>>> GetEvents([FromQuery] string? search, [FromQuery] EventStatus? status)
+    public async Task<ActionResult<EventListResponse>> GetEvents([FromQuery] string? search, [FromQuery] EventStatus? status)
     {
         var query = _context.Events
             .Include(e => e.Location)
@@ -42,7 +43,52 @@ public class EventsController : ControllerBase
                                      e.Description.ToLower().Contains(search));
         }
 
-        return await query.ToListAsync();
+        var events = await query.ToListAsync();
+
+        var dtos = events.Select(e => new EventExportDto
+        {
+            Id = e.Id,
+            Title = e.Title,
+            Description = e.Description,
+            EventLink = !string.IsNullOrEmpty(e.EventLink) && (e.EventLink.StartsWith("http://") || e.EventLink.StartsWith("https://")) 
+                ? e.EventLink 
+                : "https://www.dnaustria.at", // Default to a valid URL if missing or invalid
+            TargetAudience = e.TargetAudience.Select(a => (int)a).ToList(),
+            Topics = e.Topics.Select(t => (int)t).ToList(),
+            DateStart = e.DateStart,
+            DateEnd = e.DateEnd,
+            Classification = e.Classification.ToString().ToLower(),
+            Fees = e.Fees,
+            IsOnline = e.IsOnline,
+            OrganizationName = e.Organization?.Name ?? "Unknown Organization",
+            ProgramName = e.ProgramName ?? "Default Program",
+            Format = e.Format ?? "Default Format",
+            SchoolBookable = e.SchoolBookable ?? false,
+            AgeMinimum = e.AgeMinimum ?? 0,
+            AgeMaximum = e.AgeMaximum ?? 99,
+            LocationName = e.Location?.LocationName,
+            Street = e.Location?.Street,
+            City = e.Location?.City,
+            Zip = e.Location?.Zip,
+            State = ValidateState(e.Location?.State),
+            MintRegion = 10,
+            ContactName = e.Contact?.Name,
+            ContactOrg = e.Contact?.Org,
+            ContactEmail = e.Contact?.Email,
+            ContactPhone = e.Contact?.Phone,
+            LocationCoordinates = e.Location != null 
+                ? new[] { e.Location.Latitude, e.Location.Longitude } 
+                : new double[] { }
+        }).ToList();
+
+        return new EventListResponse { Events = dtos };
+    }
+
+    private string? ValidateState(string? state)
+    {
+        var validStates = new[] { "Burgenland", "Kärnten", "Niederösterreich", "Oberösterreich", "Salzburg", "Steiermark", "Tirol", "Vorarlberg", "Wien" };
+        if (state != null && validStates.Contains(state)) return state;
+        return "Wien"; // Default fallback
     }
 
     [HttpGet("{id}")]

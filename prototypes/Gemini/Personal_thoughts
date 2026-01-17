@@ -1,0 +1,6 @@
+- Writing prompt is somewhat tedious and less interesting than programming.
+- Initial prompt resulted in a not working backend and frontend, but by feeding in the error messages from the frontend resolved the initial issues.
+- the LLM service was not implemented with the initial prompt, additional prompt with asking about the implementation was needed. This resolved the initial issue, but still did not yield the requested result. After configuring the API key the system did send the entered import text to Gemini-LLM but simple put the entered unstructured text into the details field of the form.
+- Json from get events rest endpoint was not validated initially, after again prompting the LLM with an validated json example the rest endpoint was fixed. However actual fronted validation was added by the LLM.
+- After further promping: "Make this site [screenshot] prettier" and "Fix this mislayout [screenshot]" the website started to look reasonable, but of course without validation an important part is missing
+- The LLM had the tendency to simply add an "Any" type or nullable if something did not work

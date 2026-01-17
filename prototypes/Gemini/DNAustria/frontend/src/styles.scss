@@ -1,3 +1,51 @@
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+:root {
+  --primary-color: #3f51b5;
+  --accent-color: #ff4081;
+  --warn-color: #f44336;
+  --background-color: #f5f5f5;
+  --text-color: #333;
+  --text-secondary: #666;
+}
+
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { 
+  margin: 0; 
+  font-family: Roboto, "Helvetica Neue", sans-serif; 
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  color: var(--text-color);
+}
+
+// Global utility classes for layout (mimicking utility-first like Tailwind)
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-2 { gap: 0.5rem; }
+.gap-4 { gap: 1rem; }
+.p-4 { padding: 1rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-4 { margin-top: 1rem; }
+.w-full { width: 100%; }
+
+.text-2xl { font-size: 1.5rem; font-weight: 500; }
+.font-bold { font-weight: 700; }
+.text-secondary { color: var(--text-secondary); }
+
+a {
+  text-decoration: none;
+  color: inherit;
+}

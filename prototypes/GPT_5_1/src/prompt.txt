@@ -1,0 +1,722 @@
+# 🧠 Project Specification – *Discover.DNAustria*
+
+> Build this full-stack prototype end-to-end.
+> Follow every rule below. Generate runnable backend, frontend, database, and Docker setup.
+
+---
+
+## 🎯 Purpose
+
+Prototype a **complete event management system** for FH Upper Austria to collect, manage and export educational events to the national **DNAustria** platform.
+Provide a runnable local demo with:
+
+* Angular SPA frontend
+* .NET backend
+* PostgreSQL database
+
+Architecture: **Clean Architecture (Domain, Application, Infrastructure, API)**
+
+---
+
+## ⚙️ Constraints
+
+```json
+{
+  "frontend_framework": "Angular (latest stable)",
+  "backend_framework": "dotnet (latest LTS or supported)",
+  "database": "PostgreSQL (latest stable)",
+  "packages": "Use latest stable package versions",
+  "tests": "Optional; integration tests disabled by default via env var"
+}
+```
+
+---
+
+## 📦 Scope
+
+### Must
+
+* CRUD API for **Events**, **Contacts**, **Organizations**
+* Public export endpoint returning **DNAustria-compatible JSON** for Approved/Transferred events
+* Angular SPA with list + form UIs for all entities
+* Local run descriptor (**docker-compose**) for API, frontend & DB
+* Seed data: ≥ 2 events, 1 organization, 1 contact
+
+### Should
+
+* OpenAPI / Swagger documentation
+* Client + server validation for required fields
+* Map empty client dates to `null` on DTOs
+
+### May
+
+* Role separation (Admin / Editor)
+* E2E smoke tests (Playwright / Cypress)
+* AI-assisted import (text/HTML → event mapping via LLM/NLP)
+
+---
+
+## 🧱 Domain Model
+
+```json
+{
+  "Event": {
+    "id": "GUID",
+    "title": "string (required)",
+    "description": "string|null",
+    "topics": "list<int>|null",
+    "date_start": "datetime|null",
+    "date_end": "datetime|null",
+    "organization_id": "GUID|null",
+    "contact_id": "GUID|null",
+    "target_audience": "list<int>|null",
+    "is_online": "bool",
+    "event_link": "string|null",
+    "status": "enum [Draft, Approved, Transferred]",
+    "created_by": "string|null",
+    "modified_by": "string|null",
+    "modified_at": "datetime"
+  },
+  "Contact": {
+    "id": "GUID",
+    "name": "string (required)",
+    "email": "string|null",
+    "phone": "string|null",
+    "organization_id": "GUID|null"
+  },
+  "Organization": {
+    "id": "GUID",
+    "name": "string (required)",
+    "address_street": "string|null",
+    "address_city": "string|null",
+    "address_zip": "string|null",
+    "region_id": "int|null"
+  }
+}
+```
+
+**Rules**
+
+* Editable only when status ∈ [Draft, Approved]
+* Auto-set timestamps
+* Frontend sends `null` for empty dates
+
+---
+
+## 🔗 API Contract
+
+```json
+[
+  { "name": "ListEvents", "method": "GET", "path": "/server/api/events", "params": ["filter","search","page","pageSize"], "auth": "internal" },
+  { "name": "CreateEvent", "method": "POST", "path": "/server/api/events", "body": "Event", "auth": "internal" },
+  { "name": "UpdateEvent", "method": "PUT", "path": "/server/api/events/{id}", "body": "Event", "auth": "internal" },
+  { "name": "DeleteEvent", "method": "DELETE", "path": "/server/api/events/{id}", "auth": "internal" },
+  { "name": "ImportEvent", "method": "POST", "path": "/server/api/events/import", "body": "raw text/html", "response": "Event", "auth": "internal" },
+  { "name": "ListContacts", "method": "GET", "path": "/server/api/contacts", "auth": "internal" },
+  { "name": "ListOrganizations", "method": "GET", "path": "/server/api/organizations", "auth": "internal" },
+  { "name": "PublicExport", "method": "GET", "path": "/server/api/public/events", "response": "DNAustria export JSON", "auth": "public" }
+]
+```
+
+Validation:
+
+```json
+{
+  "required": {
+    "Event": ["title"],
+    "Contact": ["name"],
+    "Organization": ["name"]
+  },
+  "date_format": "ISO-8601 when present; accept empty as null"
+}
+```
+
+---
+
+## 📤 Export Schema
+
+Return essential fields for each approved/transferred event:
+
+```json
+{
+  "event_title": "string",
+  "event_description": "string",
+  "event_start": "datetime",
+  "event_end": "datetime",
+  "event_link": "string",
+  "event_topics": "array<int>",
+  "event_target_audience": "array<int>",
+  "event_is_online": "bool",
+  "organization_name": "string",
+  "event_contact_email": "string",
+  "event_contact_phone": "string",
+  "event_address_street": "string",
+  "event_address_city": "string",
+  "event_address_zip": "string",
+  "event_address_state": "string",
+  "location": "array<float>|null"
+}
+```
+
+Filter rule: only events with status ∈ [Approved, Transferred].
+
+---
+
+## 🖥️ Frontend Requirements
+
+* Angular Material UI (tables, dialogs, forms)
+* List view with filter + search
+* Editable reactive forms
+* Client-side validation
+* Confirmation dialog on delete
+
+---
+
+## ⚙️ Operational Setup
+
+```json
+{
+  "local_run": {
+    "command": "docker-compose up --build",
+    "ports": { "frontend": 8080, "backend": 5000 },
+    "env": {
+      "POSTGRES_USER": "appuser",
+      "POSTGRES_PASSWORD": "password",
+      "POSTGRES_DB": "discoverdnaustria"
+    }
+  },
+  "integration_tests": { "env_toggle": "INTEGRATION_TESTS", "default": "false" },
+  "seed_data": "Include 2 sample events, 1 organization, 1 contact as JSON"
+}
+```
+
+---
+
+## 📈 Non-Functional Requirements
+
+* API response < 2 s
+* Maintainable and easily extendable schema
+* Swagger enabled by default
+* Internal endpoints require auth or same-origin
+* Consistent naming across all layers
+
+---
+
+## 📦 Deliverables
+
+* Backend source (controllers, services, DTOs, EF migrations)
+* Frontend source (Angular SPA with forms + lists)
+* PostgreSQL schema + seed data
+* Docker Compose setup (API + Frontend + DB)
+* Swagger/OpenAPI documentation
+* Example DNAustria export JSON
+
+---
+
+## 🧠 Agent Guidelines
+
+```json
+{
+  "design_freedom": "Agent may choose structure within constraints",
+  "non_functional_musts": [
+    "Use PostgreSQL for persistence",
+    "Frontend must be Angular",
+    "Backend must be .NET",
+    "No secrets in code"
+  ],
+  "testing": "Optional; integration tests off unless INTEGRATION_TESTS=true",
+  "output_format": {
+    "code_edits": "return machine-readable diff",
+    "run_steps": "return exact shell commands"
+  }
+}
+```
+
+---
+
+## ✅ Success Criteria
+
+* `POST /server/api/events` with minimal data → `201 Created` and GUID returned
+* `GET /server/api/public/events` → array matching export schema
+* Frontend accessible at `http://localhost:8080` listing seeded events
+
+---
+
+💡 **Usage Tip for Cursor / VS Code AI**
+
+1. Open a new project folder.
+2. Paste this prompt into `PROMPT.md`.
+3. Run **“Build project from spec”** or `/new` in the composer.
+4. The agent should scaffold backend, frontend, migrations, Docker setup & seed data automatically.
+
+---
+
+
+schon fertig? sonst continue
+
+---
+
+Pagination Controls im Frontend (page, pageSize Eingaben).
+Enum Darstellung im Backend (String statt int) via JsonStringEnumConverter.
+Integrationstests (INTEGRATION_TESTS Toggle) mit minimalem Testprojekt.
+Rollen / Auth (JWT oder Header-basierte Rollen).
+AI Import Verbesserung (LLM Mapping).
+Fehleranzeige im Formular (mat-error) für required Felder.
+Persistente Build-Migration via echtes dotnet ef (wenn Tool später greift).
+
+mach damit weiter.
+
+---
+
+starte mir jetzt alles
+
+---
+
+starte backend und frontend
+
+---
+
+fixe mal die ganzen fehler im backend projekt bis es kompiliert.
+
+---
+
+einige klassen im Backend sind einfach leer vervollständige das und behebe alle fehler bis es ohne fehler kompiliert.
+
+---
+
+es kompiliert nicht. finde die fehler und fixe sie!
+
+---
+
+dann kompilier bitte und bestätige das.
+
+---
+
+dann kompilier bitte und bestätige das.
+
+---
+
+
+dotnet ist verfügbar im backend. kompiliere und finde die fehler.
+---
+mach das alles bitte selber, diese ganzen befehle.
+
+---
+michaelwoeckinger@MacBookAirMW backend % dotnet build
+Wiederherstellen von erfolgreich mit 3 Warnung(en) in 0,8s
+    /Users/michaelwoeckinger/Library/CloudStorage/OneDrive-FHOOe/SEM5/SPR5/DNAustria/prototypes/Jetbrains/backend/IntegrationTests/IntegrationTests.csproj : warning NU1603: Infrastructure hängt von Npgsql.EntityFrameworkCore.PostgreSQL (>= 8.0.3) ab, aber Npgsql.EntityFrameworkCore.PostgreSQL 8.0.3 wurde nicht gefunden. Npgsql.EntityFrameworkCore.PostgreSQL 8.0.4 wurde stattdessen aufgelöst.
+    /Users/michaelwoeckinger/Library/CloudStorage/OneDrive-FHOOe/SEM5/SPR5/DNAustria/prototypes/Jetbrains/backend/API/API.csproj : warning NU1603: Infrastructure hängt von Npgsql.EntityFrameworkCore.PostgreSQL (>= 8.0.3) ab, aber Npgsql.EntityFrameworkCore.PostgreSQL 8.0.3 wurde nicht gefunden. Npgsql.EntityFrameworkCore.PostgreSQL 8.0.4 wurde stattdessen aufgelöst.
+    /Users/michaelwoeckinger/Library/CloudStorage/OneDrive-FHOOe/SEM5/SPR5/DNAustria/prototypes/Jetbrains/backend/Infrastructure/Infrastructure.csproj : warning NU1603: Infrastructure hängt von Npgsql.EntityFrameworkCore.PostgreSQL (>= 8.0.3) ab, aber Npgsql.EntityFrameworkCore.PostgreSQL 8.0.3 wurde nicht gefunden. Npgsql.EntityFrameworkCore.PostgreSQL 8.0.4 wurde stattdessen aufgelöst.
+  Domain Erfolgreich (0,0s) → Domain/bin/Debug/net8.0/Domain.dll
+  Application Erfolgreich (0,1s) → Application/bin/Debug/net8.0/Application.dll
+  Infrastructure erfolgreich mit 1 Warnung(en) (0,1s) → Infrastructure/bin/Debug/net8.0/Infrastructure.dll
+    /Users/michaelwoeckinger/Library/CloudStorage/OneDrive-FHOOe/SEM5/SPR5/DNAustria/prototypes/Jetbrains/backend/Infrastructure/Infrastructure.csproj : warning NU1603: Infrastructure hängt von Npgsql.EntityFrameworkCore.PostgreSQL (>= 8.0.3) ab, aber Npgsql.EntityFrameworkCore.PostgreSQL 8.0.3 wurde nicht gefunden. Npgsql.EntityFrameworkCore.PostgreSQL 8.0.4 wurde stattdessen aufgelöst.
+  API fehlerhaft mit 1 Fehler(n) und 1 Warnung(en) (0,5s)
+    /Users/michaelwoeckinger/Library/CloudStorage/OneDrive-FHOOe/SEM5/SPR5/DNAustria/prototypes/Jetbrains/backend/API/API.csproj : warning NU1603: Infrastructure hängt von Npgsql.EntityFrameworkCore.PostgreSQL (>= 8.0.3) ab, aber Npgsql.EntityFrameworkCore.PostgreSQL 8.0.3 wurde nicht gefunden. Npgsql.EntityFrameworkCore.PostgreSQL 8.0.4 wurde stattdessen aufgelöst.
+    /Users/michaelwoeckinger/Library/CloudStorage/OneDrive-FHOOe/SEM5/SPR5/DNAustria/prototypes/Jetbrains/backend/API/Middleware/ApiKeyMiddleware.cs(20,43): error CS1061: "HttpRequest" enthält keine Definition für "Services", und es konnte keine zugängliche Services-Erweiterungsmethode gefunden werden, die ein erstes Argument vom Typ "HttpRequest" akzeptiert (möglicherweise fehlt eine using-Direktive oder ein Assemblyverweis).
+  IntegrationTests fehlerhaft mit 1 Warnung(en) (0,0s)
+    /Users/michaelwoeckinger/Library/CloudStorage/OneDrive-FHOOe/SEM5/SPR5/DNAustria/prototypes/Jetbrains/backend/IntegrationTests/IntegrationTests.csproj : warning NU1603: Infrastructure hängt von Npgsql.EntityFrameworkCore.PostgreSQL (>= 8.0.3) ab, aber Npgsql.EntityFrameworkCore.PostgreSQL 8.0.3 wurde nicht gefunden. Npgsql.EntityFrameworkCore.PostgreSQL 8.0.4 wurde stattdessen aufgelöst.
+
+Erstellen von fehlerhaft mit 1 Fehler(n) und 6 Warnung(en) in 1,8s
+
+
+
+was ist das problem
+
+---
+
+mache einen build du hast keinen gemacht.
+
+---
+
+dotnet gibt es in dem ornder merk dir das. Du kannst zu 100% davon ausgehen dass es in dem ordner dotnet gibt. Also mach die Befehle bitte nun!
+
+---
+
+michaelwoeckinger@MacBookAirMW backend % cd "/Users/michaelwoeckinger/Library/CloudStorage/OneDrive-FHOOe/SEM5/SPR5/DNAustria/prototypes/Jetbrains/backend" && export INTEGRATION_TESTS=true && dotnet test IntegrationTests/IntegrationTests.csproj
+Wiederherstellung abgeschlossen (1,9s)
+  Domain Erfolgreich (0,1s) → Domain/bin/Debug/net8.0/Domain.dll
+  Application Erfolgreich (0,2s) → Application/bin/Debug/net8.0/Application.dll
+  Infrastructure Erfolgreich (0,1s) → Infrastructure/bin/Debug/net8.0/Infrastructure.dll
+  API Erfolgreich (0,2s) → API/bin/Debug/net8.0/API.dll
+  IntegrationTests fehlerhaft mit 4 Fehler(n) (0,5s)
+    /Users/michaelwoeckinger/Library/CloudStorage/OneDrive-FHOOe/SEM5/SPR5/DNAustria/prototypes/Jetbrains/backend/IntegrationTests/PublicExportTests.cs(11,27): error CS0103: Der Name "Environment" ist im aktuellen Kontext nicht vorhanden.
+    /Users/michaelwoeckinger/Library/CloudStorage/OneDrive-FHOOe/SEM5/SPR5/DNAustria/prototypes/Jetbrains/backend/IntegrationTests/EventsCrudTests.cs(13,27): error CS0103: Der Name "Environment" ist im aktuellen Kontext nicht vorhanden.
+    /Users/michaelwoeckinger/Library/CloudStorage/OneDrive-FHOOe/SEM5/SPR5/DNAustria/prototypes/Jetbrains/backend/IntegrationTests/EventsCrudTests.cs(23,75): error CS0246: Der Typ- oder Namespacename "StringContent" wurde nicht gefunden (möglicherweise fehlt eine using-Direktive oder ein Assemblyverweis).
+    /Users/michaelwoeckinger/Library/CloudStorage/OneDrive-FHOOe/SEM5/SPR5/DNAustria/prototypes/Jetbrains/backend/IntegrationTests/CustomWebApplicationFactory.cs(24,60): error CS1061: "DbContextOptionsBuilder" enthält keine Definition für "UseInMemoryDatabase", und es konnte keine zugängliche UseInMemoryDatabase-Erweiterungsmethode gefunden werden, die ein erstes Argument vom Typ "DbContextOptionsBuilder" akzeptiert (möglicherweise fehlt eine using-Direktive oder ein Assemblyverweis).
+
+Erstellen von fehlerhaft mit 4 Fehler(n) in 3,6s
+michaelwoeckinger@MacBookAirMW backend % 
+
+
+
+mach so dass die tests laufen.
+
+---
+
+Erstellen von fehlerhaft mit 1 Fehler(n) und 1 Warnung(en) in 2,5s
+michaelwoeckinger@MacBookAirMW IntegrationTests % cd "/Users/michaelwoeckinger/Library/CloudStorage/OneDrive-FHOOe/SEM5/SPR5/DNAustria/prototypes/Jetbrains/backend"
+dotnet restore
+dotnet build
+export INTEGRATION_TESTS=true
+dotnet test IntegrationTests/IntegrationTests.csproj
+
+Wiederherstellung abgeschlossen (1,0s)
+
+Erstellen von Erfolgreich in 1,1s
+Wiederherstellung abgeschlossen (0,9s)
+  Domain Erfolgreich (0,1s) → Domain/bin/Debug/net8.0/Domain.dll
+  Application Erfolgreich (0,1s) → Application/bin/Debug/net8.0/Application.dll
+  Infrastructure Erfolgreich (0,1s) → Infrastructure/bin/Debug/net8.0/Infrastructure.dll
+  API Erfolgreich (0,6s) → API/bin/Debug/net8.0/API.dll
+  IntegrationTests fehlerhaft mit 1 Fehler(n) und 1 Warnung(en) (0,3s)
+    /Users/michaelwoeckinger/Library/CloudStorage/OneDrive-FHOOe/SEM5/SPR5/DNAustria/prototypes/Jetbrains/backend/IntegrationTests/CustomWebApplicationFactory.cs(51,24): error CS0246: Der Typ- oder Namespacename "Task<>" wurde nicht gefunden (möglicherweise fehlt eine using-Direktive oder ein Assemblyverweis).
+    /Users/michaelwoeckinger/Library/CloudStorage/OneDrive-FHOOe/SEM5/SPR5/DNAustria/prototypes/Jetbrains/backend/IntegrationTests/CustomWebApplicationFactory.cs(48,125): warning CS0618: "ISystemClock" ist veraltet: "Use TimeProvider instead."
+
+Erstellen von fehlerhaft mit 1 Fehler(n) und 1 Warnung(en) in 2,2s
+Wiederherstellung abgeschlossen (0,6s)
+  Domain Erfolgreich (0,1s) → Domain/bin/Debug/net8.0/Domain.dll
+  Application Erfolgreich (0,3s) → Application/bin/Debug/net8.0/Application.dll
+  Infrastructure Erfolgreich (0,1s) → Infrastructure/bin/Debug/net8.0/Infrastructure.dll
+  API Erfolgreich (0,2s) → API/bin/Debug/net8.0/API.dll
+  IntegrationTests fehlerhaft mit 1 Fehler(n) u
+ nd 1 Warnung(en) (0,2s)
+    /Users/michaelwoeckinger/Library/CloudStorage/OneDrive-FHOOe/SEM5/SPR5/DNAustria/prototypes/Jetbrains/backend/IntegrationTests/CustomWebApplicationFactory.cs(51,24): error CS0246: Der Typ- oder Namespacename "Task<>" wurde nicht gefunden (möglicherweise fehlt eine using-Direktive oder ein Assemblyverweis).
+    /Users/michaelwoeckinger/Library/CloudStorage/OneDrive-FHOOe/SEM5/SPR5/DNAustria/prototypes/Jetbrains/backend/IntegrationTests/CustomWebApplicationFactory.cs(48,125): warning CS0618: "ISystemClock" ist veraltet: "Use TimeProvider instead."
+
+Erstellen von fehlerhaft mit 1 Fehler(n) und 1 Warnung(en) in 1,9s
+
+
+
+korrigiere sodass keine fehler merh sind.
+
+---
+
+bitte mache die bfehler in der konsole immer selber nach der änderung
+
+----
+
+ich habe gesagt führe die tests und den build SELBER aus!
+
+---
+
+meine umgebung macht nicht den build. Das kannst du mit den konsolenbefehlen machen. Führe JETZT einen build mit dotnet build durch!!!!!
+
+---
+
+Platzhalterdateien (Class1.cs) entfernen.
+
+---
+
+starte nun das backend. Du darfst alle konsolenbefehle selbst ausführen
+
+---
+
+
+Starte jetzt das backend, die DB und schau dass alle container sauber laufen. WICHTIG: Führe die Befehle selbst aus. Wenn das Frontend schon fertig ist starte auch das frontend dazu
+--
+
+
+michaelwoeckinger@MacBookAirMW Jetbrains % cd "/Users/michaelwoeckinger/Library/CloudStorage/OneDrive-FHOOe/SEM5/SPR5/DNAustria/prototypes/Jetbrains" && docker compose up -d backend
+[+] Building 1.9s (15/18)                                                                                                                                                
+ => [backend internal] load .dockerignore                                                                                                                           0.0s
+ => => transferring context: 2B                                                                                                                                     0.0s
+ => [backend internal] load build definition from Dockerfile                                                                                                        0.0s
+ => => transferring dockerfile: 1.06kB                                                                                                                              0.0s
+ => [backend internal] load metadata for mcr.microsoft.com/dotnet/aspnet:8.0                                                                                        0.1s
+ => [backend internal] load metadata for mcr.microsoft.com/dotnet/sdk:8.0                                                                                           0.1s
+ => [backend build  1/10] FROM mcr.microsoft.com/dotnet/sdk:8.0@sha256:874c4613d5ebf8b328ad920a90640c8dea9758bdbe61dc191dbcbed03721fc79                             0.0s
+ => [backend final 1/3] FROM mcr.microsoft.com/dotnet/aspnet:8.0@sha256:47091f7cee02e448630df85542579e09b7bbe3b10bd4e1991ff59d3adbddd720                            0.0s
+ => [backend internal] load build context                                                                                                                           0.1s
+ => => transferring context: 122.88kB                                                                                                                               0.1s
+ => CACHED [backend final 2/3] WORKDIR /app                                                                                                                         0.0s
+ => CACHED [backend build  2/10] WORKDIR /src                                                                                                                       0.0s
+ => CACHED [backend build  3/10] COPY backend/DiscoverDNAustria.sln backend/DiscoverDNAustria.sln                                                                   0.0s
+ => CACHED [backend build  4/10] COPY backend/Domain/Domain.csproj backend/Domain/Domain.csproj                                                                     0.0s
+ => CACHED [backend build  5/10] COPY backend/Application/Application.csproj backend/Application/Application.csproj                                                 0.0s
+ => CACHED [backend build  6/10] COPY backend/Infrastructure/Infrastructure.csproj backend/Infrastructure/Infrastructure.csproj                                     0.0s
+ => CACHED [backend build  7/10] COPY backend/API/API.csproj backend/API/API.csproj                                                                                 0.0s
+ => ERROR [backend build  8/10] RUN dotnet restore backend/DiscoverDNAustria.sln                                                                                    1.6s
+------
+ > [backend build  8/10] RUN dotnet restore backend/DiscoverDNAustria.sln:
+0.709 /usr/share/dotnet/sdk/8.0.416/NuGet.targets(465,5): error MSB3202: The project file "/src/backend/IntegrationTests/IntegrationTests.csproj" was not found. [/src/backend/DiscoverDNAustria.sln]
+------
+failed to solve: process "/bin/sh -c dotnet restore backend/DiscoverDNAustria.sln" did not complete successfully: exit code: 1
+michaelwoeckinger@MacBookAirMW Jetbrains % 
+
+
+ich will dass du die fehler beseitigst und alles startest!
+
+---
+
+starte die container selbst!!! merk dir ich will keine konsolenkommandos ausführen du sollst das machen!!!!
+
+---
+michaelwoeckinger@MacBookAirMW Jetbrains % cd "/Users/michaelwoeckinger/Library/CloudStorage/OneDrive-FHOOe/SEM5/SPR5/DNAustria/prototypes/Jetbrains" && docker compose logs frontend | tail -n 80
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  |     src/app/components/event-form.component.ts:51:173:
+jetbrains-frontend-1  |       51 │ ...t.TryParse(x,out var n)? n : (int?)null).Where(n=>n.HasValue).S...
+jetbrains-frontend-1  |          ╵                                  ~~~~
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | ✘ [ERROR] TS1005: '=>' expected. [plugin angular-compiler]
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  |     src/app/components/event-form.component.ts:51:178:
+jetbrains-frontend-1  |       51 │ ...Parse(x,out var n)? n : (int?)null).Where(n=>n.HasValue).Select...
+jetbrains-frontend-1  |          ╵                                  ~~~~
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | ✘ [ERROR] TS1005: ',' expected. [plugin angular-compiler]
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  |     src/app/components/event-form.component.ts:51:182:
+jetbrains-frontend-1  |       51 │ ...se(x,out var n)? n : (int?)null).Where(n=>n.HasValue).Select(n=...
+jetbrains-frontend-1  |          ╵                                   ^
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | ✘ [ERROR] TS1134: Variable declaration expected. [plugin angular-compiler]
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  |     src/app/components/event-form.component.ts:51:183:
+jetbrains-frontend-1  |       51 │ ...e(x,out var n)? n : (int?)null).Where(n=>n.HasValue).Select(n=>...
+jetbrains-frontend-1  |          ╵                                   ^
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | ✘ [ERROR] TS1005: ',' expected. [plugin angular-compiler]
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  |     src/app/components/event-form.component.ts:51:189:
+jetbrains-frontend-1  |       51 │ ...t var n)? n : (int?)null).Where(n=>n.HasValue).Select(n=>n!.Val...
+jetbrains-frontend-1  |          ╵                                   ^
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | ✘ [ERROR] TS7006: Parameter 'n' implicitly has an 'any' type. [plugin angular-compiler]
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  |     src/app/components/event-form.component.ts:51:190:
+jetbrains-frontend-1  |       51 │ ... var n)? n : (int?)null).Where(n=>n.HasValue).Select(n=>n!.Valu...
+jetbrains-frontend-1  |          ╵                                   ^
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | ✘ [ERROR] TS2339: Property 'Select' does not exist on type '(n: any) => any'. [plugin angular-compiler]
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  |     src/app/components/event-form.component.ts:51:205:
+jetbrains-frontend-1  |       51 │ ... : (int?)null).Where(n=>n.HasValue).Select(n=>n!.Value).ToArray();
+jetbrains-frontend-1  |          ╵                                        ~~~~~~
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | ✘ [ERROR] TS7006: Parameter 'n' implicitly has an 'any' type. [plugin angular-compiler]
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  |     src/app/components/event-form.component.ts:51:212:
+jetbrains-frontend-1  |       51 │ ... : (int?)null).Where(n=>n.HasValue).Select(n=>n!.Value).ToArray();
+jetbrains-frontend-1  |          ╵                                               ^
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | 
+jetbrains-frontend-1  | Watch mode enabled. Watching for file changes...
+michaelwoeckinger@MacBookAirMW Jetbrains % 
+
+
+da passt was im frontend projekt nicht korrigiere das!!!
+
+---
+
+baue nun den frontend container neu und starte das ganze system!!W
+
+
+🧠 Project Specification – Discover.DNAustria
+Build this full-stack prototype end-to-end. Follow every rule below. Generate runnable backend, frontend, database, and Docker setup.
+<hr></hr>
+🎯 Purpose
+Prototype a complete event management system for FH Upper Austria to collect, manage and export educational events to the national DNAustria platform. Provide a runnable local demo with:
+Angular SPA frontend
+.NET backend
+PostgreSQL database
+Architecture: Clean Architecture (Domain, Application, Infrastructure, API)
+<hr></hr>
+⚙️ Constraints
+{
+  "frontend_framework": "Angular (latest stable)",
+  "backend_framework": "dotnet (latest LTS or supported)",
+  "database": "PostgreSQL (latest stable)",
+  "packages": "Use latest stable package versions",
+  "tests": "Optional; integration tests disabled by default via env var"
+}
+<hr></hr>
+📦 Scope
+Must
+CRUD API for Events, Contacts, Organizations
+Public export endpoint returning DNAustria-compatible JSON for Approved/Transferred events
+Angular SPA with list + form UIs for all entities
+Local run descriptor (docker-compose) for API, frontend & DB
+Seed data: ≥ 2 events, 1 organization, 1 contact
+Should
+OpenAPI / Swagger documentation
+Client + server validation for required fields
+Map empty client dates to null on DTOs
+May
+Role separation (Admin / Editor)
+E2E smoke tests (Playwright / Cypress)
+AI-assisted import (text/HTML → event mapping via LLM/NLP)
+<hr></hr>
+🧱 Domain Model
+{
+  "Event": {
+    "id": "GUID",
+    "title": "string (required)",
+    "description": "string|null",
+    "topics": "list<int>|null",
+    "date_start": "datetime|null",
+    "date_end": "datetime|null",
+    "organization_id": "GUID|null",
+    "contact_id": "GUID|null",
+    "target_audience": "list<int>|null",
+    "is_online": "bool",
+    "event_link": "string|null",
+    "status": "enum [Draft, Approved, Transferred]",
+    "created_by": "string|null",
+    "modified_by": "string|null",
+    "modified_at": "datetime"
+  },
+  "Contact": {
+    "id": "GUID",
+    "name": "string (required)",
+    "email": "string|null",
+    "phone": "string|null",
+    "organization_id": "GUID|null"
+  },
+  "Organization": {
+    "id": "GUID",
+    "name": "string (required)",
+    "address_street": "string|null",
+    "address_city": "string|null",
+    "address_zip": "string|null",
+    "region_id": "int|null"
+  }
+}
+Rules
+Editable only when status ∈ [Draft, Approved]
+Auto-set timestamps
+Frontend sends null for empty dates
+<hr></hr>
+🔗 API Contract
+[
+  { "name": "ListEvents", "method": "GET", "path": "/server/api/events", "params": ["filter","search","page","pageSize"], "auth": "internal" },
+  { "name": "CreateEvent", "method": "POST", "path": "/server/api/events", "body": "Event", "auth": "internal" },
+  { "name": "UpdateEvent", "method": "PUT", "path": "/server/api/events/{id}", "body": "Event", "auth": "internal" },
+  { "name": "DeleteEvent", "method": "DELETE", "path": "/server/api/events/{id}", "auth": "internal" },
+  { "name": "ImportEvent", "method": "POST", "path": "/server/api/events/import", "body": "raw text/html", "response": "Event", "auth": "internal" },
+  { "name": "ListContacts", "method": "GET", "path": "/server/api/contacts", "auth": "internal" },
+  { "name": "ListOrganizations", "method": "GET", "path": "/server/api/organizations", "auth": "internal" },
+  { "name": "PublicExport", "method": "GET", "path": "/server/api/public/events", "response": "DNAustria export JSON", "auth": "public" }
+]
+Validation:
+{
+  "required": {
+    "Event": ["title"],
+    "Contact": ["name"],
+    "Organization": ["name"]
+  },
+  "date_format": "ISO-8601 when present; accept empty as null"
+}
+<hr></hr>
+📤 Export Schema
+Return essential fields for each approved/transferred event:
+{
+  "event_title": "string",
+  "event_description": "string",
+  "event_start": "datetime",
+  "event_end": "datetime",
+  "event_link": "string",
+  "event_topics": "array<int>",
+  "event_target_audience": "array<int>",
+  "event_is_online": "bool",
+  "organization_name": "string",
+  "event_contact_email": "string",
+  "event_contact_phone": "string",
+  "event_address_street": "string",
+  "event_address_city": "string",
+  "event_address_zip": "string",
+  "event_address_state": "string",
+  "location": "array<float>|null"
+}
+Filter rule: only events with status ∈ [Approved, Transferred].
+<hr></hr>
+🖥️ Frontend Requirements
+Angular Material UI (tables, dialogs, forms)
+List view with filter + search
+Editable reactive forms
+Client-side validation
+Confirmation dialog on delete
+<hr></hr>
+⚙️ Operational Setup
+{
+  "local_run": {
+    "command": "docker-compose up --build",
+    "ports": { "frontend": 8080, "backend": 5000 },
+    "env": {
+      "POSTGRES_USER": "appuser",
+      "POSTGRES_PASSWORD": "password",
+      "POSTGRES_DB": "discoverdnaustria"
+    }
+  },
+  "integration_tests": { "env_toggle": "INTEGRATION_TESTS", "default": "false" },
+  "seed_data": "Include 2 sample events, 1 organization, 1 contact as JSON"
+}
+<hr></hr>
+📈 Non-Functional Requirements
+API response < 2 s
+Maintainable and easily extendable schema
+Swagger enabled by default
+Internal endpoints require auth or same-origin
+Consistent naming across all layers
+<hr></hr>
+📦 Deliverables
+Backend source (controllers, services, DTOs, EF migrations)
+Frontend source (Angular SPA with forms + lists)
+PostgreSQL schema + seed data
+Docker Compose setup (API + Frontend + DB)
+Swagger/OpenAPI documentation
+Example DNAustria export JSON
+<hr></hr>
+🧠 Agent Guidelines
+{
+  "design_freedom": "Agent may choose structure within constraints",
+  "non_functional_musts": [
+    "Use PostgreSQL for persistence",
+    "Frontend must be Angular",
+    "Backend must be .NET",
+    "No secrets in code"
+  ],
+  "testing": "Optional; integration tests off unless INTEGRATION_TESTS=true",
+  "output_format": {
+    "code_edits": "return machine-readable diff",
+    "run_steps": "return exact shell commands"
+  }
+}
+<hr></hr>
+✅ Success Criteria
+POST /server/api/events with minimal data → 201 Created and GUID returned
+GET /server/api/public/events → array matching export schema
+Frontend accessible at http://localhost:8080 listing seeded events
+<hr></hr>
+lies dir nochmal genau die anforderungen durch. das backend passt. Das frontend funktioniert überhaupt nicht. ich kann gar nichts machen. Überarbeite das komplett (nur das frontend) und achte auf schönes design. Mache wirklich eine umfassende bearbeitung unter berücksichtigung der requirements!!!!!

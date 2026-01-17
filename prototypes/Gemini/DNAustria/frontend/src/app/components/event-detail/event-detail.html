@@ -1,9 +1,15 @@
-<div class="container p-4" *ngIf="event$ | async as event">
-  <div *ngIf="!isEditing">
-    <div class="flex justify-between items-start mb-4">
-      <h1 class="text-2xl font-bold">{{ event.title }}</h1>
+<div class="container main-content-padding" *ngIf="event$ | async as event">
+  
+  <div *ngIf="!isEditing; else editMode" class="fade-in">
+    <!-- Header Section -->
+    <div class="flex justify-between items-center mb-4">
+      <div>
+         <button mat-button color="primary" routerLink="/events">
+          <mat-icon>arrow_back</mat-icon> Back to Events
+        </button>
+      </div>
       <div class="flex gap-2">
-        <button mat-stroked-button (click)="isEditing = true">
+        <button mat-stroked-button color="primary" (click)="isEditing = true">
           <mat-icon>edit</mat-icon> Edit
         </button>
         <button mat-stroked-button color="warn" (click)="onDelete(event)">
@@ -12,21 +18,115 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h3 class="font-bold">Description</h3>
-        <p>{{ event.description }}</p>
+    <mat-card class="event-card">
+      <mat-card-header>
+        <div mat-card-avatar class="event-header-image">
+           <mat-icon>event</mat-icon>
+        </div>
+        <mat-card-title class="text-2xl">{{ event.title }}</mat-card-title>
+        <mat-card-subtitle>
+           <mat-chip-set>
+              <mat-chip [color]="event.isOnline ? 'accent' : 'primary'" highlighted>
+                {{ event.isOnline ? 'Online' : 'In-Person' }}
+              </mat-chip>
+               <mat-chip>{{ getClassificationLabel(event.classification) }}</mat-chip>
+           </mat-chip-set>
+        </mat-card-subtitle>
+      </mat-card-header>
+      
+      <div class="event-image-placeholder" *ngIf="false">
+         <!-- Placeholder for a real banner image if added later -->
       </div>
-      <div>
-        <h3 class="font-bold">Details</h3>
-        <p><strong>Start:</strong> {{ event.dateStart | date:'medium' }}</p>
-        <p><strong>End:</strong> {{ event.dateEnd | date:'medium' }}</p>
-        <p><strong>Status:</strong> {{ event.status }}</p>
-        <p><strong>Location:</strong> {{ event.location?.locationName }} ({{ event.location?.city }})</p>
-        <p><strong>Contact:</strong> {{ event.contact?.name }}</p>
-      </div>
-    </div>
+
+      <mat-card-content class="content-grid mt-4">
+        <div class="description-section">
+          <h3 class="section-title">Description</h3>
+          <p class="description-text">{{ event.description || 'No description provided.' }}</p>
+          
+          <div *ngIf="event.eventLink" class="mt-4">
+             <a [href]="event.eventLink" target="_blank" mat-raised-button color="accent">
+               <mat-icon>open_in_new</mat-icon> Visit Event Website
+             </a>
+          </div>
+        </div>
+
+        <mat-divider [vertical]="true" class="desktop-divider"></mat-divider>
+
+        <div class="details-section">
+          <h3 class="section-title">Details</h3>
+          
+          <div class="detail-item">
+            <mat-icon class="text-secondary">calendar_today</mat-icon>
+            <div>
+              <span class="label">Start:</span>
+              <span class="value">{{ event.dateStart | date:'medium' }}</span>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <mat-icon class="text-secondary">event_busy</mat-icon>
+            <div>
+              <span class="label">End:</span>
+              <span class="value">{{ event.dateEnd | date:'medium' }}</span>
+            </div>
+          </div>
+
+           <div class="detail-item" *ngIf="event.location">
+            <mat-icon class="text-secondary">location_on</mat-icon>
+            <div>
+              <span class="label">Location:</span>
+              <span class="value">
+                {{ event.location.locationName }}<br>
+                <span class="text-secondary text-sm" *ngIf="event.location.street">{{ event.location.street }}, </span>
+                <span class="text-secondary text-sm">{{ event.location.zip }} {{ event.location.city }}</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="detail-item" *ngIf="event.contact">
+             <mat-icon class="text-secondary">person</mat-icon>
+             <div>
+               <span class="label">Contact:</span>
+               <span class="value">
+                  {{ event.contact.name }}
+                  <div *ngIf="event.contact.email" class="text-sm"><a [href]="'mailto:' + event.contact.email">{{ event.contact.email }}</a></div>
+               </span>
+             </div>
+          </div>
+          
+           <div class="detail-item">
+             <mat-icon class="text-secondary">info</mat-icon>
+             <div>
+               <span class="label">Status:</span>
+               <span class="value">{{ getStatusLabel(event.status) }}</span>
+             </div>
+           </div>
+           
+           <div class="detail-item">
+             <mat-icon class="text-secondary">attach_money</mat-icon>
+             <div>
+               <span class="label">Fees:</span>
+               <span class="value">{{ event.fees ? 'Yes' : 'Free' }}</span>
+             </div>
+           </div>
+
+        </div>
+      </mat-card-content>
+    </mat-card>
   </div>
 
-  <app-event-form *ngIf="isEditing" [event]="event" (save)="onSave($event)" (cancel)="isEditing = false"></app-event-form>
+  <ng-template #editMode>
+    <div class="fade-in">
+       <div class="flex items-center mb-4">
+          <button mat-icon-button (click)="isEditing = false"><mat-icon>arrow_back</mat-icon></button>
+          <h2 class="mb-0 ml-2">Edit Event</h2>
+       </div>
+       <mat-card>
+          <mat-card-content>
+            <app-event-form [event]="event" (save)="onSave($event)" (cancel)="isEditing = false"></app-event-form>
+          </mat-card-content>
+       </mat-card>
+    </div>
+  </ng-template>
 </div>
+
