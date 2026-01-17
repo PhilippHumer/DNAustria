@@ -1,0 +1,32 @@
+<div class="container p-4" *ngIf="event$ | async as event">
+  <div *ngIf="!isEditing">
+    <div class="flex justify-between items-start mb-4">
+      <h1 class="text-2xl font-bold">{{ event.title }}</h1>
+      <div class="flex gap-2">
+        <button mat-stroked-button (click)="isEditing = true">
+          <mat-icon>edit</mat-icon> Edit
+        </button>
+        <button mat-stroked-button color="warn" (click)="onDelete(event)">
+          <mat-icon>delete</mat-icon> Delete
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h3 class="font-bold">Description</h3>
+        <p>{{ event.description }}</p>
+      </div>
+      <div>
+        <h3 class="font-bold">Details</h3>
+        <p><strong>Start:</strong> {{ event.dateStart | date:'medium' }}</p>
+        <p><strong>End:</strong> {{ event.dateEnd | date:'medium' }}</p>
+        <p><strong>Status:</strong> {{ event.status }}</p>
+        <p><strong>Location:</strong> {{ event.location?.locationName }} ({{ event.location?.city }})</p>
+        <p><strong>Contact:</strong> {{ event.contact?.name }}</p>
+      </div>
+    </div>
+  </div>
+
+  <app-event-form *ngIf="isEditing" [event]="event" (save)="onSave($event)" (cancel)="isEditing = false"></app-event-form>
+</div>

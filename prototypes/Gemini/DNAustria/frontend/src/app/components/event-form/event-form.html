@@ -1,0 +1,98 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4 p-4">
+  <mat-form-field appearance="outline">
+    <mat-label>Title</mat-label>
+    <input matInput formControlName="title">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Organization</mat-label>
+    <mat-select formControlName="organizationId">
+      <mat-option *ngFor="let org of organizations" [value]="org.id">
+        {{ org.name }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Description</mat-label>
+    <textarea matInput formControlName="description" rows="4"></textarea>
+  </mat-form-field>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <mat-form-field appearance="outline">
+      <mat-label>Start Date</mat-label>
+      <input matInput [matDatepicker]="startPicker" formControlName="dateStart">
+      <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+      <mat-datepicker #startPicker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>End Date</mat-label>
+      <input matInput [matDatepicker]="endPicker" formControlName="dateEnd">
+      <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+      <mat-datepicker #endPicker></mat-datepicker>
+    </mat-form-field>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <mat-form-field appearance="outline">
+      <mat-label>Target Audience</mat-label>
+      <mat-select formControlName="targetAudience" multiple>
+        <mat-option *ngFor="let audience of targetAudiences" [value]="audience">{{ audience }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Topics</mat-label>
+      <mat-select formControlName="topics" multiple>
+        <mat-option *ngFor="let topic of eventTopics" [value]="topic">{{ topic }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <h3>Location</h3>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <mat-form-field appearance="outline">
+      <mat-label>Location Name</mat-label>
+      <input matInput formControlName="locationName">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>City</mat-label>
+      <input matInput formControlName="city">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Zip</mat-label>
+      <input matInput formControlName="zip">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Street</mat-label>
+      <input matInput formControlName="street">
+    </mat-form-field>
+  </div>
+
+  <h3>Contact</h3>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <mat-form-field appearance="outline">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="contactName">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="contactEmail">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Phone</mat-label>
+      <input matInput formControlName="contactPhone">
+    </mat-form-field>
+  </div>
+
+  <div class="flex gap-4">
+    <mat-checkbox formControlName="fees">Fees</mat-checkbox>
+    <mat-checkbox formControlName="isOnline">Online</mat-checkbox>
+  </div>
+
+  <div class="flex justify-end gap-4 mt-4">
+    <button mat-button type="button" (click)="cancel.emit()">Cancel</button>
+    <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">Save</button>
+  </div>
+</form>

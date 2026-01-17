@@ -1,0 +1,13 @@
+<div class="app-container">
+  <mat-toolbar color="primary">
+    <span>University Event Management</span>
+    <span class="spacer"></span>
+    <a mat-button routerLink="/events" routerLinkActive="active">Events</a>
+    <a mat-button routerLink="/contacts" routerLinkActive="active">Contacts</a>
+    <a mat-button routerLink="/organizations" routerLinkActive="active">Organizations</a>
+  </mat-toolbar>
+
+  <main class="content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

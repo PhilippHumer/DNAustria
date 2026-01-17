@@ -1,0 +1,31 @@
+<div class="container p-4">
+  <h1 class="text-2xl font-bold mb-4">{{ isEditMode ? 'Edit Contact' : 'Create Contact' }}</h1>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+    <mat-form-field appearance="outline">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Phone</mat-label>
+      <input matInput formControlName="phone">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Organization</mat-label>
+      <input matInput formControlName="org">
+    </mat-form-field>
+
+    <div class="flex justify-end gap-4">
+      <button mat-button type="button" routerLink="/contacts">Cancel</button>
+      <button mat-raised-button color="warn" type="button" *ngIf="isEditMode" (click)="onDelete()">Delete</button>
+      <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">Save</button>
+    </div>
+  </form>
+</div>
