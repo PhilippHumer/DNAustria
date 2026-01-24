@@ -1,6 +1,4 @@
-
 ## table of contents
-
 
 - [Introduction](#introduction)
 - [Start Prompt](#start-prompt)
@@ -10,26 +8,32 @@
   - [implemented features](#implemented-features)
   - [personal remarks](#personal-remarks)
   - [Conclusion](#conclusion)
+- [Raptor Backend](#raptor-backend)
+  - [description](#description)
+  - [implemented features](#implemented-features)
+  - [personal remarks](#personal-remarks)
+  - [Conclusion](#conclusion)
+
 
 
 <a id="introduction"></a>
+
 # Introduction
 
 in this scenario, the frontend and backend were created separately. The frontend was created with Gemini, while the backend was created with Raptor. The communication between the two applications is done via REST API calls. The prototypes were als created by different developers. 
-
 
 # Start Prompt
 
 <fieldset>
 
 <legend>startprompt.md</legend>
-&lt;persistence&gt;<br>
+<persistence><br>
 
- - You are an agent - please keep going until the user's query is completely resolved, before ending your turn and yielding back to the user.
- - Only terminate your turn when you are sure that the problem is solved.
- - Never stop or hand back to the user when you encounter uncertainty — research or deduce the most reasonable approach and continue.
- - Do not ask the human to confirm or clarify assumptions, as you can always adjust later — decide what the most reasonable assumption is,  proceed with it, and document it for the user's reference after you finish acting  
- <br>&lt;/persistence&gt;
+- You are an agent - please keep going until the user's query is completely resolved, before ending your turn and yielding back to the user.
+- Only terminate your turn when you are sure that the problem is solved.
+- Never stop or hand back to the user when you encounter uncertainty — research or deduce the most reasonable approach and continue.
+- Do not ask the human to confirm or clarify assumptions, as you can always adjust later — decide what the most reasonable assumption is,  proceed with it, and document it for the user's reference after you finish acting  
+  <br>&lt;/persistence&gt;
 
 <self_reflection>
 - First, spend time thinking of a rubric until you are confident.
@@ -136,13 +140,11 @@ view for updating / deleting organizations
 
 </organization-details>
 
-
 </views>
 
 </functional-requirements>
 
 </frontend-specification>
-
 
 <backend-specification>
 
@@ -275,28 +277,28 @@ The application is an event management system for a University.
 
 </fieldset>
 
-
-
-
 <a id="creation-process"></a>
+
 # the creation process
 
 During the process, VSCode with the Gemini 3 Pro Copilot model was used. The creation process took approximately 4 hours. The initial prompt was given, and Gemini generated the project structure, including components, services, and models. After the initial generation, several iterations were made to refine the UI, improve functionality, and fix bugs. Screenshots of the problematic parts were taken and used to guide Gemini in resolving issues. No code was written manually, also no implementation details were given to fix bugs or improve the appearance.
 The agent executed approximately 20 code generation requests. no docker but a local angular development server was used to serve the application during development.
 
-
 # Gemini Frontend
+
 The frontend was created with Gemini 3 Pro. The original prompt given in Experiment 1 was not altered. The full context was given with the request to only create the frontend with Gemini or respectively the backend with Raptor for the backend part.
 
 <a href="description"></a>
+
 ## description
+
 - A running Angular app is created relatively quickly. However, usability is not present because the model seems unable to grasp visual aspects without a reference. After the first draft, screenshots were used to highlight errors to the model. These were fixed with mixed success.
 - After a few iterations, the UI improved and a usable app emerged. Functionality is rudimentary; many features such as validation, error messages, and loading indicators are missing.
 - The API was initially interpreted very differently from the backend project. Incorrect endpoints and data structures were used.
 - Code quality is acceptable, but much (e.g., design) is hard-coded into the template and is far from as modular and maintainable as what an experienced developer would produce.
 
-
 <a href="implemented-features"></a>
+
 ## implemented features
 
 Create events: Form for creating a new event. The user should have the option to either enter the data manually or import event data from an unstructured format (either text or HTML page) using the LLM-call in the backend. 
@@ -311,15 +313,92 @@ Update events: update form was created for updating existing events.
 
 Create, read, update, delete for Contacts and Organizations: Full Forms for creating, reading, updating, and deleting contacts and organizations were created.
 
-
 <a href="personal-remarks"></a>
+
 ## personal remarks
+
 Integration with backend was difficult due to missing specification of the API endpoints and data structures. The frontend had to be adjusted multiple times to match the backend implementation. (and it is still not fully compatible)
 
-
 ## Conclusion
+
 In summary, separating frontend and backend development simplified the process. The first versions are always buggy and unusable. By shrinking the context, specific requests and bug fixes can be implemented without deep Angular knowledge.
 
 <a id="Raptor backend"></a>
 
-enter here the Raptor backend part
+# Raptor Backend
+
+For the backend we used Raptor Mini in Copilot VS Code.
+
+## Description
+
+For the backend we used Raptor Mini in Copilot VS Code. We used the same starting prompt, which was also used for the frontend implementation. Firstly, we copied the starting prompt into the vs code copilot chat with the request that the AI should only implement the backend part. The first implementation did not start, because of some db errors. But after a few iterations the backend worked. No code was implemented by us. The whole implementation was created by Raptor.
+
+In the end the backend is working and it kind of does whats defined in the starting prompt. A few things did not work in the beginning, like the JSON export part. But after a few more iterations it worked and the resulting json was valid (checked with the DNAustria Online Validator). The implementation was not perfect, for example the backend URL was hardcoded, but with a few more iterations where i pointed it out, the AI did change it.
+
+Short description on the key characteristics ([Raptor Mini: GitHub Copilot’s New Code-First AI Model That Developers Shouldn’t Ignore - DEV Community](https://dev.to/koolkamalkishor/raptor-mini-github-copilots-new-code-first-ai-model-that-developers-shouldnt-ignore-44a4)):
+
+**Key characteristics include:**
+
+- **Large context window (~264k tokens)** – enabling the model to understand entire folders, modules, or multi-file diffs.
+- **High output capacity (~64k tokens)** – perfect for long refactors and structured diffs.
+- **Supports tool calling, multi-file editing, and code-aware agents**.
+- **Integrated directly into VS Code** – no external API needed.
+- **Optimized for code generation, transformation, and workspace-based reasoning**.
+
+## Implemented features
+
+events:
+
+- create
+
+- delete
+
+- update
+
+- get
+
+- export function with the valid json format
+
+address/organization:
+
+- create
+
+- delete
+
+- update
+
+- get
+
+contats:
+
+- create
+
+- delete
+
+- update
+
+- get
+
+## Personal remarks
+
+**Some personal pros and cons:**
+
+pros:
+
+- it's very easy and fast to get an application that does something
+
+- it's very easy to adapt the current implementation via prompting. For example, the AI implemented a Address object, but the frontend expected an Organization object instead. So i just wrote a few lines as a prompt "Change the Address model with the same data to an Organization model" and the AI did all the changes from db changes to code changes and also adapted the tests
+
+- the AI Integration in VS Code Copilot knows the context of the app and so you can easily create some docker integration for example
+
+- if changes were made in the implementation the AI automatically updated the tests
+
+cons:
+
+- there are some limitation to the request you can send to the AI agent. If you run into those limitation during implementation phase it is really annoying because you need to check at what stage the current implementation is and need to adapt or finish the implementation yourself
+
+- some decisions regarding the implementation are not really good for example that you have an organization with street, postal_code, city, state and an address elements which is just a string containing all those elmements. From my point of view, there is no need for this element. Or another example is, that the URL for the backend was hardcoded.
+
+## Conclusion
+
+The first tests with backend frontend did not work correctly. There was some work/iterations required for the application to work in some way. I think the reason for that was the prompt, because the interface for the frontend to backend was not specified detailed enough.
