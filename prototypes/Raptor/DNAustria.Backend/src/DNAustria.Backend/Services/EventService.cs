@@ -224,7 +224,18 @@ public class EventService : IEventService
 
     public async Task<EventDetailDto?> UpdateEventAsync(Guid id, EventCreateDto dto)
     {
-        var e = await _db.Events.Include(x => x.Location).Include(x => x.Contact).FirstOrDefaultAsync(x => x.Id == id);
+        Event? e;
+        try
+        {
+            e = await _db.Events.Include(x => x.Location).Include(x => x.Contact).FirstOrDefaultAsync(x => x.Id == id);
+        }
+        catch (PostgresException ex) when (ex.SqlState == "42703")
+        {
+            // Missing column in Events table (schema mismatch). Fail fast with actionable message.
+            Console.Error.WriteLine($"Postgres missing column while loading event {id}: {ex.Message}");
+            throw new InvalidOperationException("Database schema mismatch: missing Event location columns. Please apply pending EF migrations to the database used by this application and restart the service.", ex);
+        }
+
         if (e is null) return null;
         if (e.Status == EventStatus.Transferred) return null;
 
