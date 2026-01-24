@@ -1,8 +1,10 @@
 # Gemini Frontend + Backed documenatation
 
 ## table of contents
+- [Gemini Frontend + Backed documenatation](#gemini-frontend--backed-documenatation)
+  - [table of contents](#table-of-contents)
 - [Introduction](#introduction)
-- [The creation process](#creation-process)
+- [the creation process](#the-creation-process)
 - [docker setup](#docker-setup)
 - [backend](#backend)
 - [frontend](#frontend)
