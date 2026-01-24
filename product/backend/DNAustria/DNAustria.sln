@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DNAustria.Api", "DNAustria.Api\DNAustria.Api.csproj", "{BA51012E-F510-4DCA-A574-56298D87E40D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DNAustria.Dal", "DNAustria.Dal\DNAustria.Dal.csproj", "{3DEF8754-831D-4A9E-9B3C-73D4F010B173}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DNAustria.Logic", "DNAustria.Logic\DNAustria.Logic.csproj", "{B4939B2C-E7E3-4981-9A9C-1439CBAB94F7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BA51012E-F510-4DCA-A574-56298D87E40D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA51012E-F510-4DCA-A574-56298D87E40D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA51012E-F510-4DCA-A574-56298D87E40D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA51012E-F510-4DCA-A574-56298D87E40D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3DEF8754-831D-4A9E-9B3C-73D4F010B173}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DEF8754-831D-4A9E-9B3C-73D4F010B173}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DEF8754-831D-4A9E-9B3C-73D4F010B173}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DEF8754-831D-4A9E-9B3C-73D4F010B173}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4939B2C-E7E3-4981-9A9C-1439CBAB94F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4939B2C-E7E3-4981-9A9C-1439CBAB94F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4939B2C-E7E3-4981-9A9C-1439CBAB94F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4939B2C-E7E3-4981-9A9C-1439CBAB94F7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
