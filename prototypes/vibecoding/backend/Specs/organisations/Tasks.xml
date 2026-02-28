@@ -1,0 +1,35 @@
+<backend>
+    <api>
+        <endpoint name="Alle Organisationen" method="GET" path="/api/organizations" />
+        <endpoint name="Einzelne Organisation" method="GET" path="/api/organizations/{id}" />
+        <endpoint name="Organisation nach Name suchen" method="GET" path="/api/organizations?name={name}" />
+        <endpoint name="Organisation erstellen" method="POST" path="/api/organizations" />
+        <endpoint name="Organisation aktualisieren" method="PUT" path="/api/organizations/{id}" />
+        <endpoint name="Organisation löschen" method="DELETE" path="/api/organizations/{id}" />
+        
+        <responseConventions>
+            <rule>POST → 201 Created + Body</rule>
+            <rule>PUT → 200 OK + Body</rule>
+            <rule>DELETE → 204 NoContent</rule>
+        </responseConventions>
+    </api>
+
+    <tasks>
+        <entity name="Organization">
+            <field name="id" type="guid" required="true" />
+            <field name="name" type="string" max="50" required="true" unique="true" />
+            <field name="address_id" type="guid" required="false" />
+            <field name="is_deleted" type="bool" default="false" />
+            <field name="created_at" type="datetime" />
+            <field name="modified_at" type="datetime" />
+        </entity>
+
+        <implement>
+            <function name="softDelete">
+                DELETE setzt is_deleted = true.
+                Physisches Löschen ist verboten.
+                GET-Endpunkte dürfen nur is_deleted = false zurückgeben.
+            </function>
+        </implement>
+    </tasks>
+</backend>

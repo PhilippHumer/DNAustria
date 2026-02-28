@@ -1,0 +1,50 @@
+<backend>
+    <api>
+        <endpoint name="Alle Kontakte" method="GET" path="/api/contacts">
+            <query name="name" optional="true"/>
+        </endpoint>
+        <endpoint name="Einzelner Kontakt" method="GET" path="/api/contacts/{id}" />
+        <endpoint name="Kontakt erstellen" method="POST" path="/api/contacts" />
+        <endpoint name="Kontakt aktualisieren" method="PUT" path="/api/contacts/{id}" />
+        <endpoint name="Kontakt löschen (soft delete)" method="DELETE" path="/api/contacts/{id}" />
+
+        <responseConventions>
+            <rule>POST → 201 Created + Body</rule>
+            <rule>PUT → 200 OK + Body</rule>
+            <rule>DELETE → 204 NoContent</rule>
+            <rule>GET by id on soft-deleted entity → 404</rule>
+        </responseConventions>
+    </api>
+
+    <tasks>
+        <entity name="Contact">
+            <field name="id" type="guid" required="true" />
+            <field name="name" type="string" max="50" required="true" />
+
+            <field name="organization_id" type="guid" required="false" reference="Organization" />
+            <field name="org" type="string" max="50" required="false" />
+
+            <field name="email" type="string" max="100" required="true" />
+            <field name="phone" type="string" max="50" required="true" />
+
+            <field name="created_by" type="string" required="false" />
+            <field name="modified_by" type="string" required="false" />
+            <field name="modified_at" type="datetime" required="false" />
+            <field name="is_deleted" type="bool" default="false" />
+        </entity>
+
+        <implement>
+            <function name="softDelete">
+                DELETE setzt is_deleted = true.
+                Physisches Löschen ist verboten.
+                LIST/GET liefern nur is_deleted = false.
+                GET /api/contacts/{id} für soft-deleted → 404.
+            </function>
+
+            <function name="validation">
+                email muss ein gueltiges Format haben.
+                name darf nicht leer sein.
+            </function>
+        </implement>
+    </tasks>
+</backend>

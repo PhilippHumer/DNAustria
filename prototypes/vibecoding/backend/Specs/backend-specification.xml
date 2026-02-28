@@ -1,0 +1,86 @@
+<backend-specification>
+     
+    <backend_stack_defaults>
+        - Framework: .NET Web API
+        - .NET Sdk-Version: 8.0
+        - Use .NET EntityFramwork for database access
+    </backend_stack_defaults>
+
+    <general_description>
+        The application is an event management system for a University.
+    </general_description>
+    
+    <functional_requirements>
+        <events>
+            <maxChars>
+                50
+            </maxChars>
+            <properties>
+                "TargetAudience": {
+                10 → Vorschulkinder: Elementarstufe
+                20 → Schulkinder: Primarstufe
+                30 → Jugendliche: Sekundarstufe I
+                40 → Jugendliche: Berufsschulen, PTS
+                50 → Jugendliche: Sekundarstufe II
+                60 → Erwachsene
+                70 → Familien
+                80 → nur Mädchen/Frauen
+                },
+                "EventTopic": {
+                100 → Digitalisierung, Künstliche Intelligenz, IT, Technik
+                200 → Kunst, Kultur
+                300 → Sprachen, Literatur
+                400 → Medizin, Gesundheit
+                500 → Geschichte, Demokratie, Gesellschaft
+                600 → Wirtschaft, Recht
+                700 → Naturwissenschaft, Klima, Umwelt
+                800 → Mathematik, Zahlen, Daten
+                },
+                "Address" {
+                    "id": "GUID",
+                    "location_name": "string",
+                    "city": "string",
+                    "zip": "string",
+                    "state": "string",
+                    "street": "string",
+                    "latitude": "number",
+                    "longitude": "number"
+                },
+                "Contact" {
+                    "id": "GUID",
+                    "name": "string",
+                    "org": "string",
+                    "email": "string",
+                    "phone": "string",
+                },
+                "Event": {
+                "id": "GUID",
+                "title": "string",
+                "description": "string",
+                "event_link": "string",
+                "target_audience": "list<TargetAudience>",
+                "topics": "list<EventTopic>",
+                "date_start": "datetime",
+                "date_end": "datetime",
+                "classification": "enum [Scheduled, OnDemand]",
+                "fees": "boolean",
+                "is_online": "bool",
+                "organization_id": "GUID",
+                "program_name": "string|null",
+                "format": "string|null",
+                "school_bookable": "boolean|null",
+                "age_minimum": "int|null",
+                "age_maximum": "int|null",
+                "location_id": "GUID|null" references Address,
+                "contact_id": "GUID|null" references Contact,
+                "status": "enum [Draft, Approved, Transferred]",
+                "created_by": "string|null",
+                "modified_by": "string|null",
+                "modified_at": "datetime"
+                }
+            </properties>
+           
+        </events>
+
+
+</backend-specification>

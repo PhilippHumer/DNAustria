@@ -1,0 +1,59 @@
+<backend>
+    <api>
+        <endpoint name="Alle Locations" method="GET" path="/api/locations">
+            <query name="name" optional="true"/>
+        </endpoint>
+        <endpoint name="Einzelne Location" method="GET" path="/api/locations/{id}" />
+        <endpoint name="Location erstellen" method="POST" path="/api/locations" />
+        <endpoint name="Location aktualisieren" method="PUT" path="/api/locations/{id}" />
+        <endpoint name="Location löschen" method="DELETE" path="/api/locations/{id}" />
+
+        <responseConventions>
+            <rule>POST → 201 Created + Body</rule>
+            <rule>PUT → 200 OK + Body</rule>
+            <rule>DELETE → 204 NoContent</rule>
+        </responseConventions>
+    </api>
+
+    <tasks>
+        <entity name="Location">
+            <field name="id" type="guid" required="true" />
+            <field name="name" type="string" max="50" required="true" />
+            <field name="address_id" type="guid" required="true" />
+            <field name="is_deleted" type="bool" default="false" />
+            <field name="created_at" type="datetime" />
+            <field name="modified_at" type="datetime" />
+        </entity>
+
+        <entity name="Address">
+            <field name="id" type="guid" required="true" />
+            <field name="location_name" type="string" max="50" required="true" />
+            <field name="street" type="string" max="50" required="true" />
+            <field name="city" type="string" max="50" required="true" />
+            <field name="zip" type="string" max="10" required="true" />
+            <field name="state" type="string" max="50" required="true" />
+            <field name="latitude" type="number" required="false" />
+            <field name="longitude" type="number" required="false" />
+            <field name="is_deleted" type="bool" default="false" />
+            <field name="created_at" type="datetime" />
+            <field name="modified_at" type="datetime" />
+        </entity>
+
+        <implement>
+            <function name="softDelete">
+                DELETE setzt is_deleted = true.
+                Physisches Löschen ist verboten.
+                GET-Endpunkte liefern nur is_deleted = false.
+            </function>
+
+            <function name="addressDedup">
+                Bei Address-Erstellung/Update: Wenn bereits Address mit zip + lat/long existiert,
+                dann wiederverwenden (FK umhaengen) statt Duplikat anlegen.
+            </function>
+
+            <function name="addressDeleteRule">
+                Eine Address darf nicht soft-deleted werden, wenn sie noch referenziert ist.
+            </function>
+        </implement>
+    </tasks>
+</backend>
