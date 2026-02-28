@@ -22,8 +22,4 @@
       <ProjectReference Include="..\DNAustria.Domain\DNAustria.Domain.csproj" />
       <ProjectReference Include="..\DNAustria.Logic\DNAustria.Logic.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Dtos\" />
-    </ItemGroup>
 </Project>

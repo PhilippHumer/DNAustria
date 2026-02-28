@@ -14,7 +14,7 @@ namespace Discover.DNAustria.Api
     public class OrganizationsController : ControllerBase
     {
         private readonly AppDbContext _db;
-        public OrganizationsController(/*AppDbContext db*/) {/* _db = db;*/ }
+        public OrganizationsController(AppDbContext db) { _db = db; }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<OrganizationDto>>> GetOrganizations()

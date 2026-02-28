@@ -26,19 +26,14 @@ namespace Discover.DNAustria.Infrastructure
                 entity.Property(e => e.Topics)
                     .HasConversion(
                         v => string.Join(",", v ?? new List<int>()),
-                        v => string.IsNullOrEmpty(v)
-                            ? new List<int>()
-                            : v
-                                .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                                .Select(int.Parse)
-                                .ToList());
+                        v => string.IsNullOrEmpty(v) ? new List<int>() : new List<int>(Array.ConvertAll(v.Split(',', StringSplitOptions.None), int.Parse))
+                    );
                 entity.Property(e => e.TargetAudience)
                     .HasConversion(
                         v => string.Join(",", v ?? new List<int>()),
-                        v => string.IsNullOrEmpty(v) ? new List<int>() : v
-                            .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                            .Select(int.Parse)
-                            .ToList());
+                        v => string.IsNullOrEmpty(v) ? new List<int>() : new List<int>(Array.ConvertAll(v.Split(',', StringSplitOptions.None) 
+                            , int.Parse))
+                    );
             });
 
             modelBuilder.Entity<Contact>(entity =>

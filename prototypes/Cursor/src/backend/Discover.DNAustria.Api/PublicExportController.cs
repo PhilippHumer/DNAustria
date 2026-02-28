@@ -19,7 +19,7 @@ namespace Discover.DNAustria.Api
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DNAustriaExportEventDto>>> GetExportEvents()
         {
-            var result = await _db.Events.Include(e => e.Organization).Include(e => e.Contact)
+            var result = await _db.Events.Include(e => e.OrganizationId).Include(e => e.ContactId)
                 .Where(e => e.Status == EventStatus.Approved || e.Status == EventStatus.Transferred)
                 .Join(_db.Organizations,
                     e => e.OrganizationId,
