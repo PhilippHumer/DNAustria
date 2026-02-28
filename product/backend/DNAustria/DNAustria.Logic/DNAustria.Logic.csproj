@@ -11,4 +11,8 @@
       <ProjectReference Include="..\DNAustria.Domain\DNAustria.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Riok.Mapperly" />
+    </ItemGroup>
+
 </Project>

@@ -7,31 +7,24 @@ namespace DNAustria.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class ContactsController : ControllerBase
+public class ContactsController(IContactsLogic contactLogic) : ControllerBase
 {
-    private readonly IContactsLogic _contactLogic;
-
-    public ContactsController(IContactsLogic contactLogic)
-    {
-        _contactLogic = contactLogic;
-    }
-
     [HttpGet]
     [ProducesResponseType<IEnumerable<ContactDto>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll()
     {
-        var contacts = await _contactLogic.GetAllAsync();
-        return Ok(contacts.Select(MapToDto));
+        var contacts = await contactLogic.GetAllAsync();
+        return Ok(contacts.ToDtoCollection());
     }
 
-    [HttpGet("{id:guid}")]
+    [HttpGet("{id:int}")]
     [ProducesResponseType<ContactDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetById(Guid id)
+    public async Task<IActionResult> GetById(int id)
     {
-        var contact = await _contactLogic.GetByIdAsync(id);
+        var contact = await contactLogic.GetByIdAsync(id);
         if (contact is null) return NotFound();
-        return Ok(MapToDto(contact));
+        return Ok(contact.ToDto());
     }
 
     [HttpPost]
@@ -39,31 +32,19 @@ public class ContactsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Create([FromBody] CreateContactDto dto)
     {
-        try
-        {
-            var created = await _contactLogic.AddAsync(dto.Name, dto.Email, dto.PhoneNumber, dto.OrganisationId);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, MapToDto(created));
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
+        var created = await contactLogic.CreateAsync(dto.ToDomain());
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created.ToDto());
     }
 
     [HttpPut("{id:guid}")]
     [ProducesResponseType<ContactDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateContactDto dto)
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateContactDto dto)
     {
-        try
-        {
-            var updated = await _contactLogic.UpdateAsync(id, dto.Name, dto.Email, dto.PhoneNumber, dto.OrganisationId);
-            return Ok(MapToDto(updated));
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
+        var contact = dto.ToDomain();
+        contact.Id = id;
+        var updated = await contactLogic.UpdateAsync(contact);
+        return Ok(updated.ToDto());
     }
 
     [HttpDelete("{id:guid}")]
@@ -71,23 +52,8 @@ public class ContactsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id)
     {
-        try
-        {
-            await _contactLogic.DeleteAsync(id);
-            return NoContent();
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
+        await contactLogic.DeleteAsync(id);
+        return NoContent();
     }
-
-    private static ContactDto MapToDto(Contact c) => new()
-    {
-        Id = c.Id,
-        Name = c.Name,
-        Email = c.Email,
-        PhoneNumber = c.PhoneNumber,
-        Organization = c.Organization
-    };
+    
 }
