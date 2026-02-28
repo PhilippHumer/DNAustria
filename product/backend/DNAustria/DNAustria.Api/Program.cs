@@ -1,10 +1,18 @@
+using DNAustria.Api.BuilderExtensions;
+using Scalar.AspNetCore;
+using Serilog;
+
 var builder = WebApplication.CreateBuilder(args);
 
+builder.ActivateSerilog();
 // Add services to the container.
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.RegisterServices();
+
+builder.Services.ConfigureCors();
 
 var app = builder.Build();
 
@@ -12,6 +20,8 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
+    Log.Information("OpenAPI-doc reachable at http://localhost:5001/scalar");
 }
 
 app.UseHttpsRedirection();
@@ -19,5 +29,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseCustomCors();
 
 app.Run();
