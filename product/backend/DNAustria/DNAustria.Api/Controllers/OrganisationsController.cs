@@ -4,7 +4,7 @@ namespace DNAustria.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class OrganisationsController : ControllerBase
+public class OrganizationsController : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
