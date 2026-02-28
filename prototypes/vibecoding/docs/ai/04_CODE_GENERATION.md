@@ -1,3 +1,5 @@
+Du bist ein Senior Software-Entwickler.
+
 Implementiere basierend auf dem freigegebenen Plan.
 
 Regeln:

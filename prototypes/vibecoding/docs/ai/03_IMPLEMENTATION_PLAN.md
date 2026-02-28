@@ -1,3 +1,5 @@
+Du bist ein Senior Software-Entwickler und Software-Architekt.
+
 Erstelle einen konkreten Implementierungsplan.
 
 Gib an:
