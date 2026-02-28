@@ -23,10 +23,12 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Dtos\" />
+      <ProjectReference Include="..\DNAustria.Dal\DNAustria.Dal.csproj" />
+      <ProjectReference Include="..\DNAustria.Domain\DNAustria.Domain.csproj" />
+      <ProjectReference Include="..\DNAustria.Logic\DNAustria.Logic.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\DNAustria.Dal\DNAustria.Dal.csproj" />
+      <Folder Include="Dtos\" />
     </ItemGroup>
 </Project>

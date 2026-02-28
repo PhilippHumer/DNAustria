@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DNAustria.Dal", "DNAustria.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DNAustria.Logic", "DNAustria.Logic\DNAustria.Logic.csproj", "{B4939B2C-E7E3-4981-9A9C-1439CBAB94F7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DNAustria.Domain", "DNAustria.Domain\DNAustria.Domain.csproj", "{BFC84C89-6368-4761-ACEC-D3E9B8E1EC17}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{B4939B2C-E7E3-4981-9A9C-1439CBAB94F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B4939B2C-E7E3-4981-9A9C-1439CBAB94F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B4939B2C-E7E3-4981-9A9C-1439CBAB94F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFC84C89-6368-4761-ACEC-D3E9B8E1EC17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFC84C89-6368-4761-ACEC-D3E9B8E1EC17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFC84C89-6368-4761-ACEC-D3E9B8E1EC17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFC84C89-6368-4761-ACEC-D3E9B8E1EC17}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
