@@ -14,7 +14,7 @@ namespace Discover.DNAustria.Api
     public class EventsController : ControllerBase
     {
         private readonly AppDbContext _db;
-        public EventsController(/*AppDbContext db*/) {/*_db = db;*/ }
+        public EventsController(AppDbContext db) { _db = db; }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EventDto>>> GetEvents(string? filter = null, string? search = null, int page = 1, int pageSize = 20)

@@ -8,7 +8,14 @@
 
     <ItemGroup>
       <ProjectReference Include="..\DNAustria.Dal\DNAustria.Dal.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\DNAustria.Domain\DNAustria.Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Serilog" />
     </ItemGroup>
 
 </Project>

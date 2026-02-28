@@ -14,7 +14,7 @@ namespace Discover.DNAustria.Api
     public class ContactsController : ControllerBase
     {
         private readonly AppDbContext _db;
-        public ContactsController(/*AppDbContext db*/) { /*_db = db;*/ }
+        public ContactsController(AppDbContext db) { _db = db; }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ContactDto>>> GetContacts()
