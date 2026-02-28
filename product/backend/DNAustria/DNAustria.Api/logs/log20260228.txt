@@ -1,0 +1,138 @@
+2026-02-28 09:52:20.050 +01:00 [INF] Now listening on: http://localhost:5001
+2026-02-28 09:52:20.083 +01:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-02-28 09:52:20.083 +01:00 [INF] Hosting environment: Development
+2026-02-28 09:52:20.083 +01:00 [INF] Content root path: C:\git\DNAustria\product\backend\DNAustria\DNAustria.Api
+2026-02-28 09:52:24.642 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5001/scalar/ - null null
+2026-02-28 09:52:24.669 +01:00 [WRN] Failed to determine the https port for redirect.
+2026-02-28 09:52:24.673 +01:00 [INF] Executing endpoint 'HTTP: GET /scalar/{documentName?}'
+2026-02-28 09:52:24.877 +01:00 [INF] Write content with HTTP Response ContentType of text/html
+2026-02-28 09:52:24.882 +01:00 [INF] Executed endpoint 'HTTP: GET /scalar/{documentName?}'
+2026-02-28 09:52:24.885 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5001/scalar/ - 200 622 text/html 246.9907ms
+2026-02-28 09:52:24.918 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5001/scalar/scalar.js - null null
+2026-02-28 09:52:24.918 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5001/scalar/scalar.aspnetcore.js - null null
+2026-02-28 09:52:24.920 +01:00 [INF] Executing endpoint 'HTTP: GET /scalar/scalar.js'
+2026-02-28 09:52:24.920 +01:00 [INF] Executing endpoint 'HTTP: GET /scalar/scalar.aspnetcore.js'
+2026-02-28 09:52:24.926 +01:00 [INF] Sending file with download name ''.
+2026-02-28 09:52:24.926 +01:00 [INF] Sending file with download name ''.
+2026-02-28 09:52:24.929 +01:00 [INF] Executed endpoint 'HTTP: GET /scalar/scalar.aspnetcore.js'
+2026-02-28 09:52:24.929 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5001/scalar/scalar.aspnetcore.js - 200 1111 text/javascript 11.4293ms
+2026-02-28 09:52:24.945 +01:00 [INF] Executed endpoint 'HTTP: GET /scalar/scalar.js'
+2026-02-28 09:52:24.948 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5001/scalar/scalar.js - 200 991987 text/javascript 30.1089ms
+2026-02-28 09:52:25.302 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5001/openapi/v1.json - null null
+2026-02-28 09:52:25.304 +01:00 [INF] Executing endpoint 'HTTP: GET /openapi/{documentName}.json'
+2026-02-28 09:52:25.383 +01:00 [INF] Executed endpoint 'HTTP: GET /openapi/{documentName}.json'
+2026-02-28 09:52:25.383 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5001/openapi/v1.json - 200 null application/json;charset=utf-8 81.2117ms
+2026-02-28 09:52:25.396 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5001/scalar/favicon.svg - null null
+2026-02-28 09:52:25.397 +01:00 [INF] Executing endpoint 'HTTP: GET /scalar/favicon.svg'
+2026-02-28 09:52:25.398 +01:00 [INF] Sending file with download name ''.
+2026-02-28 09:52:25.398 +01:00 [INF] Executed endpoint 'HTTP: GET /scalar/favicon.svg'
+2026-02-28 09:52:25.398 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5001/scalar/favicon.svg - 200 533 image/svg+xml 1.7369ms
+2026-02-28 09:52:41.426 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5001/Organisations - null null
+2026-02-28 09:52:41.427 +01:00 [INF] Executing endpoint 'DNAustria.Api.Controllers.OrganisationsController.Get (DNAustria.Api)'
+2026-02-28 09:52:41.445 +01:00 [INF] Route matched with {action = "Get", controller = "Organisations"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.IActionResult Get() on controller DNAustria.Api.Controllers.OrganisationsController (DNAustria.Api).
+2026-02-28 09:52:41.453 +01:00 [INF] Executing action method DNAustria.Api.Controllers.OrganisationsController.Get (DNAustria.Api) - Validation state: "Valid"
+2026-02-28 09:52:41.457 +01:00 [INF] Executed action method DNAustria.Api.Controllers.OrganisationsController.Get (DNAustria.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 0.1661ms.
+2026-02-28 09:52:41.464 +01:00 [INF] Executing OkObjectResult, writing value of type 'System.String'.
+2026-02-28 09:52:41.468 +01:00 [INF] Executed action DNAustria.Api.Controllers.OrganisationsController.Get (DNAustria.Api) in 18.7054ms
+2026-02-28 09:52:41.468 +01:00 [INF] Executed endpoint 'DNAustria.Api.Controllers.OrganisationsController.Get (DNAustria.Api)'
+2026-02-28 09:52:41.468 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5001/Organisations - 200 null text/plain; charset=utf-8 41.6537ms
+2026-02-28 09:52:47.073 +01:00 [INF] Application is shutting down...
+2026-02-28 09:53:13.187 +01:00 [INF] Now listening on: http://localhost:5001
+2026-02-28 09:53:13.218 +01:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-02-28 09:53:13.218 +01:00 [INF] Hosting environment: Development
+2026-02-28 09:53:13.218 +01:00 [INF] Content root path: C:\git\DNAustria\product\backend\DNAustria\DNAustria.Api
+2026-02-28 09:54:09.045 +01:00 [INF] Application is shutting down...
+2026-02-28 09:54:19.664 +01:00 [INF] Now listening on: http://localhost:5001
+2026-02-28 09:54:19.696 +01:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-02-28 09:54:19.697 +01:00 [INF] Hosting environment: Development
+2026-02-28 09:54:19.697 +01:00 [INF] Content root path: C:\git\DNAustria\product\backend\DNAustria\DNAustria.Api
+2026-02-28 09:54:42.372 +01:00 [INF] Application is shutting down...
+2026-02-28 09:54:45.043 +01:00 [INF] Now listening on: http://localhost:5001
+2026-02-28 09:54:45.072 +01:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-02-28 09:54:45.073 +01:00 [INF] Hosting environment: Development
+2026-02-28 09:54:45.073 +01:00 [INF] Content root path: C:\git\DNAustria\product\backend\DNAustria\DNAustria.Api
+2026-02-28 09:56:37.876 +01:00 [INF] Application is shutting down...
+2026-02-28 09:56:40.665 +01:00 [INF] Now listening on: http://localhost:5001
+2026-02-28 09:56:40.711 +01:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-02-28 09:56:40.713 +01:00 [INF] Hosting environment: Development
+2026-02-28 09:56:40.715 +01:00 [INF] Content root path: C:\git\DNAustria\product\backend\DNAustria\DNAustria.Api
+2026-02-28 09:56:43.554 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5001/Organisations - null null
+2026-02-28 09:56:43.583 +01:00 [WRN] Failed to determine the https port for redirect.
+2026-02-28 09:56:43.588 +01:00 [INF] Executing endpoint 'DNAustria.Api.Controllers.OrganisationsController.Get (DNAustria.Api)'
+2026-02-28 09:56:43.613 +01:00 [INF] Route matched with {action = "Get", controller = "Organisations"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.IActionResult Get() on controller DNAustria.Api.Controllers.OrganisationsController (DNAustria.Api).
+2026-02-28 09:56:43.626 +01:00 [INF] Executing action method DNAustria.Api.Controllers.OrganisationsController.Get (DNAustria.Api) - Validation state: "Valid"
+2026-02-28 09:56:43.635 +01:00 [INF] Executed action method DNAustria.Api.Controllers.OrganisationsController.Get (DNAustria.Api), returned result Microsoft.AspNetCore.Mvc.OkObjectResult in 0.2456ms.
+2026-02-28 09:56:43.656 +01:00 [INF] Executing OkObjectResult, writing value of type 'System.String'.
+2026-02-28 09:56:43.668 +01:00 [INF] Executed action DNAustria.Api.Controllers.OrganisationsController.Get (DNAustria.Api) in 44.8579ms
+2026-02-28 09:56:43.670 +01:00 [INF] Executed endpoint 'DNAustria.Api.Controllers.OrganisationsController.Get (DNAustria.Api)'
+2026-02-28 09:56:43.674 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5001/Organisations - 200 null text/plain; charset=utf-8 122.1595ms
+2026-02-28 10:01:35.214 +01:00 [INF] Application is shutting down...
+2026-02-28 10:01:38.445 +01:00 [INF] Now listening on: http://localhost:5001
+2026-02-28 10:01:38.487 +01:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-02-28 10:01:38.489 +01:00 [INF] Hosting environment: Development
+2026-02-28 10:01:38.490 +01:00 [INF] Content root path: C:\git\DNAustria\product\backend\DNAustria\DNAustria.Api
+2026-02-28 10:01:41.901 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5001/scalar/ - null null
+2026-02-28 10:01:41.932 +01:00 [WRN] Failed to determine the https port for redirect.
+2026-02-28 10:01:41.937 +01:00 [INF] Executing endpoint 'HTTP: GET /scalar/{documentName?}'
+2026-02-28 10:01:42.159 +01:00 [INF] Write content with HTTP Response ContentType of text/html
+2026-02-28 10:01:42.165 +01:00 [INF] Executed endpoint 'HTTP: GET /scalar/{documentName?}'
+2026-02-28 10:01:42.170 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5001/scalar/ - 200 622 text/html 271.7814ms
+2026-02-28 10:01:42.204 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5001/scalar/scalar.aspnetcore.js - null null
+2026-02-28 10:01:42.204 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5001/scalar/scalar.js - null null
+2026-02-28 10:01:42.221 +01:00 [INF] CORS policy execution successful.
+2026-02-28 10:01:42.225 +01:00 [INF] Executing endpoint 'HTTP: GET /scalar/scalar.js'
+2026-02-28 10:01:42.227 +01:00 [INF] Executing endpoint 'HTTP: GET /scalar/scalar.aspnetcore.js'
+2026-02-28 10:01:42.239 +01:00 [INF] Sending file with download name ''.
+2026-02-28 10:01:42.239 +01:00 [INF] Sending file with download name ''.
+2026-02-28 10:01:42.252 +01:00 [INF] Executed endpoint 'HTTP: GET /scalar/scalar.aspnetcore.js'
+2026-02-28 10:01:42.265 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5001/scalar/scalar.aspnetcore.js - 200 1111 text/javascript 61.3041ms
+2026-02-28 10:01:42.274 +01:00 [INF] Executed endpoint 'HTTP: GET /scalar/scalar.js'
+2026-02-28 10:01:42.279 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5001/scalar/scalar.js - 200 991987 text/javascript 75.5283ms
+2026-02-28 10:01:42.578 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5001/openapi/v1.json - null null
+2026-02-28 10:01:42.584 +01:00 [INF] Executing endpoint 'HTTP: GET /openapi/{documentName}.json'
+2026-02-28 10:01:42.657 +01:00 [INF] Executed endpoint 'HTTP: GET /openapi/{documentName}.json'
+2026-02-28 10:01:42.660 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5001/openapi/v1.json - 200 null application/json;charset=utf-8 81.806ms
+2026-02-28 10:01:42.675 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5001/scalar/favicon.svg - null null
+2026-02-28 10:01:42.681 +01:00 [INF] Executing endpoint 'HTTP: GET /scalar/favicon.svg'
+2026-02-28 10:01:42.685 +01:00 [INF] Sending file with download name ''.
+2026-02-28 10:01:42.688 +01:00 [INF] Executed endpoint 'HTTP: GET /scalar/favicon.svg'
+2026-02-28 10:01:42.691 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5001/scalar/favicon.svg - 200 533 image/svg+xml 15.2208ms
+2026-02-28 10:02:25.905 +01:00 [INF] Application is shutting down...
+2026-02-28 10:02:28.579 +01:00 [INF] OpenAPI-doc reachable at localhost:5001/scalar
+2026-02-28 10:02:28.728 +01:00 [INF] Now listening on: http://localhost:5001
+2026-02-28 10:02:28.733 +01:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-02-28 10:02:28.736 +01:00 [INF] Hosting environment: Development
+2026-02-28 10:02:28.737 +01:00 [INF] Content root path: C:\git\DNAustria\product\backend\DNAustria\DNAustria.Api
+2026-02-28 10:02:41.857 +01:00 [INF] Application is shutting down...
+2026-02-28 10:02:44.446 +01:00 [INF] OpenAPI-doc reachable at http://localhost:5001/scalar
+2026-02-28 10:02:44.639 +01:00 [INF] Now listening on: http://localhost:5001
+2026-02-28 10:02:44.645 +01:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-02-28 10:02:44.646 +01:00 [INF] Hosting environment: Development
+2026-02-28 10:02:44.648 +01:00 [INF] Content root path: C:\git\DNAustria\product\backend\DNAustria\DNAustria.Api
+2026-02-28 10:02:46.115 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5001/scalar - null null
+2026-02-28 10:02:46.151 +01:00 [WRN] Failed to determine the https port for redirect.
+2026-02-28 10:02:46.162 +01:00 [INF] Executing endpoint 'HTTP: GET /scalar/{documentName?}'
+2026-02-28 10:02:46.168 +01:00 [INF] Executing RedirectResult, redirecting to scalar/.
+2026-02-28 10:02:46.170 +01:00 [INF] Executed endpoint 'HTTP: GET /scalar/{documentName?}'
+2026-02-28 10:02:46.177 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5001/scalar - 302 0 null 63.9107ms
+2026-02-28 10:02:46.199 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5001/scalar/ - null null
+2026-02-28 10:02:46.205 +01:00 [INF] Executing endpoint 'HTTP: GET /scalar/{documentName?}'
+2026-02-28 10:02:46.397 +01:00 [INF] Write content with HTTP Response ContentType of text/html
+2026-02-28 10:02:46.400 +01:00 [INF] Executed endpoint 'HTTP: GET /scalar/{documentName?}'
+2026-02-28 10:02:46.402 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5001/scalar/ - 200 622 text/html 204.2117ms
+2026-02-28 10:02:46.417 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5001/scalar/scalar.js - null null
+2026-02-28 10:02:46.417 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5001/scalar/scalar.aspnetcore.js - null null
+2026-02-28 10:02:46.424 +01:00 [INF] Executing endpoint 'HTTP: GET /scalar/scalar.js'
+2026-02-28 10:02:46.429 +01:00 [INF] CORS policy execution successful.
+2026-02-28 10:02:46.431 +01:00 [INF] Executing endpoint 'HTTP: GET /scalar/scalar.aspnetcore.js'
+2026-02-28 10:02:46.434 +01:00 [INF] Sending file with download name ''.
+2026-02-28 10:02:46.434 +01:00 [INF] Sending file with download name ''.
+2026-02-28 10:02:46.440 +01:00 [INF] Executed endpoint 'HTTP: GET /scalar/scalar.aspnetcore.js'
+2026-02-28 10:02:46.442 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5001/scalar/scalar.aspnetcore.js - 200 1111 text/javascript 24.5164ms
+2026-02-28 10:02:46.453 +01:00 [INF] Executed endpoint 'HTTP: GET /scalar/scalar.js'
+2026-02-28 10:02:46.459 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5001/scalar/scalar.js - 200 991987 text/javascript 42.07ms
+2026-02-28 10:02:46.740 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5001/openapi/v1.json - null null
+2026-02-28 10:02:46.745 +01:00 [INF] Executing endpoint 'HTTP: GET /openapi/{documentName}.json'
+2026-02-28 10:02:46.811 +01:00 [INF] Executed endpoint 'HTTP: GET /openapi/{documentName}.json'
+2026-02-28 10:02:46.814 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5001/openapi/v1.json - 200 null application/json;charset=utf-8 73.8085ms
+2026-02-28 10:02:54.978 +01:00 [INF] Application is shutting down...
