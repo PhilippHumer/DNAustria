@@ -10,7 +10,7 @@ public static class SerilogExtensions
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Information()
             .WriteTo.Console()
-            .WriteTo.File("logs/log.log",  rollingInterval: RollingInterval.Day)
+            .WriteTo.File("logs/log.txt",  rollingInterval: RollingInterval.Day)
             .CreateLogger();
         builder.Host.UseSerilog();
         builder.Logging.ClearProviders();
