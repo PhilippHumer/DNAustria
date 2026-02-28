@@ -8,5 +8,5 @@ public interface IContactsLogic
     Task<Contact?> GetByIdAsync(int id);
     Task<Contact> CreateAsync(Contact contact);
     Task<Contact> UpdateAsync(Contact contact);
-    Task DeleteAsync(Guid id);
+    Task DeleteAsync(int id);
 }

@@ -9,7 +9,7 @@ public class UpdateContactDto
     [EmailAddress]
     public string? Email { get; set; }
     [Phone]
-    public string? PhoneNumber { get; set; }
-    public required Guid OrganisationId { get; set; }
+    public string? Phone { get; set; }
+    public required string? Organization { get; set; }
 }
 

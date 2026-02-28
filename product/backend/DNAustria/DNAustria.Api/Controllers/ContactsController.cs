@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace DNAustria.Api.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class ContactsController(IContactsLogic contactLogic) : ControllerBase
 {
     [HttpGet]
@@ -36,7 +36,7 @@ public class ContactsController(IContactsLogic contactLogic) : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created.ToDto());
     }
 
-    [HttpPut("{id:guid}")]
+    [HttpPut("{id:int}")]
     [ProducesResponseType<ContactDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateContactDto dto)
@@ -47,10 +47,10 @@ public class ContactsController(IContactsLogic contactLogic) : ControllerBase
         return Ok(updated.ToDto());
     }
 
-    [HttpDelete("{id:guid}")]
+    [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete(int id)
     {
         await contactLogic.DeleteAsync(id);
         return NoContent();
