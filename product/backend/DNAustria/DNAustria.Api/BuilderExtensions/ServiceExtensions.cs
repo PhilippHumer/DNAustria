@@ -1,10 +1,14 @@
-﻿namespace DNAustria.Api.BuilderExtensions;
+﻿using DNAustria.Dal.Data;
+using Microsoft.EntityFrameworkCore;
+
+namespace DNAustria.Api.BuilderExtensions;
 
 public static class ServiceExtensions
 {
-    public static IServiceCollection RegisterServices(this IServiceCollection services)
+    public static WebApplicationBuilder RegisterServices(this WebApplicationBuilder builder)
     {
+        builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
         //TODO: register your services here...
-        return services;
+        return builder;
     }
 }
