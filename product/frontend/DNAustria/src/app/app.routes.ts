@@ -4,6 +4,7 @@ import { Dashboard } from './dashboard/dashboard';
 import { EventDetails } from './event-details/event-details';
 import { Events } from './events/events';
 import { Export } from './export/export';
+import { LlmAnalyzer } from './llm-analyzer/llm-analyzer';
 import { Organizations } from './organizations/organizations';
 
 export const routes: Routes = [
@@ -14,5 +15,6 @@ export const routes: Routes = [
     { path: 'contacts', component: Contacts },
     { path: 'organizations', component: Organizations },
     { path: 'export', component: Export },
+    { path: 'llm-analyzer', component: LlmAnalyzer },
     { path: '**', redirectTo: 'dashboard' }
 ];
