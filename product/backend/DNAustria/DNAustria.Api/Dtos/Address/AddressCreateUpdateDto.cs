@@ -18,5 +18,7 @@ public class AddressCreateUpdateDto
 
     [Required]
     [MaxLength(100)]
+    [RegularExpression("^(Burgenland|Kärnten|Niederösterreich|Oberösterreich|Salzburg|Steiermark|Tirol|Vorarlberg|Wien)$",
+    ErrorMessage = "Invalid state")]
     public string State { get; set; } = string.Empty;
 }
