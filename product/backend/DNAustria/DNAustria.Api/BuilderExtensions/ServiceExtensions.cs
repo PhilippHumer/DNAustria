@@ -1,5 +1,6 @@
 ﻿using DNAustria.Dal.Data;
 using DNAustria.Logic.LocationsService;
+using DNAustria.Logic.Events;
 using Microsoft.EntityFrameworkCore;
 
 namespace DNAustria.Api.BuilderExtensions;
@@ -11,6 +12,7 @@ public static class ServiceExtensions
         builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
         builder.Services.AddScoped<ILocationsService, LocationsService>();
         //TODO: register your services here...
+        builder.Services.AddScoped<IEventLogic, EventLogic>();
         return builder;
     }
 }
