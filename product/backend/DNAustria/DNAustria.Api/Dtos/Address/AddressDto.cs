@@ -1,6 +1,6 @@
-namespace DNAustria.Domain;
+namespace DNAustria.Api.Dtos.Address;
 
-public class Address
+public record AddressDto
 {
     public int Id { get; set; }
     public required string State { get; set; }
