@@ -9,8 +9,7 @@ public static partial class OrganizationMapper
     [MapperIgnoreSource(nameof(entity.Events))]
     [MapperIgnoreSource(nameof(entity.Adress))]
     [MapProperty(nameof(Dal.Models.Organization.AdressNavigation), 
-        nameof(Domain.Organization.Adress), 
-        Use = nameof(@AddressMapper.ToDomain))]
+        nameof(Domain.Organization.Adress))] 
     public static partial Domain.Organization ToDomain(this Dal.Models.Organization entity);
 
     
