@@ -13,6 +13,6 @@ export interface UpdateContactDto {
     name: string;
     email?: string | null;
     phone?: string | null;
-    organization: string | null;
+    organization?: string | null;
 }
 

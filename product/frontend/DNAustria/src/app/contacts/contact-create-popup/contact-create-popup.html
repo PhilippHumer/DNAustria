@@ -1,0 +1,80 @@
+<div class="contact-popup-backdrop">
+  <div class="contact-popup card shadow border-0">
+    <div class="card-header bg-white border-bottom">
+      <h2 class="h5 mb-1 fw-bold">{{ isEditMode() ? 'Edit Contact' : 'Add Contact' }}</h2>
+      <p class="text-muted mb-0 small">
+        {{ isEditMode() ? 'Update an existing contact' : 'Register a new event contact' }}
+      </p>
+    </div>
+
+    <form class="card-body d-flex flex-column gap-3" [formGroup]="form" (ngSubmit)="submit()">
+      <div>
+        <label for="contact-name" class="form-label fw-semibold">
+          Name <span class="text-danger">*</span>
+        </label>
+        <input
+          id="contact-name"
+          type="text"
+          class="form-control"
+          formControlName="name"
+          [class.is-invalid]="form.controls.name.invalid && form.controls.name.touched"
+          placeholder="Full name"
+        />
+        @if (form.controls.name.invalid && form.controls.name.touched) {
+          <div class="invalid-feedback d-block">Name is required.</div>
+        }
+      </div>
+
+      <div>
+        <label for="contact-email" class="form-label fw-semibold">Email</label>
+        <input
+          id="contact-email"
+          type="email"
+          class="form-control"
+          formControlName="email"
+          [class.is-invalid]="form.controls.email.invalid && form.controls.email.touched"
+          placeholder="email@example.com"
+        />
+        @if (form.controls.email.invalid && form.controls.email.touched) {
+          <div class="invalid-feedback d-block">Invalid email address.</div>
+        }
+      </div>
+
+      <div>
+        <label for="contact-phone" class="form-label fw-semibold">Phone</label>
+        <input
+          id="contact-phone"
+          type="tel"
+          class="form-control"
+          formControlName="phone"
+          placeholder="+43 ..."
+        />
+      </div>
+
+      <div>
+        <label for="contact-organization" class="form-label fw-semibold">Organization</label>
+        <select id="contact-organization" class="form-select" formControlName="organization">
+          <option value="">No organization</option>
+          @for (organization of organizations(); track organization) {
+            <option [value]="organization">{{ organization }}</option>
+          }
+        </select>
+      </div>
+
+      @if (submitError()) {
+        <div class="alert alert-danger py-2 mb-0">{{ submitError() }}</div>
+      }
+
+      <div class="d-flex justify-content-end gap-2 pt-2">
+        <button type="button" class="btn btn-outline-secondary" (click)="close()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="submitting()">
+          @if (submitting()) {
+            Saving...
+          } @else {
+            {{ isEditMode() ? 'Save Changes' : 'Create Contact' }}
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

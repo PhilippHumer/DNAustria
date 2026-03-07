@@ -10,6 +10,6 @@ public class UpdateContactDto
     public string? Email { get; set; }
     [Phone]
     public string? Phone { get; set; }
-    public required string? Organization { get; set; }
+    public string? Organization { get; set; }
 }
 

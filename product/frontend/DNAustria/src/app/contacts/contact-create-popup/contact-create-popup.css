@@ -1,7 +1,7 @@
-.delete-confirm-backdrop {
+.contact-popup-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 1060;
+  z-index: 1050;
   background: rgba(15, 23, 42, 0.45);
   display: flex;
   align-items: center;
@@ -9,7 +9,9 @@
   padding: 1rem;
 }
 
-.delete-confirm {
-  width: min(100%, 26rem);
+.contact-popup {
+  width: min(100%, 42rem);
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
   border-radius: 0.75rem;
 }
