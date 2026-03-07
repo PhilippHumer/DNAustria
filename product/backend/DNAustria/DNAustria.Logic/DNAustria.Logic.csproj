@@ -13,6 +13,7 @@
 
     <ItemGroup>
       <PackageReference Include="Riok.Mapperly" />
+      <PackageReference Include="Serilog" />
     </ItemGroup>
 
 </Project>
