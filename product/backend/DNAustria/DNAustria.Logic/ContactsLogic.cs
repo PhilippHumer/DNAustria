@@ -30,7 +30,8 @@ public class ContactsLogic(AppDbContext context) : IContactsLogic
     {
         var existing = await _contacts.FindAsync(contact.Id);
         if (existing is null) throw new NotFoundException($"Contact with id {contact.Id} not found");
-        
+        if (contact.Email is null && contact.Phone is null)
+            throw new ArgumentException("At least one contact information has to be provided.");
         existing.Name = contact.Name;
         existing.Email = contact.Email;
         existing.Phone = contact.Phone;
