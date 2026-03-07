@@ -4,5 +4,5 @@ namespace DNAustria.Api.Dtos.Events;
 
 public class UpdateEventStatusDto
 {
-    public EventStatus Status { get; set; }
+    public required EventStatus Status { get; init; }
 }
