@@ -42,7 +42,7 @@ public class ContactsController(IContactsLogic contactLogic) : ControllerBase
     public async Task<IActionResult> Update(int id, [FromBody] UpdateContactDto dto)
     {
         var contact = dto.ToDomain();
-        contact.Id = id;
+        contact = contact with { Id = id };
         var updated = await contactLogic.UpdateAsync(contact);
         return Ok(updated.ToDto());
     }
