@@ -34,7 +34,7 @@ public class ContactsLogic(AppDbContext context) : IContactsLogic
         existing.Name = contact.Name;
         existing.Email = contact.Email;
         existing.Phone = contact.Phone;
-        
+        existing.Organization = contact.Organization;
         await context.SaveChangesAsync();
         return existing.toDomain();
     }
