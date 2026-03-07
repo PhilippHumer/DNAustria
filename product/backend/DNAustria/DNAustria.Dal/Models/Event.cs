@@ -41,6 +41,8 @@ public partial class Event
 
     public int? Contact { get; set; }
 
+    public bool IsDeleted { get; set; }
+
     public virtual Contact? ContactNavigation { get; set; }
 
     public virtual ICollection<EventTargetAudience> EventTargetAudiences { get; set; } = new List<EventTargetAudience>();

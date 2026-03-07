@@ -11,6 +11,8 @@ public partial class Organization
 
     public int? Adress { get; set; }
 
+    public bool IsDeleted { get; set; }
+
     public virtual Address? AdressNavigation { get; set; }
 
     public virtual ICollection<Event> Events { get; set; } = new List<Event>();

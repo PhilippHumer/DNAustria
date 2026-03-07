@@ -40,6 +40,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.City)
                 .HasMaxLength(50)
                 .HasColumnName("city");
+            entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
             entity.Property(e => e.State)
                 .HasMaxLength(50)
                 .HasColumnName("state");
@@ -57,14 +58,19 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("contact");
 
-            entity.HasIndex(e => e.Email, "contact_email_key").IsUnique();
+            entity.HasIndex(e => e.Email, "ux_contact_email_active")
+                .IsUnique()
+                .HasFilter("(is_deleted = false)");
 
-            entity.HasIndex(e => e.Phone, "contact_phone_key").IsUnique();
+            entity.HasIndex(e => e.Phone, "ux_contact_phone_active")
+                .IsUnique()
+                .HasFilter("(is_deleted = false)");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Email)
                 .HasColumnType("citext")
                 .HasColumnName("email");
+            entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
             entity.Property(e => e.Name)
                 .HasMaxLength(50)
                 .HasColumnName("name");
@@ -86,13 +92,12 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Classification).HasColumnName("classification");
             entity.Property(e => e.Contact).HasColumnName("contact");
             entity.Property(e => e.Description).HasColumnName("description");
-            entity.Property(e => e.EndDate)
-                .HasColumnType("timestamp without time zone")
-                .HasColumnName("end_date");
+            entity.Property(e => e.EndDate).HasColumnName("end_date");
             entity.Property(e => e.Format)
                 .HasMaxLength(100)
                 .HasColumnName("format");
             entity.Property(e => e.HasFees).HasColumnName("has_fees");
+            entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
             entity.Property(e => e.IsOnline).HasColumnName("is_online");
             entity.Property(e => e.Link)
                 .HasMaxLength(200)
@@ -106,9 +111,7 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("program_name");
             entity.Property(e => e.SchoolBookable).HasColumnName("school_bookable");
-            entity.Property(e => e.StartDate)
-                .HasColumnType("timestamp without time zone")
-                .HasColumnName("start_date");
+            entity.Property(e => e.StartDate).HasColumnName("start_date");
             entity.Property(e => e.Status).HasColumnName("status");
 
             entity.HasOne(d => d.ContactNavigation).WithMany(p => p.Events)
@@ -162,6 +165,7 @@ public partial class AppDbContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Address).HasColumnName("address");
+            entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
             entity.Property(e => e.Latitude).HasColumnName("latitude");
             entity.Property(e => e.Longitude).HasColumnName("longitude");
             entity.Property(e => e.Name)
@@ -181,6 +185,7 @@ public partial class AppDbContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Adress).HasColumnName("adress");
+            entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
             entity.Property(e => e.Name)
                 .HasMaxLength(50)
                 .HasColumnName("name");
