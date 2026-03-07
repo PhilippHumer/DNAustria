@@ -15,6 +15,8 @@ public partial class Address
 
     public string State { get; set; } = null!;
 
+    public bool IsDeleted { get; set; }
+
     public virtual ICollection<Location> Locations { get; set; } = new List<Location>();
 
     public virtual ICollection<Organization> Organizations { get; set; } = new List<Organization>();
