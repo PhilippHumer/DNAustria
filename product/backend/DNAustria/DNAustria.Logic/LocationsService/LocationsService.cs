@@ -11,6 +11,7 @@ public class LocationsService(AppDbContext db) : ILocationsService
     {
         return await db.Locations
             .Include(x => x.AddressNavigation)
+            .Where(x => !x.IsDeleted)
             .Select(x => x.ToDomainLocation())
             .ToListAsync();
     }
@@ -19,7 +20,7 @@ public class LocationsService(AppDbContext db) : ILocationsService
     {
         return (await db.Locations
                 .Include(x => x.AddressNavigation)
-            .SingleOrDefaultAsync(x => x.Id == id))
+            .SingleOrDefaultAsync(x => x.Id == id && !x.IsDeleted))
             ?.ToDomainLocation() ?? null;
     }
 
@@ -60,7 +61,7 @@ public class LocationsService(AppDbContext db) : ILocationsService
         try
         {
             var existing = await db.Locations.Include(loc => loc.AddressNavigation!)
-                .FirstOrDefaultAsync(l => l.Id == locationId);
+                .FirstOrDefaultAsync(l => l.Id == locationId && !l.IsDeleted);
 
             if (existing == null)
                 return (null, "location not found");
@@ -102,8 +103,9 @@ public class LocationsService(AppDbContext db) : ILocationsService
             return false;
         try
         {
-            var entity = new Dal.Models.Location { Id = locationId };
-            db.Entry(entity).State = EntityState.Deleted;
+            var entity = await db.Locations.FirstOrDefaultAsync(x => x.Id == locationId && !x.IsDeleted);
+            if (entity == null) return false;
+            entity.IsDeleted = true;
             await db.SaveChangesAsync();
         }
         catch (DbUpdateException ex)
