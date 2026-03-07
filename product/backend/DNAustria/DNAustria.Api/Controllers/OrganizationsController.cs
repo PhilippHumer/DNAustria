@@ -53,19 +53,24 @@ public class OrganizationsController(IOrganizationsLogic organizationsLogic) : C
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> AddOrganization([FromBody] CreateOrganizationDto organizationDto)
     {
-        var org = await organizationsLogic.AddOrganization(organizationDto.ToDomain());
-        return Created("Organization was created", org.ToDto()); 
+        var result = await organizationsLogic.AddOrganization(organizationDto.ToDomain());
+        return result.organization is not null 
+               ? Created("Organization was created", result.organization.ToDto())
+               : Conflict(result.msg); 
     }
 
     [HttpPut("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateOrganization(int id, [FromBody] OrganizationDto organizationDto)
+    public async Task<IActionResult> UpdateOrganization([FromRoute] int id, [FromBody] OrganizationDto organizationDto)
     {
-        var updatedOrg = await organizationsLogic.UpdateOrganization(organizationDto.ToDomain());
-        return Created("Organization was updated", updatedOrg.ToDto());
+        var result = await organizationsLogic.UpdateOrganization(organizationDto.ToDomain());
+        return result.organization is not null
+            ? Created("Organization was updated", result.organization.ToDto())
+            : NotFound(result.msg);
     }
     
 }

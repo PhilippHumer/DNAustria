@@ -8,20 +8,13 @@ using DalEvent = DNAustria.Dal.Models.Event;
 namespace DNAustria.Logic.Events;
 
 
-public class EventLogic : IEventLogic
+public class EventLogic (AppDbContext db) : IEventLogic
 {
-    private readonly AppDbContext _db;
-
     private const EventStatus PublicStatus = EventStatus.Published;
-
-    public EventLogic(AppDbContext db)
-    {
-        _db = db;
-    }
 
     public async Task<IReadOnlyList<DomainEvent>> GetAllAsync(string? name)
     {
-        var query = _db.Events
+        var query = db.Events
             .AsNoTracking()
             .Include(e => e.EventTopics)
             .Include(e => e.EventTargetAudiences)
@@ -31,7 +24,7 @@ public class EventLogic : IEventLogic
             query = query.Where(e => EF.Functions.ILike(e.Name, $"%{name}%"));
 
         var entities = await query
-            .OrderBy(e => e.StartDate)
+            .OrderBy(e => e.StartDate).Where(e => !e.IsDeleted)
             .ToListAsync();
 
         return entities.Select(MapToDomain).ToList();
@@ -39,10 +32,10 @@ public class EventLogic : IEventLogic
 
     public async Task<DomainEvent?> GetByIdAsync(int id)
     {
-        var entity = await _db.Events
+        var entity = await db.Events
             .AsNoTracking()
             .Include(e => e.EventTopics)
-            .Include(e => e.EventTargetAudiences)
+            .Include(e => e.EventTargetAudiences).Where(e => !e.IsDeleted)
             .FirstOrDefaultAsync(e => e.Id == id);
 
         return entity is null ? null : MapToDomain(entity);
@@ -69,8 +62,8 @@ public class EventLogic : IEventLogic
                 Topic = x
             }).ToList();
 
-        _db.Events.Add(entity);
-        await _db.SaveChangesAsync();
+        db.Events.Add(entity);
+        await db.SaveChangesAsync();
 
         return MapToDomain(entity);
     }
@@ -81,9 +74,9 @@ public class EventLogic : IEventLogic
         IEnumerable<int>? targetAudiences,
         IEnumerable<int>? topics)
     {
-        var entity = await _db.Events
+        var entity = await db.Events
             .Include(e => e.EventTopics)
-            .Include(e => e.EventTargetAudiences)
+            .Include(e => e.EventTargetAudiences).Where(e => !e.IsDeleted)
             .FirstOrDefaultAsync(e => e.Id == id);
 
         if (entity is null)
@@ -112,38 +105,39 @@ public class EventLogic : IEventLogic
             });
         }
 
-        await _db.SaveChangesAsync();
+        await db.SaveChangesAsync();
 
         return MapToDomain(entity);
     }
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var entity = await _db.Events.FindAsync(new object[] { id });
+        var entity = await db.Events.FindAsync(new object[] { id });
         if (entity is null)
             return false;
 
-        _db.Events.Remove(entity);
-        await _db.SaveChangesAsync();
+        entity.IsDeleted = true;
+        await db.SaveChangesAsync();
         return true;
     }
 
     public async Task<DomainEvent?> UpdateStatusAsync(int id, EventStatus status)
     {
-        var entity = await _db.Events.FirstOrDefaultAsync(e => e.Id == id);
+        var entity = await db.Events.Where(e => !e.IsDeleted).FirstOrDefaultAsync(e => e.Id == id);
         if (entity is null)
             return null;
 
         entity.Status = (int)status;
 
-        await _db.SaveChangesAsync();
+        await db.SaveChangesAsync();
 
         return MapToDomain(entity);
     }
     
     private static DomainEvent MapToDomain(DalEvent e)
     {
-        var domain = new DomainEvent(
+        return DomainEvent.Rehydrate(
+            e.Id,
             e.Name,
             e.Description,
             e.Link,
@@ -161,10 +155,9 @@ public class EventLogic : IEventLogic
             e.Organization,
             e.Location,
             e.Contact,
-            e.EventTargetAudiences.Select(x => x.TargetAudience), 
-            e.EventTopics.Select(x => x.Topic));
-
-        return domain;
+            e.EventTargetAudiences.Select(x => x.TargetAudience),
+            e.EventTopics.Select(x => x.Topic)
+        );
     }
 
     private static DalEvent MapToDal(DomainEvent d)
@@ -176,8 +169,7 @@ public class EventLogic : IEventLogic
             Link = d.Link,
             StartDate = d.StartDate,
             EndDate = d.EndDate,
-
-            // Domain Enum -> DAL int
+            
             Classification = (int)d.Classification,
             Status = (int)d.Status,
 

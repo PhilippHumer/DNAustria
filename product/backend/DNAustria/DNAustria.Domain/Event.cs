@@ -41,7 +41,7 @@ public class Event
             throw new ArgumentException("Format cannot be empty");
 
         if (endDate < startDate)
-            throw new ArgumentException("EndDate cannot be empty");
+            throw new ArgumentException("EndDate cannot be before StartDate");
 
         if (ageMinimum < 0 || ageMaximum < 0 || ageMinimum > 999 || ageMaximum > 999)
             throw new ArgumentOutOfRangeException(nameof(ageMinimum), "Age has to be between 0 and 999");
@@ -78,6 +78,53 @@ public class Event
             .ToList();
     }
 
+    public static Event Rehydrate(
+        int id,
+        string name,
+        string description,
+        string link,
+        DateTime startDate,
+        DateTime endDate,
+        EventClassification classification,
+        EventStatus status,
+        bool hasFees,
+        bool isOnline,
+        string programName,
+        string format,
+        bool schoolBookable,
+        int ageMinimum,
+        int ageMaximum,
+        int? organizationId = null,
+        int? locationId = null,
+        int? contactId = null,
+        IEnumerable<int>? targetAudienceIds = null,
+        IEnumerable<int>? topicIds = null)
+    {
+        var ev = new Event(
+            name,
+            description,
+            link,
+            startDate,
+            endDate,
+            classification,
+            status,
+            hasFees,
+            isOnline,
+            programName,
+            format,
+            schoolBookable,
+            ageMinimum,
+            ageMaximum,
+            organizationId,
+            locationId,
+            contactId,
+            targetAudienceIds,
+            topicIds);
+
+        ev.Id = id;
+        return ev;
+    }
+
     public int Id { get; private set; }
 
     public string Name { get; private set; }
@@ -104,6 +151,6 @@ public class Event
     public int AgeMinimum { get; private set; }
     public int AgeMaximum { get; private set; }
 
-    public List<EventTargetAudience> TargetAudiences { get; private set; }
-    public List<EventTopic> Topics { get; private set; }
+    public List<EventTargetAudience> TargetAudiences { get; private set; } = new();
+    public List<EventTopic> Topics { get; private set; } = new();
 }
