@@ -1,0 +1,9 @@
+export * from './contacts.service';
+import { ContactsService } from './contacts.service';
+export * from './events.service';
+import { EventsService } from './events.service';
+export * from './locations.service';
+import { LocationsService } from './locations.service';
+export * from './organizations.service';
+import { OrganizationsService } from './organizations.service';
+export const APIS = [ContactsService, EventsService, LocationsService, OrganizationsService];
