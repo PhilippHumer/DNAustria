@@ -45,6 +45,8 @@ public partial class Event
 
     public virtual Contact? ContactNavigation { get; set; }
 
+    public virtual ICollection<EventHistory> EventHistories { get; set; } = new List<EventHistory>();
+
     public virtual ICollection<EventTargetAudience> EventTargetAudiences { get; set; } = new List<EventTargetAudience>();
 
     public virtual ICollection<EventTopic> EventTopics { get; set; } = new List<EventTopic>();

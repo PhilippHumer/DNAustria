@@ -18,6 +18,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Event> Events { get; set; }
 
+    public virtual DbSet<EventHistory> EventHistories { get; set; }
+
     public virtual DbSet<EventTargetAudience> EventTargetAudiences { get; set; }
 
     public virtual DbSet<EventTopic> EventTopics { get; set; }
@@ -25,6 +27,8 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<Location> Locations { get; set; }
 
     public virtual DbSet<Organization> Organizations { get; set; }
+
+    public virtual DbSet<User> Users { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -127,6 +131,38 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("event_organization_fkey");
         });
 
+        modelBuilder.Entity<EventHistory>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("event_history_pkey");
+
+            entity.ToTable("event_history");
+
+            entity.HasIndex(e => e.CreatedAt, "ix_event_history_created_at");
+
+            entity.HasIndex(e => e.EventId, "ix_event_history_event_id");
+
+            entity.HasIndex(e => new { e.EventId, e.CreatedAt }, "ix_event_history_event_id_created_at").IsDescending(false, true);
+
+            entity.HasIndex(e => e.UserId, "ix_event_history_user_id");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Action).HasColumnName("action");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("now()")
+                .HasColumnName("created_at");
+            entity.Property(e => e.EventId).HasColumnName("event_id");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(d => d.Event).WithMany(p => p.EventHistories)
+                .HasForeignKey(d => d.EventId)
+                .HasConstraintName("fk_event_history_event");
+
+            entity.HasOne(d => d.User).WithMany(p => p.EventHistories)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("fk_event_history_user");
+        });
+
         modelBuilder.Entity<EventTargetAudience>(entity =>
         {
             entity.HasKey(e => new { e.Event, e.TargetAudience }).HasName("event_target_audience_pkey");
@@ -193,6 +229,19 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.AdressNavigation).WithMany(p => p.Organizations)
                 .HasForeignKey(d => d.Adress)
                 .HasConstraintName("organization_adress_fkey");
+        });
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("users_pkey");
+
+            entity.ToTable("users");
+
+            entity.HasIndex(e => e.ExternalId, "uq_users_external_id").IsUnique();
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.ExternalId).HasColumnName("external_id");
+            entity.Property(e => e.Username).HasColumnName("username");
         });
 
         OnModelCreatingPartial(modelBuilder);

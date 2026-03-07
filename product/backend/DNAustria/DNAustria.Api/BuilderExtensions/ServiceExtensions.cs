@@ -16,6 +16,7 @@ public static class ServiceExtensions
         //TODO: register your services here...
         builder.Services.AddScoped<IEventLogic, EventLogic>();
         builder.Services.AddScoped<Logic.IContactsLogic, Logic.ContactsLogic>();
+        builder.Services.AddScoped<IEventTracker, EventTracker>();
         return builder;
     }
 }

@@ -8,7 +8,7 @@ using DalEvent = DNAustria.Dal.Models.Event;
 namespace DNAustria.Logic.Events;
 
 
-public class EventLogic (AppDbContext db) : IEventLogic
+public class EventLogic (AppDbContext db, IEventTracker tracker) : IEventLogic
 {
     private const EventStatus PublicStatus = EventStatus.Published;
 
@@ -64,6 +64,11 @@ public class EventLogic (AppDbContext db) : IEventLogic
 
         db.Events.Add(entity);
         await db.SaveChangesAsync();
+        
+        await tracker.TrackAsync(
+            entity.Id,
+            118811,
+            $"Event {entity.Id} - Event created");
 
         return MapToDomain(entity);
     }
@@ -106,6 +111,11 @@ public class EventLogic (AppDbContext db) : IEventLogic
         }
 
         await db.SaveChangesAsync();
+        
+        await tracker.TrackAsync(
+            entity.Id,
+            118811,
+            $"Event {entity.Id} - Event updated");
 
         return MapToDomain(entity);
     }
@@ -118,6 +128,11 @@ public class EventLogic (AppDbContext db) : IEventLogic
 
         entity.IsDeleted = true;
         await db.SaveChangesAsync();
+        
+        await tracker.TrackAsync(
+            entity.Id,
+            118811,
+            $"Event {entity.Id} - Event deleted");
         return true;
     }
 
@@ -130,6 +145,11 @@ public class EventLogic (AppDbContext db) : IEventLogic
         entity.Status = (int)status;
 
         await db.SaveChangesAsync();
+        
+        await tracker.TrackAsync(
+            entity.Id,
+            118811,
+            $"Event {entity.Id} - Event Status set to {status}");
 
         return MapToDomain(entity);
     }
