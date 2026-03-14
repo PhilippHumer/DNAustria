@@ -1,8 +1,3 @@
-Hier ist ein **Projekt-Setup-Prompt im exakt gleichen Stil** (Context → Intent → Constraints → Examples → Verification).
-Der Zweck ist: **LLMs oder Copilot sollen das Backend-Grundgerüst deterministisch erzeugen**, bevor Feature Slices implementiert werden.
-
----
-
 # Backend Project Setup — DNAustria
 
 # Context
