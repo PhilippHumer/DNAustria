@@ -3,10 +3,11 @@ import { ContactsService } from '../api/api/contacts.service';
 import { ContactDto } from '../api/model/contactDto';
 import { Contactcard } from "./contactcard/contactcard";
 import { ContactCreatePopup } from "./contact-create-popup/contact-create-popup";
+import { ConfirmDeletePopup } from "../shared/confirm-delete-popup/confirm-delete-popup";
 
 @Component({
   selector: 'app-contacts',
-  imports: [Contactcard, ContactCreatePopup],
+  imports: [Contactcard, ContactCreatePopup, ConfirmDeletePopup],
   templateUrl: './contacts.html',
   styleUrl: './contacts.css',
 })

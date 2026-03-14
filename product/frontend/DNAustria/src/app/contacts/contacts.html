@@ -49,27 +49,10 @@
 }
 
 @if (contactToDelete()) {
-  <div class="delete-confirm-backdrop">
-    <div class="delete-confirm card shadow border-0">
-      <div class="card-body">
-        <h2 class="h5 fw-bold mb-2">Confirm Delete</h2>
-        <p class="mb-0">Do you really want to delete this entry?</p>
-      </div>
-      <div class="card-footer bg-white d-flex justify-content-end gap-2">
-        @if (deleteError()) {
-          <div class="text-danger small me-auto align-self-center">{{ deleteError() }}</div>
-        }
-        <button type="button" class="btn btn-outline-secondary" (click)="closeDeletePopup()" [disabled]="deleteInProgress()">
-          Cancel
-        </button>
-        <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="deleteInProgress()">
-          @if (deleteInProgress()) {
-            Deleting...
-          } @else {
-            Delete
-          }
-        </button>
-      </div>
-    </div>
-  </div>
+  <app-confirm-delete-popup
+    [deleting]="deleteInProgress()"
+    [error]="deleteError()"
+    (confirm)="confirmDelete()"
+    (cancel)="closeDeletePopup()"
+  />
 }
