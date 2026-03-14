@@ -1,0 +1,72 @@
+<form class="d-flex flex-column gap-3" [formGroup]="form" (ngSubmit)="submit()">
+  <app-validate-input [control]="form.controls['name']" [messages]="nameMessages">
+    <label for="contact-name" class="form-label fw-semibold">
+      Name <span class="text-danger">*</span>
+    </label>
+    <input
+      id="contact-name"
+      type="text"
+      class="form-control"
+      formControlName="name"
+      [class.is-invalid]="form.controls['name'].invalid && form.controls['name'].touched"
+      placeholder="Full name"
+    />
+  </app-validate-input>
+
+  <app-validate-input [control]="form.controls['email']" [messages]="emailMessages">
+    <label for="contact-email" class="form-label fw-semibold">Email</label>
+    <input
+      id="contact-email"
+      type="email"
+      class="form-control"
+      formControlName="email"
+      [class.is-invalid]="form.controls['email'].invalid && form.controls['email'].touched"
+      placeholder="email&#64;example.com"
+    />
+  </app-validate-input>
+
+  <app-validate-input [control]="form.controls['phone']" [messages]="phoneMessages">
+    <label for="contact-phone" class="form-label fw-semibold">Telefon</label>
+    <input
+      id="contact-phone"
+      type="tel"
+      class="form-control"
+      formControlName="phone"
+      [class.is-invalid]="form.controls['phone'].invalid && form.controls['phone'].touched"
+      placeholder="+43 ..."
+    />
+  </app-validate-input>
+
+  @if (hasGroupError('emailOrPhoneRequired')) {
+    <div class="validation-error">Either email or phone number must be provided.</div>
+  }
+
+  <div>
+    <label for="contact-organization" class="form-label fw-semibold">Organization</label>
+    <select id="contact-organization" class="form-select" formControlName="organization">
+      @if (organizationsLoading()) {
+        <option value="">Loading...</option>
+      } @else {
+        <option value="">No organization</option>
+        @for (org of organizations(); track org) {
+          <option [value]="org">{{ org }}</option>
+        }
+      }
+    </select>
+  </div>
+
+  @if (submitError()) {
+    <div class="alert alert-danger py-2 mb-0">{{ submitError() }}</div>
+  }
+
+  <div class="d-flex justify-content-end gap-2 pt-2">
+    <button type="button" class="btn btn-outline-secondary" (click)="cancel()">Cancel</button>
+    <button type="submit" class="btn btn-primary" [disabled]="submitting()">
+      @if (submitting()) {
+        Saving...
+      } @else {
+        {{ isEditMode() ? 'Save Changes' : 'Create Contact' }}
+      }
+    </button>
+  </div>
+</form>
