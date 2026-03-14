@@ -1,0 +1,1 @@
+dotnet ef dbcontext scaffold "Host=localhost;Port=5432;Database=dnaustria;Username=admin;Password=pass" Npgsql.EntityFrameworkCore.PostgreSQL --output-dir Models --context-dir Data --context AppDbContext --no-onconfiguring -f

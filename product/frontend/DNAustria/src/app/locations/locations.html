@@ -1,3 +1,200 @@
-<p>
-  locations works!
-</p>
+<main class="flex-grow-1 p-4 p-md-5">
+  <div class="d-flex flex-column gap-4">
+
+    <!-- Header: title + button -->
+    <div
+      class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-between gap-3"
+    >
+      <div>
+        <h1 class="h3 fw-bold mb-1">Locations</h1>
+        <p class="text-muted mb-0">manage event locations</p>
+      </div>
+
+      <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round"
+             style="width: 1rem; height: 1rem;">
+          <path d="M5 12h14"></path>
+          <path d="M12 5v14"></path>
+        </svg>
+        <span>add location</span>
+      </button>
+    </div>
+
+    <!-- Organizations grid -->
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        <app-locationcard></app-locationcard>
+        <app-locationcard></app-locationcard>
+    </div>
+
+  </div>
+</main>
+<div>
+      <h1 class="h3 fw-bold mb-1">Create Location</h1>
+      <p class="text-muted mb-0">Add a new event location</p>
+    </div>
+  <form>
+
+    <!-- Basic Information -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header fw-semibold">
+        Basic Information
+      </div>
+
+      <div class="card-body">
+
+        <div class="mb-3">
+          <label class="form-label">
+            Title <span class="text-danger">*</span>
+          </label>
+          <input class="form-control" placeholder="Location name">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Latitude</label>
+          <textarea class="form-control" rows="4"
+            placeholder="Describe the event..."></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Status</label>
+          <select class="form-select">
+            <option>Draft</option>
+            <option>Approved</option>
+          </select>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Date & Location -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header fw-semibold">
+        Date & Location
+      </div>
+
+      <div class="card-body">
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Start Date</label>
+            <input type="datetime-local" class="form-control">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">End Date</label>
+            <input type="datetime-local" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-check form-switch mb-3">
+          <input class="form-check-input" type="checkbox" id="isOnline">
+          <label class="form-check-label" for="isOnline">
+            Online Event
+          </label>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Event Link</label>
+          <input class="form-control" placeholder="https://..." type="url">
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Organization & Contact -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header fw-semibold">
+        Organization & Contact
+      </div>
+
+      <div class="card-body">
+
+        <div class="mb-3">
+          <label class="form-label">Organization</label>
+          <select class="form-select">
+            <option>Select organization</option>
+            <option>FH Upper Austria</option>
+            <option>University of Vienna</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Contact</label>
+          <select class="form-select">
+            <option>Select contact</option>
+            <option>John Doe</option>
+            <option>Jane Smith</option>
+          </select>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Topics & Audience -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header fw-semibold">
+        Topics & Target Audience
+      </div>
+
+      <div class="card-body">
+
+        <!-- Topics -->
+        <div class="mb-4">
+          <label class="form-label d-block mb-2">Topics</label>
+
+          <div class="d-flex flex-wrap gap-2">
+            <span class="badge bg-primary">AI</span>
+            <span class="badge bg-secondary">Programming</span>
+            <span class="badge bg-secondary">Cybersecurity</span>
+            <span class="badge bg-secondary">Data Science</span>
+            <span class="badge bg-secondary">Robotics</span>
+          </div>
+        </div>
+
+        <!-- Audience -->
+        <div>
+          <label class="form-label d-block mb-2">Target Audience</label>
+
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="audience1">
+            <label class="form-check-label" for="audience1">
+              Students
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="audience2">
+            <label class="form-check-label" for="audience2">
+              Professionals
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="audience3">
+            <label class="form-check-label" for="audience3">
+              Researchers
+            </label>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="d-flex justify-content-end gap-2 pb-4">
+
+      <button type="button" class="btn btn-outline-secondary"
+              data-bs-toggle="modal" data-bs-target="#cancelModal">
+        Cancel
+      </button>
+
+      <button type="submit" class="btn btn-primary">
+        Create Event
+      </button>
+
+    </div>
+
+  </form>
