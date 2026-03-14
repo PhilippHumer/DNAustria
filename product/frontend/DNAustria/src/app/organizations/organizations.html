@@ -19,7 +19,10 @@
 
     <div class="row row-cols-1 row-cols-md-2 g-4">
       @for (org of organizations(); track org.id) {
-        <app-organizationcard [organization]="org"></app-organizationcard>
+        <app-organizationcard [organization]="org"
+                              (editClicked)="openEditPopup(org)"
+                              (deleteClicked)="openDeletePopup(org)"
+        ></app-organizationcard>
       }
     </div>
 
@@ -47,7 +50,7 @@
 
           </div>
 
-          <form #organizationForm="ngForm" (ngSubmit)="onSubmit(organizationForm)">
+          <form #organizationForm="ngForm" (ngSubmit)="addOrg(organizationForm)">
             <div class="modal-body">
               <div class="card mb-4 shadow-sm">
                 <div class="card-header bg-white">
@@ -64,7 +67,7 @@
                       type="text"
                       class="form-control"
                       placeholder="Organization name"
-                      [(ngModel)]="organization.name"
+                      [(ngModel)]="createOrganization.name"
                       required
                     />
                   </div>
@@ -85,7 +88,7 @@
                       type="text"
                       class="form-control"
                       placeholder="Street address"
-                      [(ngModel)]="organization.address.street"
+                      [(ngModel)]="createOrganization.address.street"
                     />
                   </div>
 
@@ -98,7 +101,7 @@
                         type="text"
                         class="form-control"
                         placeholder="e.g. 4232"
-                        [(ngModel)]="organization.address.zip"
+                        [(ngModel)]="createOrganization.address.zip"
                       />
                     </div>
 
@@ -110,22 +113,10 @@
                         type="text"
                         class="form-control"
                         placeholder="e.g. Hagenberg"
-                        [(ngModel)]="organization.address.city"
+                        [(ngModel)]="createOrganization.address.city"
                       />
                     </div>
                   </div>
-
-<!--                  <div class="mb-0">-->
-<!--                    <label for="regionId" class="form-label">Region ID</label>-->
-<!--                    <input-->
-<!--                      id="regionId"-->
-<!--                      name="regionId"-->
-<!--                      type="number"-->
-<!--                      class="form-control"-->
-<!--                      placeholder="e.g. 1"-->
-<!--                      [(ngModel)]="organization.regionId"-->
-<!--                    />-->
-<!--                  </div>-->
                 </div>
               </div>
             </div>
@@ -152,5 +143,150 @@
       </div>
     </div>
 
+
+    <div
+      #editOrganizationModal
+      class="modal fade"
+      id="addOrganizationModal"
+      tabindex="-1"
+      aria-labelledby="addOrganizationModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow">
+          <div class="modal-header">
+            <div class="d-flex align-items-center gap-3">
+
+
+              <div>
+                <h5 class="modal-title mb-0 fw-bold" id="addOrganizationModalLabel">
+                  Update Organization
+                </h5>
+                <small class="text-muted">Edit organization</small>
+              </div>
+            </div>
+
+          </div>
+
+          <form #editOrganizationForm="ngForm" (ngSubmit)="updateOrg(editOrganizationForm)">
+            <div class="modal-body">
+              <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-white">
+                  <h6 class="mb-0 fw-semibold">Organization Details</h6>
+                </div>
+                <div class="card-body">
+                  <div class="mb-3">
+                    <label for="name" class="form-label">
+                      Name <span class="text-danger">*</span>
+                    </label>
+                    <input
+                      id="name"
+                      name="name"
+                      type="text"
+                      class="form-control"
+                      placeholder="Organization name"
+                      [(ngModel)]="updateOrganization.name"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Address -->
+              <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-white">
+                  <h6 class="mb-0 fw-semibold">Address</h6>
+                </div>
+                <div class="card-body">
+                  <div class="mb-3">
+                    <label for="street" class="form-label">Street</label>
+                    <input
+                      id="street"
+                      name="street"
+                      type="text"
+                      class="form-control"
+                      placeholder="Street address"
+                      [(ngModel)]="updateOrganization.adress.street"
+                    />
+                  </div>
+
+                  <div class="row g-3 mb-3">
+                    <div class="col-12 col-sm-6">
+                      <label for="zip" class="form-label">ZIP Code</label>
+                      <input
+                        id="zip"
+                        name="zip"
+                        type="text"
+                        class="form-control"
+                        placeholder="e.g. 4232"
+                        [(ngModel)]="updateOrganization.adress.zip"
+                      />
+                    </div>
+
+                    <div class="col-12 col-sm-6">
+                      <label for="city" class="form-label">City</label>
+                      <input
+                        id="city"
+                        name="city"
+                        type="text"
+                        class="form-control"
+                        placeholder="e.g. Hagenberg"
+                        [(ngModel)]="updateOrganization.adress.city"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                class="btn btn-primary d-inline-flex align-items-center"
+                [disabled]="editOrganizationForm.invalid"
+              >
+                <span>Update Organization</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+
   </div>
 </main>
+
+@if (orgToDelete()) {
+  <div class="delete-confirm-backdrop">
+    <div class="delete-confirm card shadow border-0">
+      <div class="card-body">
+        <h2 class="h5 fw-bold mb-2">Confirm Delete</h2>
+        <p class="mb-0">Do you really want to delete this entry?</p>
+      </div>
+      <div class="card-footer bg-white d-flex justify-content-end gap-2">
+        @if (deleteError()) {
+          <div class="text-danger small me-auto align-self-center">{{ deleteError() }}</div>
+        }
+        <button type="button" class="btn btn-outline-secondary" (click)="closeDeletePopup()" [disabled]="deleteInProgress()">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="deleteInProgress()">
+          @if (deleteInProgress()) {
+            Deleting...
+          } @else {
+            Delete
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

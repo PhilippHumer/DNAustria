@@ -73,6 +73,7 @@ public class OrganizationsLogic(AppDbContext db) : IOrganizationsLogic
         }
         
         orgDal.Name = organization.Name;
+        orgDal.AdressNavigation = organization.Adress.ToEntity();
         var updatedOrg = db.Organizations.Update(orgDal);
         await db.SaveChangesAsync();
         return (updatedOrg.Entity.ToDomain(), string.Empty);

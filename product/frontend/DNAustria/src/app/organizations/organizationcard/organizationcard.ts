@@ -1,4 +1,4 @@
-import {Component, input} from '@angular/core';
+import {Component, input, output} from '@angular/core';
 import {OrganizationDto} from '../../api';
 
 @Component({
@@ -10,4 +10,14 @@ import {OrganizationDto} from '../../api';
 export class Organizationcard {
 
   organization = input<OrganizationDto>();
+  readonly editClicked = output<void>();
+  readonly deleteClicked = output<void>();
+
+  protected onEditClick() {
+    this.editClicked.emit();
+  }
+
+  protected onDeleteClick() {
+    this.deleteClicked.emit();
+  }
 }
