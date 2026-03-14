@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import {Component, input} from '@angular/core';
+import {OrganizationDto} from '../../api';
 
 @Component({
   selector: 'app-organizationcard',
@@ -8,4 +9,5 @@ import { Component } from '@angular/core';
 })
 export class Organizationcard {
 
+  organization = input<OrganizationDto>();
 }
