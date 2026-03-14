@@ -1,4 +1,7 @@
+using DNAustria.Application.Interfaces;
+using DNAustria.Application.Services;
 using DNAustria.Infrastructure.Persistence;
+using DNAustria.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +16,9 @@ public static class DependencyInjection
     {
         services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("Default")));
+
+        services.AddScoped<IOrganizationRepository, OrganizationRepository>();
+        services.AddScoped<IOrganizationService, OrganizationService>();
 
         return services;
     }

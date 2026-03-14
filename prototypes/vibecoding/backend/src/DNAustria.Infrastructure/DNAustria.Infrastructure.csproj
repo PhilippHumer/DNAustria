@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\DNAustria.Domain\DNAustria.Domain.csproj" />
     <ProjectReference Include="..\DNAustria.Application\DNAustria.Application.csproj" />
   </ItemGroup>
 
