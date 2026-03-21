@@ -10,25 +10,74 @@
         <p class="text-muted mb-0">Manage educational events</p>
       </div>
 
-      <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-             fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round"
-             style="width: 1rem; height: 1rem;">
-          <path d="M5 12h14"></path>
-          <path d="M12 5v14"></path>
-        </svg>
+      <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-2" (click)="openCreatePopup()">
+        <i class="bi bi-plus-lg" aria-hidden="true"></i>
         <span>Create Event</span>
       </button>
     </div>
 
-    <app-filterevents></app-filterevents>
+    <app-filterevents
+      [searchTerm]="searchTerm()"
+      (searchTermChange)="handleSearchTermChange($event)"
+    ></app-filterevents>
 
-    <!-- Cards grid -->
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-      <app-eventcard></app-eventcard>
-      <app-eventcard></app-eventcard>
-      <app-eventcard></app-eventcard>
-    </div> <!-- /row -->
-  </div> <!-- /page content wrapper -->
+      @if (isLoading() && !hasLoadedOnce()) {
+        <div class="col-12">
+          <div class="alert alert-info mb-0">Loading events...</div>
+        </div>
+      } @else if (loadError()) {
+        <div class="col-12">
+          <div class="alert alert-danger mb-0">{{ loadError() }}</div>
+        </div>
+      } @else if (events().length === 0) {
+        <div class="col-12">
+          <div class="alert alert-secondary mb-0">No events found.</div>
+        </div>
+      } @else {
+        @for (event of events(); track event.id) {
+          <app-eventcard
+            [event]="event"
+            class="col"
+            (editClicked)="openEditPopup(event)"
+            (deleteClicked)="openDeletePopup(event)"
+          ></app-eventcard>
+        }
+      }
+    </div>
+  </div>
 </main>
+
+@if (isFormOpen()) {
+  <app-event-form-popup
+    [editEvent]="editingEvent()"
+    (cancel)="closeFormPopup()"
+    (saved)="handleEventSaved()"
+  ></app-event-form-popup>
+}
+
+@if (eventToDelete()) {
+  <div class="delete-confirm-backdrop">
+    <div class="delete-confirm card shadow border-0">
+      <div class="card-body">
+        <h2 class="h5 fw-bold mb-2">Confirm Delete</h2>
+        <p class="mb-0">Do you really want to delete this event?</p>
+      </div>
+      <div class="card-footer bg-white d-flex justify-content-end gap-2">
+        @if (deleteError()) {
+          <div class="text-danger small me-auto align-self-center">{{ deleteError() }}</div>
+        }
+        <button type="button" class="btn btn-outline-secondary" (click)="closeDeletePopup()" [disabled]="deleteInProgress()">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="deleteInProgress()">
+          @if (deleteInProgress()) {
+            Deleting...
+          } @else {
+            Delete
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

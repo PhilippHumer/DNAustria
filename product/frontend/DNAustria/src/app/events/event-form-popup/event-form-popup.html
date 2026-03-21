@@ -1,0 +1,357 @@
+<div class="event-popup-backdrop">
+  <div class="event-popup card shadow border-0">
+    <div class="card-header event-popup-header border-0">
+      <div class="event-popup-header__eyebrow">
+        {{ isEditMode() ? 'Edit Event' : 'Create Event' }}
+      </div>
+      <h2 class="event-popup-header__title">{{ isEditMode() ? 'Edit Event' : 'Create Event' }}</h2>
+      <p class="event-popup-header__subtitle">
+        {{ isEditMode() ? 'Update an existing event with polished, complete details.' : 'Register a new event with all key details in one place.' }}
+      </p>
+    </div>
+
+    <form class="card-body event-popup-body d-flex flex-column gap-4" [formGroup]="form" (ngSubmit)="submit()">
+      <section class="event-form-section">
+        <div class="event-form-section__header">
+          <h3 class="event-form-section__title">Basics</h3>
+          <p class="event-form-section__hint">Core information that appears first to visitors.</p>
+        </div>
+
+        <div class="row g-3">
+        <div class="col-md-6">
+          <label for="event-name" class="form-label fw-semibold">
+            Name <span class="text-danger">*</span>
+          </label>
+          <input
+            id="event-name"
+            type="text"
+            class="form-control"
+            formControlName="name"
+            [class.is-invalid]="form.controls.name.invalid && form.controls.name.touched"
+            maxlength="100"
+            placeholder="Event name"
+          />
+          @if (hasControlError('name', 'required')) {
+            <div class="invalid-feedback d-block">Please enter an event name.</div>
+          } @else if (hasControlError('name', 'maxlength')) {
+            <div class="invalid-feedback d-block">The event title must not exceed 100 characters.</div>
+          }
+          <div class="form-text text-end">{{ form.controls.name.value.length }}/100</div>
+        </div>
+
+        <div class="col-md-3">
+          <label for="event-classification" class="form-label fw-semibold">
+            Classification <span class="text-danger">*</span>
+          </label>
+          <select id="event-classification" class="form-select" formControlName="classification">
+            @for (option of classificationOptions; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label for="event-status" class="form-label fw-semibold">Status</label>
+          <select id="event-status" class="form-select" formControlName="status">
+            @for (option of statusOptions; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="col-12">
+          <label for="event-description" class="form-label fw-semibold">
+            Description <span class="text-danger">*</span>
+          </label>
+          <textarea
+            id="event-description"
+            class="form-control"
+            rows="4"
+            formControlName="description"
+            [class.is-invalid]="form.controls.description.invalid && form.controls.description.touched"
+            maxlength="2000"
+            placeholder="Describe the event"
+          ></textarea>
+          @if (hasControlError('description', 'required')) {
+            <div class="invalid-feedback d-block">Please enter a description.</div>
+          } @else if (hasControlError('description', 'maxlength')) {
+            <div class="invalid-feedback d-block">The event description must not exceed 2000 characters.</div>
+          }
+          <div class="form-text d-flex justify-content-between gap-3">
+            <span>Less than 1000 characters are shown in the result list.</span>
+            <span>{{ form.controls.description.value.length }}/2000</span>
+          </div>
+        </div>
+        </div>
+      </section>
+
+      <section class="event-form-section">
+        <div class="event-form-section__header">
+          <h3 class="event-form-section__title">Schedule & Access</h3>
+          <p class="event-form-section__hint">Define when the event happens and how people can attend.</p>
+        </div>
+
+        <div class="row g-3">
+        <div class="col-md-6">
+          <label for="event-start" class="form-label fw-semibold">
+            Start <span class="text-danger">*</span>
+          </label>
+          <input
+            id="event-start"
+            type="datetime-local"
+            class="form-control"
+            formControlName="startDate"
+            [class.is-invalid]="form.controls.startDate.invalid && form.controls.startDate.touched"
+          />
+          @if (hasControlError('startDate', 'required')) {
+            <div class="invalid-feedback d-block">Please select a start date and time.</div>
+          } @else if (hasFormError('invalidDateRange')) {
+            <div class="invalid-feedback d-block">The start date must be before the end date.</div>
+          }
+        </div>
+
+        <div class="col-md-6">
+          <label for="event-end" class="form-label fw-semibold">
+            End <span class="text-danger">*</span>
+          </label>
+          <input
+            id="event-end"
+            type="datetime-local"
+            class="form-control"
+            formControlName="endDate"
+            [class.is-invalid]="form.controls.endDate.invalid && form.controls.endDate.touched"
+          />
+          @if (hasControlError('endDate', 'required')) {
+            <div class="invalid-feedback d-block">Please select an end date and time.</div>
+          } @else if (hasFormError('invalidDateRange')) {
+            <div class="invalid-feedback d-block">The end date must be on or after the start date.</div>
+          }
+        </div>
+
+        <div class="col-md-6">
+          <label for="event-link" class="form-label fw-semibold">
+            Link <span class="text-danger">*</span>
+          </label>
+          <input
+            id="event-link"
+            type="url"
+            class="form-control"
+            formControlName="link"
+            [class.is-invalid]="form.controls.link.invalid && form.controls.link.touched"
+            placeholder="https://..."
+          />
+          @if (hasControlError('link', 'required')) {
+            <div class="invalid-feedback d-block">Please enter a link.</div>
+          }
+        </div>
+
+        <div class="col-md-6">
+          <label for="event-program" class="form-label fw-semibold">Program</label>
+          <input id="event-program" type="text" class="form-control" formControlName="programName" placeholder="Program name" />
+        </div>
+
+        <div class="col-12">
+          <div class="event-toggle-grid">
+            <label class="event-toggle-card" for="event-online">
+              <input id="event-online" type="checkbox" class="form-check-input" formControlName="isOnline" />
+              <span class="event-toggle-card__content">
+                <span class="event-toggle-card__title">Online event</span>
+                <span class="event-toggle-card__description">Participants can join remotely.</span>
+              </span>
+            </label>
+
+            <label class="event-toggle-card" for="event-fees">
+              <input id="event-fees" type="checkbox" class="form-check-input" formControlName="hasFees" />
+              <span class="event-toggle-card__content">
+                <span class="event-toggle-card__title">Has fees</span>
+                <span class="event-toggle-card__description">Enable this when participation is paid.</span>
+              </span>
+            </label>
+
+            <label class="event-toggle-card" for="event-school">
+              <input id="event-school" type="checkbox" class="form-check-input" formControlName="schoolBookable" />
+              <span class="event-toggle-card__content">
+                <span class="event-toggle-card__title">School bookable</span>
+                <span class="event-toggle-card__description">Suitable for school classes and group bookings.</span>
+              </span>
+            </label>
+          </div>
+        </div>
+        </div>
+      </section>
+
+      <section class="event-form-section">
+        <div class="event-form-section__header">
+          <h3 class="event-form-section__title">Partners & Place</h3>
+          <p class="event-form-section__hint">Connect the event to the right organization, contact, and venue.</p>
+        </div>
+
+        <div class="row g-3">
+        <div class="col-md-4">
+          <label for="event-format" class="form-label fw-semibold">Format</label>
+          <input id="event-format" type="text" class="form-control" formControlName="format" placeholder="e.g. lecture" />
+        </div>
+
+        <div class="col-md-4">
+          <label for="event-organization" class="form-label fw-semibold">
+            Organization <span class="text-danger">*</span>
+          </label>
+          <select
+            id="event-organization"
+            class="form-select"
+            formControlName="organization"
+            [class.is-invalid]="form.controls.organization.invalid && form.controls.organization.touched"
+          >
+            <option value="">No organization</option>
+            @for (organization of organizations(); track organization.id) {
+              <option [value]="organization.id">{{ organization.name }}</option>
+            }
+          </select>
+          @if (hasControlError('organization', 'required')) {
+            <div class="invalid-feedback d-block">Please select an organization.</div>
+          }
+        </div>
+
+        <div class="col-md-4">
+          <label for="event-location" class="form-label fw-semibold">Location</label>
+          <select id="event-location" class="form-select" formControlName="location">
+            <option value="">No location</option>
+            @for (location of locations(); track location.id ?? location.name) {
+              <option [value]="location.id ?? ''">{{ location.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label for="event-contact" class="form-label fw-semibold">Contact</label>
+          <select id="event-contact" class="form-select" formControlName="contact">
+            <option value="">No contact</option>
+            @for (contact of contacts(); track contact.id ?? contact.name ?? $index) {
+              <option [value]="contact.id ?? ''">{{ contact.name || 'Unnamed Contact' }}</option>
+            }
+          </select>
+        </div>
+        </div>
+      </section>
+
+      <section class="event-form-section">
+        <div class="event-form-section__header">
+          <h3 class="event-form-section__title">Audience</h3>
+          <p class="event-form-section__hint">Set age range and the codes used for discovery and filtering.</p>
+        </div>
+
+        <div class="row g-3">
+        <div class="col-md-4">
+          <label for="event-age-min" class="form-label fw-semibold">Min age</label>
+          <input
+            id="event-age-min"
+            type="number"
+            class="form-control"
+            formControlName="ageMinimum"
+            min="0"
+            [class.is-invalid]="(form.controls.ageMinimum.invalid && form.controls.ageMinimum.touched) || hasFormError('invalidAgeRange')"
+          />
+          @if (hasControlError('ageMinimum', 'min')) {
+            <div class="invalid-feedback d-block">Minimum age cannot be negative.</div>
+          } @else if (hasFormError('invalidAgeRange')) {
+            <div class="invalid-feedback d-block">Minimum age cannot be greater than maximum age.</div>
+          }
+        </div>
+
+        <div class="col-md-4">
+          <label for="event-age-max" class="form-label fw-semibold">Max age</label>
+          <input
+            id="event-age-max"
+            type="number"
+            class="form-control"
+            formControlName="ageMaximum"
+            min="0"
+            [class.is-invalid]="(form.controls.ageMaximum.invalid && form.controls.ageMaximum.touched) || hasFormError('invalidAgeRange')"
+          />
+          @if (hasControlError('ageMaximum', 'min')) {
+            <div class="invalid-feedback d-block">Maximum age cannot be negative.</div>
+          } @else if (hasFormError('invalidAgeRange')) {
+            <div class="invalid-feedback d-block">Maximum age must be greater than or equal to minimum age.</div>
+          }
+        </div>
+
+        <div class="col-12">
+          <label for="event-target-audiences" class="form-label fw-semibold">
+            Target audiences <span class="text-danger">*</span>
+          </label>
+          <div
+            id="event-target-audiences"
+            class="audience-option-grid"
+            [class.is-invalid]="form.controls.targetAudiences.invalid && form.controls.targetAudiences.touched"
+          >
+            @for (option of targetAudienceOptions; track option.value) {
+              <label class="audience-option-card" [class.audience-option-card--selected]="isTargetAudienceSelected(option.value)">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [checked]="isTargetAudienceSelected(option.value)"
+                  (change)="toggleTargetAudience(option.value, $any($event.target).checked)"
+                />
+                <span class="audience-option-card__content">
+                  <span class="audience-option-card__code">{{ option.value }}</span>
+                  <span class="audience-option-card__label">{{ option.label }}</span>
+                  <span class="audience-option-card__description">{{ option.description }}</span>
+                </span>
+              </label>
+            }
+          </div>
+          <div class="form-text">Select one or more target audiences.</div>
+          @if (hasControlError('targetAudiences', 'required')) {
+            <div class="invalid-feedback d-block">Please select at least one target audience.</div>
+          }
+        </div>
+
+        <div class="col-md-6">
+          <label for="event-topics" class="form-label fw-semibold">
+            Topics <span class="text-danger">*</span>
+          </label>
+          <div
+            id="event-topics"
+            class="audience-option-grid"
+            [class.is-invalid]="form.controls.topics.invalid && form.controls.topics.touched"
+          >
+            @for (option of topicOptions; track option.value) {
+              <label class="audience-option-card" [class.audience-option-card--selected]="isTopicSelected(option.value)">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [checked]="isTopicSelected(option.value)"
+                  (change)="toggleTopic(option.value, $any($event.target).checked)"
+                />
+                <span class="audience-option-card__content">
+                  <span class="audience-option-card__code">{{ option.value }}</span>
+                  <span class="audience-option-card__label">{{ option.label }}</span>
+                </span>
+              </label>
+            }
+          </div>
+          <div class="form-text">Select one or more subject areas.</div>
+          @if (hasControlError('topics', 'required')) {
+            <div class="invalid-feedback d-block">Please select at least one topic.</div>
+          }
+        </div>
+        </div>
+      </section>
+
+      @if (submitError()) {
+        <div class="alert alert-danger py-2 mb-0 event-alert">{{ submitError() }}</div>
+      }
+
+      <div class="event-popup-footer d-flex justify-content-end gap-2 pt-2">
+        <button type="button" class="btn btn-outline-secondary event-action event-action--secondary" (click)="close()">Cancel</button>
+        <button type="submit" class="btn btn-primary event-action event-action--primary" [disabled]="submitting() || form.invalid">
+          @if (submitting()) {
+            Saving...
+          } @else {
+            {{ isEditMode() ? 'Save Changes' : 'Create Event' }}
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -21,8 +21,8 @@ export interface EventDto {
     hasFees: boolean;
     isOnline: boolean;
     organization: number | null;
-    programName: string;
-    format: string;
+    programName?: string;
+    format?: string;
     schoolBookable: boolean;
     ageMinimum: number;
     ageMaximum: number;

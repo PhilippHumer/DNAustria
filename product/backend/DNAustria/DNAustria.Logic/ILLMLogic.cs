@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Threading.Tasks;
 
 namespace DNAustria.Logic;
 
 public interface ILLMLogic
 {
+    Task<string?> GetChatCompletionAsync(string prompt);
 }
