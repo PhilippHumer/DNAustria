@@ -108,7 +108,7 @@ export class Organizations implements OnInit {
   }
 
   protected openEditPopup(org: OrganizationDto) {
-    this.updateOrganization = org;
+    this.updateOrganization = structuredClone(org);
     const modalEl = this.editOrgModal.nativeElement;
     if (!modalEl) return;
 
