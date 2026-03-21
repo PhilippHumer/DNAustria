@@ -12,8 +12,8 @@ public record UpdateEventDto
     public required bool HasFees { get; init; }
     public required bool IsOnline { get; init; }
     public required int? Organization { get; init; }
-    public required string ProgramName { get; init; }
-    public required string Format { get; init; }
+    public string ProgramName { get; init; }
+    public string Format { get; init; }
     public required bool SchoolBookable { get; init; }
     public required int AgeMinimum { get; init; }
     public required int AgeMaximum { get; init; }

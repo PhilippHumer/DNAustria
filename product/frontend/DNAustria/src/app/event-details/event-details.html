@@ -1,195 +1,259 @@
 <main class="flex-grow-1 p-4 p-md-5">
-  <div class="mb-4">
+  @if (isLoading()) {
+    <div class="alert alert-info mb-0">Loading event...</div>
+  } @else if (loadError()) {
+    <div class="alert alert-danger mb-0">{{ loadError() }}</div>
+  } @else if (event(); as currentEvent) {
+    <div class="mb-4">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb small text-muted mb-3">
+          <li class="breadcrumb-item">
+            <a [routerLink]="['/events']" class="text-decoration-none">Events</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">
+            {{ currentEvent.name }}
+          </li>
+        </ol>
+      </nav>
 
-    <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb">
-      <ol class="breadcrumb small text-muted mb-3">
-        <li class="breadcrumb-item">
-          <a href="/events" class="text-decoration-none">Events</a>
-        </li>
-        <li class="breadcrumb-item active" aria-current="page">
-          AI &amp; Machine Learning Workshop
-        </li>
-      </ol>
-    </nav>
-
-    <!-- Header -->
-    <div class="d-flex flex-column flex-sm-row align-items-start justify-content-between gap-3">
-      <div>
-        <div class="d-flex align-items-center gap-3">
-          <h1 class="h3 fw-bold mb-0">AI &amp; Machine Learning Workshop</h1>
-
-          <!-- Approved badge -->
-          <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2">
-            Approved
-          </span>
-        </div>
-
-        <p class="small text-muted mt-2 mb-0">Last modified: February 1st, 2024 by admin</p>
-      </div>
-
-      <div class="d-flex align-items-center gap-2">
-        <button class="btn btn-outline-secondary d-inline-flex align-items-center" type="button">
-          <i class="bi bi-arrow-left me-2" style="font-size: 16px;"></i>
-          Back
-        </button>
-
-        <button class="btn btn-outline-secondary d-inline-flex align-items-center" type="button">
-          <i class="bi bi-pencil me-2" style="font-size: 16px;"></i>
-          Edit
-        </button>
-
-        <button class="btn btn-danger d-inline-flex align-items-center" type="button">
-          <i class="bi bi-trash me-2" style="font-size: 16px;"></i>
-          Delete
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Content grid -->
-  <div class="row g-4">
-    <!-- Main -->
-    <div class="col-md-8">
-
-      <!-- Description -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <h5 class="card-title mb-3">Description</h5>
-          <p class="text-muted mb-0" style="line-height:1.6;">
-            Hands-on workshop exploring practical applications of artificial intelligence and machine learning in software development.
-            Learn about neural networks, data processing, and model training.
+      <div class="d-flex flex-column flex-sm-row align-items-start justify-content-between gap-3">
+        <div>
+          <div class="d-flex flex-wrap align-items-center gap-3">
+            <h1 class="h3 fw-bold mb-0">{{ currentEvent.name }}</h1>
+            <span class="badge border px-3 py-2" [class]="statusBadgeClass(currentEvent.status)">
+              {{ statusLabel(currentEvent.status) }}
+            </span>
+          </div>
+          <p class="small text-muted mt-2 mb-0">
+            Classification: {{ classificationLabel(currentEvent.classification) }}
           </p>
         </div>
+
+        <div class="d-flex align-items-center gap-2">
+          <button class="btn btn-outline-secondary d-inline-flex align-items-center" type="button" (click)="goBack()">
+            <i class="bi bi-arrow-left me-2" aria-hidden="true"></i>
+            Back
+          </button>
+
+          <button class="btn btn-outline-secondary d-inline-flex align-items-center" type="button" (click)="openEditPopup()">
+            <i class="bi bi-pencil-square me-2" aria-hidden="true"></i>
+            Edit
+          </button>
+
+          <button class="btn btn-danger d-inline-flex align-items-center" type="button" (click)="openDeleteDialog()">
+            <i class="bi bi-trash3 me-2" aria-hidden="true"></i>
+            Delete
+          </button>
+        </div>
       </div>
+    </div>
 
-      <!-- Date & Time -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <h5 class="card-title d-flex align-items-center gap-2 mb-3">
-            <i class="bi bi-calendar-event" style="font-size: 20px;"></i>
-            Date &amp; Time
-          </h5>
+    <div class="row g-4">
+      <div class="col-md-8">
+        <div class="card shadow-sm mb-4">
+          <div class="card-body">
+            <h5 class="card-title mb-3">Description</h5>
+            <p class="text-muted mb-0 detail-copy">
+              {{ currentEvent.description || 'No description available.' }}
+            </p>
+          </div>
+        </div>
 
-          <div class="row g-3">
-            <div class="col-sm-6">
-              <div class="small text-muted fw-semibold">Start</div>
-              <div>March 15th, 2024 at 10:00 AM</div>
+        <div class="card shadow-sm mb-4">
+          <div class="card-body">
+            <h5 class="card-title mb-3">Date &amp; Time</h5>
+
+            <div class="row g-3">
+              <div class="col-sm-6">
+                <div class="small text-muted fw-semibold">Start</div>
+                <div>{{ currentEvent.startDate | date:'medium' }}</div>
+              </div>
+              <div class="col-sm-6">
+                <div class="small text-muted fw-semibold">End</div>
+                <div>{{ currentEvent.endDate | date:'medium' }}</div>
+              </div>
             </div>
-            <div class="col-sm-6">
-              <div class="small text-muted fw-semibold">End</div>
-              <div>March 15th, 2024 at 6:00 PM</div>
+
+            <hr class="my-4">
+
+            <div class="small d-flex flex-column gap-2">
+              <div>
+                <span class="text-muted fw-semibold">Event mode:</span>
+                {{ currentEvent.isOnline ? 'Online' : 'On-site' }}
+              </div>
+              <div>
+                <span class="text-muted fw-semibold">Has fees:</span>
+                {{ currentEvent.hasFees ? 'Yes' : 'No' }}
+              </div>
+              <div>
+                <span class="text-muted fw-semibold">School bookable:</span>
+                {{ currentEvent.schoolBookable ? 'Yes' : 'No' }}
+              </div>
+              <div>
+                <span class="text-muted fw-semibold">Age range:</span>
+                {{ currentEvent.ageMinimum }} - {{ currentEvent.ageMaximum }}
+              </div>
+              @if (currentEvent.link) {
+                <div>
+                  <span class="text-muted fw-semibold">Link:</span>
+                  <a [href]="currentEvent.link" target="_blank" rel="noopener noreferrer" class="ms-1 link-primary">
+                    {{ currentEvent.link }}
+                  </a>
+                </div>
+              }
             </div>
           </div>
+        </div>
 
-          <hr class="my-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title mb-3">Topics &amp; Target Audience</h5>
 
-          <div class="d-flex align-items-center gap-2 mb-2">
-            <i class="bi bi-pin-map-fill text-muted" style="font-size: 16px;"></i>
-            <span>In-Person Event</span>
-          </div>
+            <div class="mb-4">
+              <div class="small text-muted fw-semibold">Topics</div>
+              <div class="detail-option-grid mt-2">
+                @if (currentEvent.topics.length === 0) {
+                  <span class="text-muted small">No topics assigned.</span>
+                } @else {
+                  @for (topic of currentEvent.topics; track topic) {
+                    <div class="detail-option-card">
+                      <span class="detail-option-card__code">{{ topic }}</span>
+                      <span class="detail-option-card__label">{{ topicOption(topic)?.label ?? 'Unknown topic' }}</span>
+                    </div>
+                  }
+                }
+              </div>
+            </div>
 
-          <div class="d-flex align-items-center gap-2">
-            <i class="bi bi-link-45deg" style="font-size: 16px;"></i>
-            <a href="https://fh-ooe.at/events/ai-workshop" target="_blank" rel="noopener noreferrer" class="link-primary">
-              https://fh-ooe.at/events/ai-workshop
-            </a>
+            <hr class="my-4">
+
+            <div>
+              <div class="small text-muted fw-semibold">Target Audience</div>
+              <div class="detail-option-grid mt-2">
+                @if (currentEvent.targetAudiences.length === 0) {
+                  <span class="text-muted small">No target audiences assigned.</span>
+                } @else {
+                  @for (audience of currentEvent.targetAudiences; track audience) {
+                    <div class="detail-option-card">
+                      <span class="detail-option-card__code">{{ audience }}</span>
+                      <span class="detail-option-card__label">
+                        {{ targetAudienceOption(audience)?.label ?? 'Unknown audience' }}
+                      </span>
+                      @if (targetAudienceOption(audience)?.description; as description) {
+                        <span class="detail-option-card__description">{{ description }}</span>
+                      }
+                    </div>
+                  }
+                }
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Topics & Target Audience -->
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title mb-3">Topics &amp; Target Audience</h5>
-
-          <div class="mb-4">
-            <div class="small text-muted fw-semibold">Topics</div>
-            <div class="d-flex flex-wrap gap-2 mt-2">
-              <span class="badge bg-secondary">Software Development</span>
-              <span class="badge bg-secondary">Artificial Intelligence</span>
-              <span class="badge bg-secondary">Data Science</span>
-            </div>
+      <div class="col-md-4">
+        <div class="card shadow-sm mb-4">
+          <div class="card-body">
+            <h5 class="card-title mb-3">Organization</h5>
+            <div class="fw-semibold">{{ organization()?.name || 'No organization assigned' }}</div>
+            @if (organization()?.adress; as address) {
+              <div class="small text-muted">
+                {{ address.street }}<br>
+                {{ address.zip }} {{ address.city }}<br>
+                {{ address.state }}
+              </div>
+            } @else if (currentEvent.organization) {
+              <div class="small text-muted">Organization ID: {{ currentEvent.organization }}</div>
+            }
           </div>
+        </div>
 
-          <hr class="my-4">
+        <div class="card shadow-sm mb-4">
+          <div class="card-body">
+            <h5 class="card-title mb-3">Contact Person</h5>
+            <div class="fw-semibold mb-3">{{ contact()?.name || 'No contact assigned' }}</div>
 
-          <div>
-            <div class="small text-muted fw-semibold">Target Audience</div>
-            <div class="d-flex flex-wrap gap-2 mt-2">
-              <span class="badge text-dark border bg-light">Students</span>
-              <span class="badge text-dark border bg-light">Researchers</span>
+            @if (contact()?.email) {
+              <div class="small mb-2">
+                <a [href]="'mailto:' + contact()!.email" class="link-primary">{{ contact()!.email }}</a>
+              </div>
+            }
+
+            @if (contact()?.phone) {
+              <div class="small">
+                <a [href]="'tel:' + contact()!.phone" class="text-decoration-none text-dark">{{ contact()!.phone }}</a>
+              </div>
+            } @else if (currentEvent.contact && !contact()) {
+              <div class="small text-muted">Contact ID: {{ currentEvent.contact }}</div>
+            }
+          </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+          <div class="card-body">
+            <h5 class="card-title mb-3">Location</h5>
+            <div class="fw-semibold">{{ location()?.name || (currentEvent.isOnline ? 'Online event' : 'No location assigned') }}</div>
+            @if (location()?.address; as address) {
+              <div class="small text-muted">
+                {{ address.street }}<br>
+                {{ address.zip }} {{ address.city }}<br>
+                {{ address.state }}
+              </div>
+            } @else if (currentEvent.location) {
+              <div class="small text-muted">Location ID: {{ currentEvent.location }}</div>
+            }
+          </div>
+        </div>
+
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title mb-3">Metadata</h5>
+            <div class="small d-flex justify-content-between mb-2">
+              <span class="text-muted">Program</span><span>{{ currentEvent.programName || '-' }}</span>
+            </div>
+            <div class="small d-flex justify-content-between mb-2">
+              <span class="text-muted">Format</span><span>{{ currentEvent.format || '-' }}</span>
+            </div>
+            <div class="small d-flex justify-content-between">
+              <span class="text-muted">Event ID</span><span>{{ currentEvent.id }}</span>
             </div>
           </div>
         </div>
       </div>
     </div>
+  }
+</main>
 
-    <!-- Sidebar -->
-    <div class="col-md-4">
+@if (isFormOpen() && event()) {
+  <app-event-form-popup
+    [editEvent]="event()"
+    (cancel)="closeFormPopup()"
+    (saved)="handleSaved()"
+  ></app-event-form-popup>
+}
 
-      <!-- Organization -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <h5 class="card-title d-flex align-items-center gap-2 mb-3">
-            <i class="bi bi-building" style="font-size: 20px;"></i>
-            Organization
-          </h5>
-
-          <div class="fw-semibold">FH Upper Austria - Hagenberg Campus</div>
-          <div class="small text-muted">
-            Softwarepark 11<br>
-            4232 Hagenberg
-          </div>
-        </div>
+@if (isDeleteDialogOpen()) {
+  <div class="delete-confirm-backdrop">
+    <div class="delete-confirm card shadow border-0">
+      <div class="card-body">
+        <h2 class="h5 fw-bold mb-2">Confirm Delete</h2>
+        <p class="mb-0">Do you really want to delete this event?</p>
       </div>
-
-      <!-- Contact Person -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <h5 class="card-title d-flex align-items-center gap-2 mb-3">
-            <i class="bi bi-person-fill" style="font-size: 20px;"></i>
-            Contact Person
-          </h5>
-
-          <div class="fw-semibold mb-3">Dr. Maria Schmidt</div>
-
-          <div class="d-flex align-items-center gap-2 small mb-2">
-            <i class="bi bi-envelope text-muted" style="font-size: 16px;"></i>
-            <a href="mailto:maria.schmidt@fh-ooe.at" class="link-primary">
-              maria.schmidt@fh-ooe.at
-            </a>
-          </div>
-
-          <div class="d-flex align-items-center gap-2 small">
-            <i class="bi bi-telephone text-muted" style="font-size: 16px;"></i>
-            <a href="tel:+435080422222" class="text-decoration-none text-dark">
-              +43 50804 22222
-            </a>
-          </div>
-        </div>
+      <div class="card-footer bg-white d-flex justify-content-end gap-2">
+        @if (deleteError()) {
+          <div class="text-danger small me-auto align-self-center">{{ deleteError() }}</div>
+        }
+        <button type="button" class="btn btn-outline-secondary" (click)="closeDeleteDialog()" [disabled]="isDeleting()">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="isDeleting()">
+          @if (isDeleting()) {
+            Deleting...
+          } @else {
+            Delete
+          }
+        </button>
       </div>
-
-      <!-- Metadata -->
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title d-flex align-items-center gap-2 mb-3">
-            <i class="bi bi-clock" style="font-size: 20px;"></i>
-            Metadata
-          </h5>
-
-          <div class="small d-flex justify-content-between mb-2">
-            <span class="text-muted">Created by</span><span>admin</span>
-          </div>
-          <div class="small d-flex justify-content-between mb-2">
-            <span class="text-muted">Modified by</span><span>admin</span>
-          </div>
-          <div class="small d-flex justify-content-between">
-            <span class="text-muted">Last modified</span><span>Feb 1, 2024</span>
-          </div>
-        </div>
-      </div>
-
     </div>
   </div>
-</main>
+}
