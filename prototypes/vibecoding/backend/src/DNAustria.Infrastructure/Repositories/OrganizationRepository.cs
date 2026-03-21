@@ -5,56 +5,38 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DNAustria.Infrastructure.Repositories;
 
-public class OrganizationRepository(AppDbContext context) : IOrganizationRepository
+public class OrganizationRepository : IOrganizationRepository
 {
-    public async Task<IEnumerable<Organization>> GetAllAsync(string? nameFilter = null)
+    private readonly AppDbContext _context;
+
+    public OrganizationRepository(AppDbContext context)
     {
-        var query = context.Organizations.Where(o => !o.IsDeleted);
-
-        if (!string.IsNullOrWhiteSpace(nameFilter))
-        {
-            var filter = $"%{nameFilter.Trim()}%";
-            query = query.Where(o => EF.Functions.ILike(o.Name, filter));
-        }
-
-        return await query.ToListAsync();
+        _context = context;
     }
 
-    public async Task<Organization?> GetByIdAsync(Guid id)
+    public Task<List<Organization>> GetAllAsync(string? nameFilter, CancellationToken ct = default)
     {
-        return await context.Organizations
-            .Where(o => o.Id == id && !o.IsDeleted)
-            .FirstOrDefaultAsync();
+        var query = _context.Organizations.Where(o => !o.IsDeleted);
+        if (!string.IsNullOrEmpty(nameFilter))
+            query = query.Where(o => o.Name.ToLower().Contains(nameFilter.ToLower()));
+        return query.ToListAsync(ct);
     }
 
-    public async Task<bool> ExistsWithNameAsync(string name, Guid? excludeId = null)
-    {
-        var query = context.Organizations
-            .Where(o => !o.IsDeleted && EF.Functions.ILike(o.Name, name));
+    public Task<Organization?> GetByIdAsync(Guid id, CancellationToken ct = default)
+        => _context.Organizations.FirstOrDefaultAsync(o => o.Id == id && !o.IsDeleted, ct);
 
+    public Task<bool> ExistsByNameAsync(string name, Guid? excludeId = null, CancellationToken ct = default)
+    {
+        var query = _context.Organizations
+            .Where(o => !o.IsDeleted && o.Name.ToLower() == name.ToLower());
         if (excludeId.HasValue)
             query = query.Where(o => o.Id != excludeId.Value);
-
-        return await query.AnyAsync();
+        return query.AnyAsync(ct);
     }
 
-    public async Task<Organization> CreateAsync(Organization organization)
-    {
-        context.Organizations.Add(organization);
-        await context.SaveChangesAsync();
-        return organization;
-    }
+    public async Task AddAsync(Organization organization, CancellationToken ct = default)
+        => await _context.Organizations.AddAsync(organization, ct);
 
-    public async Task<Organization> UpdateAsync(Organization organization)
-    {
-        context.Organizations.Update(organization);
-        await context.SaveChangesAsync();
-        return organization;
-    }
-
-    public async Task DeleteAsync(Organization organization)
-    {
-        context.Organizations.Update(organization);
-        await context.SaveChangesAsync();
-    }
+    public Task SaveChangesAsync(CancellationToken ct = default)
+        => _context.SaveChangesAsync(ct);
 }

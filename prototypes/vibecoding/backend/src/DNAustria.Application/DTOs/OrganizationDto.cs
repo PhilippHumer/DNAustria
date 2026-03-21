@@ -5,4 +5,5 @@ public record OrganizationDto(
     string Name,
     Guid? AddressId,
     DateTime CreatedAt,
-    DateTime ModifiedAt);
+    DateTime ModifiedAt
+);

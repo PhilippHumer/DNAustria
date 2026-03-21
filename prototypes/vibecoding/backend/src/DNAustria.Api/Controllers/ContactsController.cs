@@ -6,12 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace DNAustria.Api.Controllers;
 
 [ApiController]
-[Route("api/organizations")]
-public class OrganizationsController : ControllerBase
+[Route("api/contacts")]
+public class ContactsController : ControllerBase
 {
-    private readonly OrganizationService _service;
+    private readonly ContactService _service;
 
-    public OrganizationsController(OrganizationService service)
+    public ContactsController(ContactService service)
     {
         _service = service;
     }
@@ -38,7 +38,7 @@ public class OrganizationsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateOrganizationRequest request, CancellationToken ct)
+    public async Task<IActionResult> Create([FromBody] CreateContactRequest request, CancellationToken ct)
     {
         try
         {
@@ -56,7 +56,7 @@ public class OrganizationsController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateOrganizationRequest request, CancellationToken ct)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateContactRequest request, CancellationToken ct)
     {
         try
         {

@@ -5,32 +5,36 @@ using DNAustria.Domain.Entities;
 
 namespace DNAustria.Application.Services;
 
-public class OrganizationService(IOrganizationRepository repository) : IOrganizationService
+public class OrganizationService
 {
-    public async Task<IEnumerable<OrganizationDto>> GetAllAsync(string? nameFilter = null)
+    private readonly IOrganizationRepository _repository;
+
+    public OrganizationService(IOrganizationRepository repository)
     {
-        var organizations = await repository.GetAllAsync(nameFilter);
-        return organizations.Select(ToDto);
+        _repository = repository;
     }
 
-    public async Task<OrganizationDto> GetByIdAsync(Guid id)
+    public async Task<List<OrganizationDto>> GetAllAsync(string? nameFilter, CancellationToken ct = default)
     {
-        var org = await repository.GetByIdAsync(id)
+        var orgs = await _repository.GetAllAsync(nameFilter?.Trim(), ct);
+        return orgs.Select(ToDto).ToList();
+    }
+
+    public async Task<OrganizationDto> GetByIdAsync(Guid id, CancellationToken ct = default)
+    {
+        var org = await _repository.GetByIdAsync(id, ct)
             ?? throw new NotFoundException($"Organization {id} not found.");
         return ToDto(org);
     }
 
-    public async Task<OrganizationDto> CreateAsync(CreateOrganizationRequest request)
+    public async Task<OrganizationDto> CreateAsync(CreateOrganizationRequest request, CancellationToken ct = default)
     {
-        var name = request.Name.Trim();
+        var name = request.Name?.Trim() ?? string.Empty;
+        if (string.IsNullOrEmpty(name) || name.Length > 50)
+            throw new ArgumentException("Name is required and must be at most 50 characters.");
 
-        if (name.Length == 0)
-            throw new ArgumentException("Name must not be empty.");
-        if (name.Length > 50)
-            throw new ArgumentException("Name must not exceed 50 characters.");
-
-        if (await repository.ExistsWithNameAsync(name))
-            throw new ConflictException($"An organization named '{name}' already exists.");
+        if (await _repository.ExistsByNameAsync(name, ct: ct))
+            throw new ConflictException($"Organization with name '{name}' already exists.");
 
         var org = new Organization
         {
@@ -42,42 +46,42 @@ public class OrganizationService(IOrganizationRepository repository) : IOrganiza
             ModifiedAt = DateTime.UtcNow
         };
 
-        await repository.CreateAsync(org);
+        await _repository.AddAsync(org, ct);
+        await _repository.SaveChangesAsync(ct);
+
         return ToDto(org);
     }
 
-    public async Task<OrganizationDto> UpdateAsync(Guid id, UpdateOrganizationRequest request)
+    public async Task<OrganizationDto> UpdateAsync(Guid id, UpdateOrganizationRequest request, CancellationToken ct = default)
     {
-        var org = await repository.GetByIdAsync(id)
+        var org = await _repository.GetByIdAsync(id, ct)
             ?? throw new NotFoundException($"Organization {id} not found.");
 
-        var name = request.Name.Trim();
+        var name = request.Name?.Trim() ?? string.Empty;
+        if (string.IsNullOrEmpty(name) || name.Length > 50)
+            throw new ArgumentException("Name is required and must be at most 50 characters.");
 
-        if (name.Length == 0)
-            throw new ArgumentException("Name must not be empty.");
-        if (name.Length > 50)
-            throw new ArgumentException("Name must not exceed 50 characters.");
-
-        if (await repository.ExistsWithNameAsync(name, excludeId: id))
-            throw new ConflictException($"An organization named '{name}' already exists.");
+        if (await _repository.ExistsByNameAsync(name, excludeId: id, ct: ct))
+            throw new ConflictException($"Organization with name '{name}' already exists.");
 
         org.Name = name;
         org.AddressId = request.AddressId;
         org.ModifiedAt = DateTime.UtcNow;
 
-        await repository.UpdateAsync(org);
+        await _repository.SaveChangesAsync(ct);
+
         return ToDto(org);
     }
 
-    public async Task DeleteAsync(Guid id)
+    public async Task DeleteAsync(Guid id, CancellationToken ct = default)
     {
-        var org = await repository.GetByIdAsync(id)
+        var org = await _repository.GetByIdAsync(id, ct)
             ?? throw new NotFoundException($"Organization {id} not found.");
 
         org.IsDeleted = true;
         org.ModifiedAt = DateTime.UtcNow;
 
-        await repository.DeleteAsync(org);
+        await _repository.SaveChangesAsync(ct);
     }
 
     private static OrganizationDto ToDto(Organization org) =>
