@@ -33,7 +33,7 @@ src/Domain
 src/Application
     Use-Case-orientierte Services
 
-src/Infrastructure
+src/Infrasgit sgtattructure
     Technische Implementierungen (DB, externe Services)
 
 src/Api
