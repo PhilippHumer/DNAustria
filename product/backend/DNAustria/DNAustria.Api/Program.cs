@@ -1,4 +1,5 @@
 using DNAustria.Api.BuilderExtensions;
+using DNAustria.Logic;
 using Scalar.AspNetCore;
 using Serilog;
 
@@ -11,6 +12,9 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.RegisterServices();
+
+// Register LLM service for OpenAI integration
+builder.Services.AddScoped<ILLMLogic, LLMLogic>();
 
 builder.Services.ConfigureCors();
 
