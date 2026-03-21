@@ -1,9 +1,9 @@
   <div class="contact-popup-backdrop">
   <div class="contact-popup card shadow border-0">
     <div class="card-header bg-white border-bottom">
-      <h2 class="h5 mb-1 fw-bold">{{ isEditMode() ? 'Edit Contact' : 'Add Location' }}</h2>
+      <h2 class="h5 mb-1 fw-bold">{{ isEditMode() ? 'Edit Location' : 'Add Location' }}</h2>
       <p class="text-muted mb-0 small">
-        {{ isEditMode() ? 'Update an existing contact' : 'Register a new event location' }}
+        {{ isEditMode() ? 'Update an existing location' : 'Register a new event location' }}
       </p>
     </div>
 
@@ -19,7 +19,8 @@
 
         <div class="mb-3">
           <label class="form-label">
-            Title <span class="text-danger">*</span>
+            Title
+             <span class="text-danger">*</span>
           </label>
           <input class="form-control" placeholder="Location name" formControlName="name">
           @if (addLocationForm.controls.name.invalid && addLocationForm.controls.name.touched) {
@@ -29,7 +30,7 @@
       </div>
     </div>
 
-    <!-- Date & Location -->
+    <!-- Lat&Longitude -->
     <div class="card shadow-sm mb-4">
       <div class="card-header fw-semibold">
         Latitude & Longitude
@@ -39,11 +40,17 @@
         <div id="map" style="height:300px;"></div>
        <div class="mb-3">
           <label class="form-label">Latitude</label>
-          <input class="form-control" placeholder="e.g. 48.3687" type="url" formControlName="latitude">
+          <input class="form-control" placeholder="e.g. 48.3687" type="number" formControlName="latitude" min="-90" max="90">
+          @if (addLocationForm.controls.latitude.invalid && addLocationForm.controls.latitude.touched) {
+          <div class="invalid-feedback d-block">Longitude has to be in range [-90;90]</div>
+          }
         </div>
         <div class="mb-3">
           <label class="form-label">Longitude</label>
-          <input class="form-control" placeholder="e.g. 14.5166" type="url" formControlName="longitude">
+          <input class="form-control" placeholder="e.g. 14.5166" type="number" formControlName="longitude" min="-180" max="180">
+          @if (addLocationForm.controls.longitude.invalid && addLocationForm.controls.longitude.touched) {
+          <div class="invalid-feedback d-block">Latitude has to be in range [-180;180]</div>
+          }
         </div>
 
       </div>
@@ -61,7 +68,7 @@
         <div class="mb-3">
           <label class="form-label">Street</label>
                     <label class="form-label">
-            Title <span class="text-danger">*</span>
+             <span class="text-danger">*</span>
           </label>
           <input class="form-control" placeholder="e.g. Softwarepark 11" type="url" formControlName="street" required>
           @if (addLocationForm.controls.name.invalid && addLocationForm.controls.street.touched) {
@@ -73,9 +80,9 @@
           <div class="col">
             <label class="form-label">Zip</label>
                       <label class="form-label">
-            Title <span class="text-danger">*</span>
+            <span class="text-danger">*</span>
           </label>
-            <input class="form-control" placeholder="e.g. 4232" type="url" formControlName="zip" required>
+            <input class="form-control" placeholder="e.g. 4232" type="url" formControlName="zip" required min="1000" max="9999">
             @if (addLocationForm.controls.name.invalid && addLocationForm.controls.zip.touched) {
           <div class="invalid-feedback d-block">Zip is required.</div>
           }
@@ -84,7 +91,7 @@
           <div class="col">
             <label class="form-label">City</label>
                       <label class="form-label">
-            Title <span class="text-danger">*</span>
+             <span class="text-danger">*</span>
           </label>
             <input class="form-control" placeholder="e.g. Hagenberg" type="url" formControlName="city">
             @if (addLocationForm.controls.name.invalid && addLocationForm.controls.city.touched) {
@@ -96,7 +103,7 @@
         <div class="mb-3">
           <label class="form-label">State</label>
                     <label class="form-label">
-            Title <span class="text-danger">*</span>
+             <span class="text-danger">*</span>
           </label>
           <select class="form-select" formControlName="state">
             <option>Oberösterreich</option>
