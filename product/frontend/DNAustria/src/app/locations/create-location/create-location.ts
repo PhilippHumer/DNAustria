@@ -25,8 +25,8 @@ readonly saved = output<void>();
 
 addLocationForm = new FormGroup({
     'name': new FormControl<string>("", [Validators.required]),
-    'latitude': new FormControl<number>(48.3687),
-    'longitude': new FormControl<number>(14.5166),
+    'latitude': new FormControl<number>(48.3687, [Validators.min(-90), Validators.max(90)]),
+    'longitude': new FormControl<number>(14.5166, [Validators.min(-180), Validators.max(180)]),
     'street': new FormControl<string>("Softwarepark 11", [Validators.required]),
     'zip': new FormControl<number>(4232, [Validators.required]),
     'city': new FormControl<string>("Hagenberg", [Validators.required]),
