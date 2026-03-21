@@ -4,6 +4,32 @@
 @import "bootstrap/scss/functions";
 @import "bootstrap/scss/variables";
 
+
+// presetting of theme before import
+$brand-primary: #0B2C75;
+$brand-secondary: #1f2933;
+//$brand-info: #F9941F;
+
+$theme-colors: map.merge(
+  $theme-colors,
+  (
+    "primary":   $brand-primary,
+    "secondary": $brand-secondary,
+    //"info":      $brand-info,
+  )
+);
+
 // import styles
 @import "bootstrap/scss/bootstrap";
 @import "bootstrap-icons/font/bootstrap-icons.css";
+
+// overrides after import
+/*.btn-outline-secondary {
+  --bs-btn-color:          #{$brand-secondary};
+  --bs-btn-border-color:   #{$brand-secondary};
+
+  //--bs-btn-hover-bg:       #F9941F;
+  //--bs-btn-hover-border-color: #F9941F;
+  --bs-btn-hover-color:    #fff;
+}
+*/

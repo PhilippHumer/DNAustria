@@ -1,15 +1,20 @@
 ﻿using DNAustria.Api.Dtos;
 using DNAustria.Api.Dtos.Events;
 using DNAustria.Domain;
+using DNAustria.Logic;
 using DNAustria.Logic.Events;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace DNAustria.Api.Controllers;
 
 [ApiController]
-public class EventsController(IEventLogic eventLogic) : ControllerBase
+public class EventsController(IEventLogic eventLogic, ILLMLogic llmLogic, IConfiguration configuration) : ControllerBase
 {
     private readonly IEventLogic _eventLogic = eventLogic ?? throw new ArgumentNullException(nameof(eventLogic));
+    private readonly ILLMLogic _llmLogic = llmLogic ?? throw new ArgumentNullException(nameof(llmLogic));
+    private readonly IConfiguration _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+
 
     [HttpGet("api/events")]
     public async Task<ActionResult<IReadOnlyList<EventDto>>> GetAll([FromQuery] string? name)
@@ -18,6 +23,76 @@ public class EventsController(IEventLogic eventLogic) : ControllerBase
         var dtos = events.Select(MapToDto).ToList();
         return Ok(dtos);
     }
+
+    [HttpPost("api/events/llm")]
+    public async Task<ActionResult<EventDto>> PostLlm([FromBody] LlmRequestDto? req)
+    {
+        if (req is null || string.IsNullOrWhiteSpace(req.Prompt))
+            return BadRequest("Prompt is required.");
+
+        try
+        {
+            var llmText = await LLMLogic.StartAsync(_configuration, req.Prompt);
+            if (string.IsNullOrWhiteSpace(llmText))
+                return BadRequest("LLM returned empty response.");
+
+            // try to extract JSON object from LLM response
+            var start = llmText.IndexOf('{');
+            var end = llmText.LastIndexOf('}');
+            if (start < 0 || end <= start)
+                return BadRequest("LLM did not return a JSON object. Response: " + llmText);
+
+            var json = llmText[start..(end + 1)];
+
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            InsertEventDto? dto;
+            try
+            {
+                dto = JsonSerializer.Deserialize<InsertEventDto>(json, options);
+            }
+            catch (JsonException)
+            {
+                return BadRequest("Failed to parse JSON from LLM response.");
+            }
+
+            if (dto is null)
+                return BadRequest("LLM produced no event data.");
+
+            // Map DTO to domain (same as Create endpoint)
+            var domain = new Event(
+                name: dto.Name,
+                description: dto.Description,
+                link: dto.Link,
+                startDate: dto.StartDate,
+                endDate: dto.EndDate,
+                classification: (EventClassification)dto.Classification,
+                status: (EventStatus)dto.Status,
+                hasFees: dto.HasFees,
+                isOnline: dto.IsOnline,
+                programName: dto.ProgramName,
+                format: dto.Format,
+                schoolBookable: dto.SchoolBookable,
+                ageMinimum: dto.AgeMinimum,
+                ageMaximum: dto.AgeMaximum,
+                organizationId: dto.Organization,
+                locationId: dto.Location,
+                contactId: dto.Contact
+            );
+
+            var created = await _eventLogic.CreateAsync(
+                domain,
+                targetAudiences: dto.TargetAudiences,
+                topics: dto.Topics);
+
+            var resultDto = MapToDto(created);
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, resultDto);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+
 
     [HttpGet("api/events/{id:int}")]
     public async Task<ActionResult<EventDto>> GetById(int id)
