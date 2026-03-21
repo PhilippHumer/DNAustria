@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit, output, Signal } from '@angular/core';
+import { LocationReplyDto } from '../../api';
 
 @Component({
   selector: 'app-locationcard',
@@ -7,9 +8,22 @@ import { Component, OnInit } from '@angular/core';
 })
 export class LocationCard implements OnInit {
 
+  @Input() location!: LocationReplyDto;
+
+  deleteClicked = output<void>();
+  editClicked = output<void>();
+
   constructor() { }
 
   ngOnInit() {
+  }
+
+  onEditClick(){
+    this.editClicked.emit();
+  }
+
+  onDeleteClick(){
+    this.deleteClicked.emit();
   }
 
 }
