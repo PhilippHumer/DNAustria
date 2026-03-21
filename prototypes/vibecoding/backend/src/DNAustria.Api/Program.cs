@@ -10,6 +10,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddScoped<OrganizationService>();
 builder.Services.AddScoped<ContactService>();
+builder.Services.AddScoped<AddressService>();
+builder.Services.AddScoped<LocationService>();
 builder.Services.AddControllers();
 
 

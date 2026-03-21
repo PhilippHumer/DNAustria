@@ -12,6 +12,8 @@ public class AppDbContext : DbContext
 
     public DbSet<Organization> Organizations => Set<Organization>();
     public DbSet<Contact> Contacts => Set<Contact>();
+    public DbSet<Address> Addresses => Set<Address>();
+    public DbSet<Location> Locations => Set<Location>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -50,6 +52,44 @@ public class AppDbContext : DbContext
             entity.HasIndex(c => c.Name)
                 .IsUnique()
                 .HasFilter("is_deleted = false");
+        });
+
+        modelBuilder.Entity<Address>(entity =>
+        {
+            entity.ToTable("addresses");
+            entity.HasKey(a => a.Id);
+            entity.Property(a => a.Id).HasColumnName("id");
+            entity.Property(a => a.LocationName).HasColumnName("location_name").IsRequired().HasMaxLength(50);
+            entity.Property(a => a.Street).HasColumnName("street").IsRequired().HasMaxLength(50);
+            entity.Property(a => a.City).HasColumnName("city").IsRequired().HasMaxLength(50);
+            entity.Property(a => a.Zip).HasColumnName("zip").IsRequired().HasMaxLength(10);
+            entity.Property(a => a.State).HasColumnName("state").IsRequired().HasMaxLength(50);
+            entity.Property(a => a.Latitude).HasColumnName("latitude").HasColumnType("numeric(9,6)");
+            entity.Property(a => a.Longitude).HasColumnName("longitude").HasColumnType("numeric(9,6)");
+            entity.Property(a => a.IsDeleted).HasColumnName("is_deleted");
+            entity.Property(a => a.CreatedAt).HasColumnName("created_at");
+            entity.Property(a => a.ModifiedAt).HasColumnName("modified_at");
+            entity.HasIndex(a => a.IsDeleted);
+            entity.HasIndex(a => new { a.Zip, a.Latitude, a.Longitude })
+                .IsUnique()
+                .HasFilter("is_deleted = false");
+        });
+
+        modelBuilder.Entity<Location>(entity =>
+        {
+            entity.ToTable("locations");
+            entity.HasKey(l => l.Id);
+            entity.Property(l => l.Id).HasColumnName("id");
+            entity.Property(l => l.Name).HasColumnName("name").IsRequired().HasMaxLength(50);
+            entity.Property(l => l.AddressId).HasColumnName("address_id").IsRequired();
+            entity.Property(l => l.IsDeleted).HasColumnName("is_deleted");
+            entity.Property(l => l.CreatedAt).HasColumnName("created_at");
+            entity.Property(l => l.ModifiedAt).HasColumnName("modified_at");
+            entity.HasIndex(l => l.IsDeleted);
+            entity.HasOne(l => l.Address)
+                .WithMany()
+                .HasForeignKey(l => l.AddressId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }
