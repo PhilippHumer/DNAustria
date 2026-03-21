@@ -1,0 +1,10 @@
+Creating basic frontend layout:
+- using loveable for getting a visual idea
+- exporting the html from lovable and recreate it using bootstrap mostly via llm 
+- manually split into angular components for reuse
+
+api to backend is created automatically with swagger gen and was not supported with ai, in that context the creation of the objects on the backend via api calls from the frontend also did not need any additional ai support
+
+for modals ai was asked how this works using angualar and bootstrap -> its output was adapted to fit into our usecase
+
+For backend the ai was not used, besides syntactic questions.
