@@ -1,34 +1,62 @@
+@if(location != null){
 <div class="col">
-  <div class="card h-100 shadow-sm border rounded-3">
+  <div class="card h-100 shadow-sm border rounded-3 p-3 position-relative">
 
-    <div class="card-body pb-2">
-      <h3 class="h5 fw-semibold mb-1">
-        FH Upper Austria - Hagenberg Campus
+    <!-- Title + Action Buttons -->
+    <div class="d-flex justify-content-between align-items-start mb-2">
+      <h3 class="h5 fw-semibold mb-0">
+        {{location.name}}
       </h3>
 
-      <!-- Latitude / Longitude -->
-      <div class="d-flex gap-3 small text-muted">
-        <span><strong>Lat:</strong> 48.3673</span>
-        <span><strong>Lng:</strong> 14.5152</span>
+      <div class="d-flex gap-2">
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary"
+          (click)="onEditClick()"
+          aria-label="Edit Location"
+          title="Edit Location"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: .95rem; height: .95rem;"> <path d="M12 20h9"></path> <path d="M16.5 3.5a2.12 2.12 0 1 1 3 3L7 19l-4 1 1-4Z"></path> </svg>
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-danger"
+          (click)="onDeleteClick()"
+          aria-label="Delete contact"
+          title="Delete contact"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: .95rem; height: .95rem;"> <path d="M3 6h18"></path> <path d="M8 6V4h8v2"></path> <path d="M19 6l-1 14H6L5 6"></path> <path d="M10 11v6"></path> <path d="M14 11v6"></path> </svg>
+        </button>
       </div>
     </div>
 
-    <div class="card-body pt-2">
+    <!-- Latitude / Longitude -->
+    <div class="d-flex gap-3 small text-muted mb-3">
+      <span><strong>Lat:</strong> {{location.latitude?.toFixed(5)}}</span>
+      <span><strong>Lng:</strong> {{location.longitude?.toFixed(5)}}</span>
+    </div>
+
+    <!-- Card Body -->
+    <div class="card-body pt-0">
       <div class="d-flex align-items-start gap-3">
 
         <!-- Icon bubble -->
         <div class="p-2 rounded-3 bg-primary-subtle d-flex align-items-center justify-content-center flex-shrink-0">
-          <i class="bi bi-geo-alt text-primary" style="font-size: 1.2rem;"></i>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary" style="width: 1.2rem; height: 1.2rem;"> <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/> <circle cx="12" cy="10" r="3"/> </svg>
         </div>
 
-        <!-- Address -->
-        <div class="small">
-          <p class="mb-1">Softwarepark 11</p>
-          <p class="mb-0">4232 Hagenberg</p>
-        </div>
+        @if(location.address != null){
+          <!-- Address -->
+          <div class="small">
+            <p class="mb-1">{{location.address.street}}</p>
+            <p class="mb-0">{{location.address.zip}} {{location.address.city}}</p>
+            <p class="mb-0">{{location.address.state}}</p>
+          </div>
+        }
 
       </div>
     </div>
 
   </div>
 </div>
+}

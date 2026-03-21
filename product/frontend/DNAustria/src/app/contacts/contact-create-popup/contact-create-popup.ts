@@ -1,9 +1,11 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
+import type { HttpErrorResponse } from '@angular/common/http';
 import { ContactsService } from '../../api/api/contacts.service';
 import { ContactDto } from '../../api/model/contactDto';
 import { CreateContactDto } from '../../api/model/createContactDto';
 import { UpdateContactDto } from '../../api/model/updateContactDto';
 import { ContactForm, ContactFormValue } from '../contact-form/contact-form';
+import { getErrorText } from '../../shared/get-error-text';
 
 @Component({
   selector: 'app-contact-create-popup',
@@ -47,9 +49,11 @@ export class ContactCreatePopup {
         this.submitting.set(false);
         this.saved.emit();
       },
-      error: () => {
+      error: (err: HttpErrorResponse) => {
         this.submitting.set(false);
-        this.submitError.set(this.isEditMode() ? 'Contact could not be updated.' : 'Contact could not be created.');
+        this.submitError.set(
+          getErrorText(err) || (this.isEditMode() ? 'Contact could not be updated.' : 'Contact could not be created.')
+        );
       },
     });
   }

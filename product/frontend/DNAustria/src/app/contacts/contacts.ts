@@ -1,9 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
+import type { HttpErrorResponse } from '@angular/common/http';
 import { ContactsService } from '../api/api/contacts.service';
 import { ContactDto } from '../api/model/contactDto';
 import { Contactcard } from "./contactcard/contactcard";
 import { ContactCreatePopup } from "./contact-create-popup/contact-create-popup";
 import { ConfirmDeletePopup } from "../shared/confirm-delete-popup/confirm-delete-popup";
+import { getErrorText } from '../shared/get-error-text';
 
 @Component({
   selector: 'app-contacts',
@@ -70,9 +72,9 @@ export class Contacts {
         this.contactToDelete.set(null);
         this.loadContacts();
       },
-      error: () => {
+      error: (err: HttpErrorResponse) => {
         this.deleteInProgress.set(false);
-        this.deleteError.set('Contact could not be deleted.');
+        this.deleteError.set(getErrorText(err) || 'Contact could not be deleted.');
       },
     });
   }
