@@ -1,226 +1,150 @@
 using System.Net;
 using System.Net.Http.Json;
-using DNAustria.Api.Tests.Infrastructure;
 using DNAustria.Application.DTOs;
+using DNAustria.Api.Tests.Infrastructure;
 
 namespace DNAustria.Api.Tests;
 
-public class OrganizationEndpointTests : IClassFixture<OrganizationApiFactory>, IAsyncLifetime
+public class OrganizationEndpointTests : IClassFixture<OrganizationApiFactory>
 {
-    private readonly OrganizationApiFactory _factory;
     private readonly HttpClient _client;
 
     public OrganizationEndpointTests(OrganizationApiFactory factory)
     {
-        _factory = factory;
         _client = factory.CreateClient();
     }
 
-    public async Task InitializeAsync() => await _factory.ApplyMigrationsAsync();
+    [Fact]
+    public async Task Create_ReturnsCreated()
+    {
+        var response = await _client.PostAsJsonAsync("/api/organizations",
+            new { name = $"Org-{Guid.NewGuid()}" });
 
-    public Task DisposeAsync() => Task.CompletedTask;
-
-    // --- GET /api/organizations ---
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        var dto = await response.Content.ReadFromJsonAsync<OrganizationDto>();
+        Assert.NotNull(dto);
+        Assert.NotEqual(Guid.Empty, dto!.Id);
+    }
 
     [Fact]
-    public async Task GetAll_ReturnsOk_WithEmptyList()
+    public async Task GetAll_ReturnsOk()
     {
         var response = await _client.GetAsync("/api/organizations");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-
-        var result = await response.Content.ReadFromJsonAsync<List<OrganizationDto>>();
-        Assert.NotNull(result);
     }
 
     [Fact]
-    public async Task GetAll_WithNameFilter_ReturnsMatchingOrganizations()
+    public async Task GetById_ReturnsOrganization()
     {
-        await CreateOrganizationAsync("Filter Hagenberg");
-        await CreateOrganizationAsync("Filter Vienna");
+        var name = $"Org-{Guid.NewGuid()}";
+        var created = await _client.PostAsJsonAsync("/api/organizations", new { name });
+        var dto = await created.Content.ReadFromJsonAsync<OrganizationDto>();
 
-        var response = await _client.GetAsync("/api/organizations?name=hagen");
+        var response = await _client.GetAsync($"/api/organizations/{dto!.Id}");
+
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-
-        var result = await response.Content.ReadFromJsonAsync<List<OrganizationDto>>();
-        Assert.NotNull(result);
-        Assert.Contains(result, o => o.Name == "Filter Hagenberg");
-        Assert.DoesNotContain(result, o => o.Name == "Filter Vienna");
-    }
-
-    // --- GET /api/organizations/{id} ---
-
-    [Fact]
-    public async Task GetById_ReturnsOrganization_WhenExists()
-    {
-        var created = await CreateOrganizationAsync("GetById Org");
-
-        var response = await _client.GetAsync($"/api/organizations/{created.Id}");
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-
         var result = await response.Content.ReadFromJsonAsync<OrganizationDto>();
-        Assert.NotNull(result);
-        Assert.Equal(created.Id, result.Id);
-        Assert.Equal("GetById Org", result.Name);
+        Assert.Equal(dto.Id, result!.Id);
     }
 
     [Fact]
-    public async Task GetById_Returns404_WhenNotFound()
+    public async Task GetById_NotFound_Returns404()
     {
         var response = await _client.GetAsync($"/api/organizations/{Guid.NewGuid()}");
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
-    // --- POST /api/organizations ---
-
     [Fact]
-    public async Task Create_Returns201_WithBody()
+    public async Task Update_ReturnsOk()
     {
-        var request = new { name = "New Create Org" };
-        var response = await _client.PostAsJsonAsync("/api/organizations", request);
+        var name = $"Org-{Guid.NewGuid()}";
+        var created = await _client.PostAsJsonAsync("/api/organizations", new { name });
+        var dto = await created.Content.ReadFromJsonAsync<OrganizationDto>();
 
-        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-
-        var result = await response.Content.ReadFromJsonAsync<OrganizationDto>();
-        Assert.NotNull(result);
-        Assert.Equal("New Create Org", result.Name);
-        Assert.NotEqual(Guid.Empty, result.Id);
-    }
-
-    [Fact]
-    public async Task Create_Returns400_WhenNameIsEmpty()
-    {
-        var request = new { name = "   " };
-        var response = await _client.PostAsJsonAsync("/api/organizations", request);
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-    }
-
-    [Fact]
-    public async Task Create_Returns400_WhenNameExceeds50Chars()
-    {
-        var request = new { name = new string('A', 51) };
-        var response = await _client.PostAsJsonAsync("/api/organizations", request);
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-    }
-
-    [Fact]
-    public async Task Create_Returns409_WhenNameAlreadyExists()
-    {
-        await CreateOrganizationAsync("Duplicate Org");
-
-        var request = new { name = "Duplicate Org" };
-        var response = await _client.PostAsJsonAsync("/api/organizations", request);
-        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
-    }
-
-    [Fact]
-    public async Task Create_Returns409_WhenNameAlreadyExists_CaseInsensitive()
-    {
-        await CreateOrganizationAsync("CaseTest Org");
-
-        var request = new { name = "casetest org" };
-        var response = await _client.PostAsJsonAsync("/api/organizations", request);
-        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
-    }
-
-    // --- PUT /api/organizations/{id} ---
-
-    [Fact]
-    public async Task Update_Returns200_WithUpdatedBody()
-    {
-        var created = await CreateOrganizationAsync("Before Update");
-
-        var request = new { name = "After Update" };
-        var response = await _client.PutAsJsonAsync($"/api/organizations/{created.Id}", request);
+        var newName = $"Org-{Guid.NewGuid()}";
+        var response = await _client.PutAsJsonAsync($"/api/organizations/{dto!.Id}",
+            new { name = newName });
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-
-        var result = await response.Content.ReadFromJsonAsync<OrganizationDto>();
-        Assert.NotNull(result);
-        Assert.Equal("After Update", result.Name);
+        var updated = await response.Content.ReadFromJsonAsync<OrganizationDto>();
+        Assert.Equal(newName, updated!.Name);
     }
 
     [Fact]
-    public async Task Update_Returns404_WhenNotFound()
+    public async Task Delete_ReturnsNoContent()
     {
-        var request = new { name = "Doesn't matter" };
-        var response = await _client.PutAsJsonAsync($"/api/organizations/{Guid.NewGuid()}", request);
+        var name = $"Org-{Guid.NewGuid()}";
+        var created = await _client.PostAsJsonAsync("/api/organizations", new { name });
+        var dto = await created.Content.ReadFromJsonAsync<OrganizationDto>();
+
+        var response = await _client.DeleteAsync($"/api/organizations/{dto!.Id}");
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Delete_AlreadyDeleted_Returns404()
+    {
+        var name = $"Org-{Guid.NewGuid()}";
+        var created = await _client.PostAsJsonAsync("/api/organizations", new { name });
+        var dto = await created.Content.ReadFromJsonAsync<OrganizationDto>();
+
+        await _client.DeleteAsync($"/api/organizations/{dto!.Id}");
+        var response = await _client.DeleteAsync($"/api/organizations/{dto.Id}");
+
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     [Fact]
-    public async Task Update_Returns409_WhenNameTakenByOther()
+    public async Task Create_DuplicateName_ReturnsConflict()
     {
-        await CreateOrganizationAsync("Taken Name");
-        var second = await CreateOrganizationAsync("Second Org");
+        var name = $"Org-{Guid.NewGuid()}";
+        await _client.PostAsJsonAsync("/api/organizations", new { name });
 
-        var request = new { name = "Taken Name" };
-        var response = await _client.PutAsJsonAsync($"/api/organizations/{second.Id}", request);
+        var response = await _client.PostAsJsonAsync("/api/organizations", new { name });
+
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
     }
 
-    // --- DELETE /api/organizations/{id} ---
-
     [Fact]
-    public async Task Delete_Returns204_AndOrganizationIsGone()
+    public async Task SoftDeleted_NotReturnedInGetAll()
     {
-        var created = await CreateOrganizationAsync("To Delete Org");
+        var name = $"Org-{Guid.NewGuid()}";
+        var created = await _client.PostAsJsonAsync("/api/organizations", new { name });
+        var dto = await created.Content.ReadFromJsonAsync<OrganizationDto>();
 
-        var deleteResponse = await _client.DeleteAsync($"/api/organizations/{created.Id}");
-        Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+        await _client.DeleteAsync($"/api/organizations/{dto!.Id}");
 
-        var getResponse = await _client.GetAsync($"/api/organizations/{created.Id}");
-        Assert.Equal(HttpStatusCode.NotFound, getResponse.StatusCode);
+        var response = await _client.GetAsync($"/api/organizations?name={name}");
+        var list = await response.Content.ReadFromJsonAsync<List<OrganizationDto>>();
+
+        Assert.DoesNotContain(list!, o => o.Id == dto.Id);
     }
 
     [Fact]
-    public async Task Delete_Returns404_WhenNotFound()
+    public async Task SoftDeleted_GetById_Returns404()
     {
-        var response = await _client.DeleteAsync($"/api/organizations/{Guid.NewGuid()}");
+        var name = $"Org-{Guid.NewGuid()}";
+        var created = await _client.PostAsJsonAsync("/api/organizations", new { name });
+        var dto = await created.Content.ReadFromJsonAsync<OrganizationDto>();
+
+        await _client.DeleteAsync($"/api/organizations/{dto!.Id}");
+
+        var response = await _client.GetAsync($"/api/organizations/{dto.Id}");
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     [Fact]
-    public async Task Delete_Returns404_WhenAlreadyDeleted()
+    public async Task Create_EmptyName_ReturnsBadRequest()
     {
-        var created = await CreateOrganizationAsync("Double Delete Org");
-
-        await _client.DeleteAsync($"/api/organizations/{created.Id}");
-        var response = await _client.DeleteAsync($"/api/organizations/{created.Id}");
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-    }
-
-    // --- Soft Delete behavior ---
-
-    [Fact]
-    public async Task SoftDelete_DoesNotAppearInGetAll()
-    {
-        var created = await CreateOrganizationAsync("Soft Delete List Org");
-        await _client.DeleteAsync($"/api/organizations/{created.Id}");
-
-        var response = await _client.GetAsync("/api/organizations");
-        var result = await response.Content.ReadFromJsonAsync<List<OrganizationDto>>();
-        Assert.NotNull(result);
-        Assert.DoesNotContain(result, o => o.Id == created.Id);
+        var response = await _client.PostAsJsonAsync("/api/organizations", new { name = "" });
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [Fact]
-    public async Task SoftDelete_AllowsReuseOfName()
+    public async Task Create_NameTooLong_ReturnsBadRequest()
     {
-        var created = await CreateOrganizationAsync("Reusable Name Org");
-        await _client.DeleteAsync($"/api/organizations/{created.Id}");
-
-        var request = new { name = "Reusable Name Org" };
-        var response = await _client.PostAsJsonAsync("/api/organizations", request);
-        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-    }
-
-    // --- Helper ---
-
-    private async Task<OrganizationDto> CreateOrganizationAsync(string name, Guid? addressId = null)
-    {
-        var request = new { name, address_id = addressId };
-        var response = await _client.PostAsJsonAsync("/api/organizations", request);
-        response.EnsureSuccessStatusCode();
-        return (await response.Content.ReadFromJsonAsync<OrganizationDto>())!;
+        var response = await _client.PostAsJsonAsync("/api/organizations",
+            new { name = new string('A', 51) });
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 }

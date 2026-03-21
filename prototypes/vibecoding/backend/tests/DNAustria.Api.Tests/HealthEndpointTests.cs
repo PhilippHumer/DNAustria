@@ -12,10 +12,9 @@ public class HealthEndpointTests : IClassFixture<WebApplicationFactory<Program>>
     }
 
     [Fact]
-    public async Task GetHealth_ReturnsOk()
+    public async Task Health_ReturnsOk()
     {
         var response = await _client.GetAsync("/health");
-
-        Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
+        response.EnsureSuccessStatusCode();
     }
 }

@@ -8,7 +8,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace DNAustria.Api.Tests.Infrastructure;
 
-public class OrganizationApiFactory : WebApplicationFactory<Program>
+public class ContactApiFactory : WebApplicationFactory<Program>
 {
     private readonly string _dbName = $"TestDb_{Guid.NewGuid()}";
 
