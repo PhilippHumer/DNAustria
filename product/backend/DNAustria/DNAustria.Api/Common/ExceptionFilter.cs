@@ -1,10 +1,10 @@
 using DNAustria.Logic;
-using Microsoft.AspNetCore.Mvc.Filters;
-
-namespace Api.Common;
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
+
+namespace Api.Common;
 
 
 /// <summary>
@@ -46,8 +46,9 @@ public sealed class ExceptionFilter : IExceptionFilter
                 Title = "Invalid operation",
                 Detail = ex.Message
             },
-            
-            
+            DbUpdateException dbEx when dbEx.InnerException is PostgresException pgEx =>
+                MapPostgresException(pgEx),
+
             _ => new ProblemDetails
             {
                 Status = StatusCodes.Status500InternalServerError,
@@ -62,5 +63,27 @@ public sealed class ExceptionFilter : IExceptionFilter
         };
 
         context.ExceptionHandled = true;
+    }
+
+    private static ProblemDetails MapPostgresException(PostgresException pgEx)
+    {
+        var detail = pgEx.SqlState switch
+        {
+            "23514" => pgEx.ConstraintName switch // check_violation
+            {
+                "email_check" => "Invalid email address format.",
+                _ => $"A validation constraint was violated: {pgEx.ConstraintName}."
+            },
+            "23505" => $"A record with this value already exists ({pgEx.ConstraintName}).", // unique_violation
+            "23503" => "This record is referenced by other data and cannot be modified.", // foreign_key_violation
+            _ => "A database constraint was violated."
+        };
+
+        return new ProblemDetails
+        {
+            Status = StatusCodes.Status400BadRequest,
+            Title = "Validation error",
+            Detail = detail
+        };
     }
 }

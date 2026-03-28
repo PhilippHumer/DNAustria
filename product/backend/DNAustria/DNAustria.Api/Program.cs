@@ -1,4 +1,5 @@
 using DNAustria.Api.BuilderExtensions;
+using DNAustria.Dal.Data;
 using DNAustria.Logic;
 using Scalar.AspNetCore;
 using Serilog;
@@ -35,5 +36,13 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.UseCustomCors();
+
+// Seed database in development
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await DbSeeder.SeedAsync(dbContext);
+}
 
 app.Run();

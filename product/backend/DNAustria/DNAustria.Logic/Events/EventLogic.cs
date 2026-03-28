@@ -10,7 +10,6 @@ namespace DNAustria.Logic.Events;
 
 public class EventLogic (AppDbContext db, IEventTracker tracker) : IEventLogic
 {
-    private const EventStatus PublicStatus = EventStatus.Published;
 
     public async Task<IReadOnlyList<DomainEvent>> GetAllAsync(string? name)
     {
@@ -153,7 +152,31 @@ public class EventLogic (AppDbContext db, IEventTracker tracker) : IEventLogic
 
         return MapToDomain(entity);
     }
-    
+
+
+    public async Task<IReadOnlyList<DalEvent>> HandlePublishEventsAsync()
+    {
+        var events = await db.Events
+            .Where(e => !e.IsDeleted && e.Status != (int)EventStatus.Draft)
+            .Include(e => e.EventTopics)
+            .Include(e => e.EventTargetAudiences)
+            .Include(e => e.OrganizationNavigation)
+            .Include(e => e.LocationNavigation)
+                .ThenInclude(l => l!.AddressNavigation)
+            .Include(e => e.ContactNavigation)
+            .OrderBy(e => e.StartDate)
+            .ToListAsync();
+
+        foreach (var e in events)
+        {
+            e.Status = (int)EventStatus.Published;
+        }
+
+        await db.SaveChangesAsync();
+
+        return events;
+    }
+
     private static DomainEvent MapToDomain(DalEvent e)
     {
         return DomainEvent.Rehydrate(

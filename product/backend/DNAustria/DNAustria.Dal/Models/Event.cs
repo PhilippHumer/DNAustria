@@ -50,8 +50,8 @@ public partial class Event
     public virtual ICollection<EventTargetAudience> EventTargetAudiences { get; set; } = new List<EventTargetAudience>();
 
     public virtual ICollection<EventTopic> EventTopics { get; set; } = new List<EventTopic>();
-
+    
     public virtual Location? LocationNavigation { get; set; }
-
+    
     public virtual Organization? OrganizationNavigation { get; set; }
 }

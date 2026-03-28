@@ -9,6 +9,7 @@ using System.Text.Json;
 namespace DNAustria.Api.Controllers;
 
 [ApiController]
+[Route("api/[controller]")]
 public class EventsController(IEventLogic eventLogic, ILLMLogic llmLogic, IConfiguration configuration) : ControllerBase
 {
     private readonly IEventLogic _eventLogic = eventLogic ?? throw new ArgumentNullException(nameof(eventLogic));
@@ -16,7 +17,7 @@ public class EventsController(IEventLogic eventLogic, ILLMLogic llmLogic, IConfi
     private readonly IConfiguration _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
 
-    [HttpGet("api/events")]
+    [HttpGet]
     public async Task<ActionResult<IReadOnlyList<EventDto>>> GetAll([FromQuery] string? name)
     {
         var events = await _eventLogic.GetAllAsync(name);
@@ -24,7 +25,7 @@ public class EventsController(IEventLogic eventLogic, ILLMLogic llmLogic, IConfi
         return Ok(dtos);
     }
 
-    [HttpPost("api/events/llm")]
+    [HttpPost("llm")]
     public async Task<ActionResult<EventDto>> PostLlm([FromBody] LlmRequestDto? req)
     {
         if (req is null || string.IsNullOrWhiteSpace(req.Prompt))
@@ -94,7 +95,7 @@ public class EventsController(IEventLogic eventLogic, ILLMLogic llmLogic, IConfi
     }
 
 
-    [HttpGet("api/events/{id:int}")]
+    [HttpGet("{id:int}")]
     public async Task<ActionResult<EventDto>> GetById(int id)
     {
         var e = await _eventLogic.GetByIdAsync(id);
@@ -106,7 +107,7 @@ public class EventsController(IEventLogic eventLogic, ILLMLogic llmLogic, IConfi
         return Ok(MapToDto(e));
     }
 
-    [HttpPost("api/events")]
+    [HttpPost]
     public async Task<ActionResult<EventDto>> Create([FromBody] InsertEventDto req)
     {
         var domain = new Event(
@@ -142,7 +143,7 @@ public class EventsController(IEventLogic eventLogic, ILLMLogic llmLogic, IConfi
             dto);
     }
 
-    [HttpPut("api/events/{id:int}")]
+    [HttpPut("{id:int}")]
     public async Task<ActionResult<EventDto>> Update(int id, [FromBody] UpdateEventDto req)
     {
         if (!Enum.IsDefined(typeof(EventStatus), req.Status))
@@ -184,14 +185,14 @@ public class EventsController(IEventLogic eventLogic, ILLMLogic llmLogic, IConfi
         return Ok(MapToDto(updated));
     }
 
-    [HttpDelete("api/events/{id:int}")]
+    [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
         var deleted = await _eventLogic.DeleteAsync(id);
         return deleted ? NoContent() : NotFound();
     }
 
-    [HttpPatch("api/events/{id:int}/status")]
+    [HttpPatch("{id:int}/status")]
     public async Task<ActionResult<EventDto>> UpdateStatus(int id, [FromBody] UpdateEventStatusDto req)
     {
         if (!Enum.IsDefined(typeof(EventStatus), req.Status))
