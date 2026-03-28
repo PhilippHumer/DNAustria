@@ -180,4 +180,59 @@ public class ContactEndpointTests : IClassFixture<ContactApiFactory>
         });
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
+
+    [Fact]
+    public async Task Create_DuplicateName_CaseInsensitive_ReturnsConflict()
+    {
+        var baseName = $"Contact-{Guid.NewGuid()}";
+        await _client.PostAsJsonAsync("/api/contacts", NewContact(baseName.ToLower()));
+
+        var response = await _client.PostAsJsonAsync("/api/contacts", NewContact(baseName.ToUpper()));
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Create_OrgWithoutOrganizationId_ReturnsBadRequest()
+    {
+        var response = await _client.PostAsJsonAsync("/api/contacts", new
+        {
+            name = $"Contact-{Guid.NewGuid()}",
+            email = "test@example.com",
+            phone = "+43 123 456789",
+            org = "Some Org"
+        });
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Create_OrganizationIdWithoutOrg_ReturnsBadRequest()
+    {
+        var response = await _client.PostAsJsonAsync("/api/contacts", new
+        {
+            name = $"Contact-{Guid.NewGuid()}",
+            email = "test@example.com",
+            phone = "+43 123 456789",
+            organizationId = Guid.NewGuid()
+        });
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Create_WithBothOrganizationIdAndOrg_ReturnsCreated()
+    {
+        var orgId = Guid.NewGuid();
+        var response = await _client.PostAsJsonAsync("/api/contacts", new
+        {
+            name = $"Contact-{Guid.NewGuid()}",
+            email = "test@example.com",
+            phone = "+43 123 456789",
+            organizationId = orgId,
+            org = "DNAustria"
+        });
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        var dto = await response.Content.ReadFromJsonAsync<ContactDto>();
+        Assert.Equal(orgId, dto!.OrganizationId);
+        Assert.Equal("DNAustria", dto.Org);
+    }
 }

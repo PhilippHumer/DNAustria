@@ -1,4 +1,5 @@
 using DNAustria.Domain.Entities;
+using DNAustria.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace DNAustria.Infrastructure.Persistence;
@@ -14,6 +15,7 @@ public class AppDbContext : DbContext
     public DbSet<Contact> Contacts => Set<Contact>();
     public DbSet<Address> Addresses => Set<Address>();
     public DbSet<Location> Locations => Set<Location>();
+    public DbSet<Event> Events => Set<Event>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -90,6 +92,39 @@ public class AppDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(l => l.AddressId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Event>(entity =>
+        {
+            entity.ToTable("events");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Title).HasColumnName("title").IsRequired().HasMaxLength(255);
+            entity.Property(e => e.Description).HasColumnName("description").IsRequired();
+            entity.Property(e => e.EventLink).HasColumnName("event_link");
+            entity.Property(e => e.TargetAudience).HasColumnName("target_audience").HasColumnType("integer[]");
+            entity.Property(e => e.Topics).HasColumnName("topics").HasColumnType("integer[]");
+            entity.Property(e => e.DateStart).HasColumnName("date_start");
+            entity.Property(e => e.DateEnd).HasColumnName("date_end");
+            entity.Property(e => e.Classification).HasColumnName("classification").HasConversion<string>();
+            entity.Property(e => e.Fees).HasColumnName("fees");
+            entity.Property(e => e.IsOnline).HasColumnName("is_online");
+            entity.Property(e => e.OrganizationId).HasColumnName("organization_id");
+            entity.Property(e => e.ProgramName).HasColumnName("program_name");
+            entity.Property(e => e.Format).HasColumnName("format");
+            entity.Property(e => e.SchoolBookable).HasColumnName("school_bookable");
+            entity.Property(e => e.AgeMinimum).HasColumnName("age_minimum");
+            entity.Property(e => e.AgeMaximum).HasColumnName("age_maximum");
+            entity.Property(e => e.LocationId).HasColumnName("location_id");
+            entity.Property(e => e.ContactId).HasColumnName("contact_id");
+            entity.Property(e => e.Status).HasColumnName("status").HasConversion<string>().HasDefaultValue(EventStatus.Draft);
+            entity.Property(e => e.CreatedBy).HasColumnName("created_by");
+            entity.Property(e => e.ModifiedBy).HasColumnName("modified_by");
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+            entity.Property(e => e.ModifiedAt).HasColumnName("modified_at");
+            entity.Property(e => e.IsDeleted).HasColumnName("is_deleted").HasDefaultValue(false);
+            entity.HasIndex(e => e.IsDeleted);
+            entity.HasIndex(e => e.Status);
         });
     }
 }

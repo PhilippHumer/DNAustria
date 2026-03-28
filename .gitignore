@@ -1,4 +1,5 @@
-
+.claude
+.sonarqube
 .idea
 *.swp
 *.*~
@@ -32,3 +33,5 @@ msbuild.wrn
 
 # Visual Studio 2015
 .vs/
+
+coverage.opencover.xml

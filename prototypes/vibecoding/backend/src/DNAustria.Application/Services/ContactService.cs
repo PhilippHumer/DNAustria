@@ -31,6 +31,8 @@ public class ContactService
     {
         var (name, email, phone, org) = ValidateAndTrim(request.Name, request.Email, request.Phone, request.Org);
 
+        ValidateOrgConsistency(request.OrganizationId, org);
+
         if (await _repository.ExistsByNameAsync(name, ct: ct))
             throw new ConflictException($"Contact with name '{name}' already exists.");
 
@@ -59,6 +61,8 @@ public class ContactService
 
         var (name, email, phone, org) = ValidateAndTrim(request.Name, request.Email, request.Phone, request.Org);
 
+        ValidateOrgConsistency(request.OrganizationId, org);
+
         if (await _repository.ExistsByNameAsync(name, excludeId: id, ct: ct))
             throw new ConflictException($"Contact with name '{name}' already exists.");
 
@@ -83,6 +87,14 @@ public class ContactService
         contact.ModifiedAt = DateTime.UtcNow;
 
         await _repository.SaveChangesAsync(ct);
+    }
+
+    private static void ValidateOrgConsistency(Guid? organizationId, string? org)
+    {
+        if (organizationId.HasValue && org == null)
+            throw new ArgumentException("Org must be set when OrganizationId is provided.");
+        if (!organizationId.HasValue && org != null)
+            throw new ArgumentException("OrganizationId must be set when Org is provided.");
     }
 
     private static (string name, string email, string phone, string? org) ValidateAndTrim(

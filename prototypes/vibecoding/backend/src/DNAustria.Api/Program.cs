@@ -12,6 +12,7 @@ builder.Services.AddScoped<OrganizationService>();
 builder.Services.AddScoped<ContactService>();
 builder.Services.AddScoped<AddressService>();
 builder.Services.AddScoped<LocationService>();
+builder.Services.AddScoped<EventService>();
 builder.Services.AddControllers();
 
 

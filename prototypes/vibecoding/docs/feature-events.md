@@ -1,188 +1,183 @@
-Ich habe deine Entscheidungen **in das bestehende Template eingearbeitet**, ohne die Struktur zu verändern. Außerdem habe ich alle Stellen angepasst, an denen sich deine neuen Regeln auswirken (Domain Model, DB, API, Tests usw.).
-
----
-
 # Feature Slice Template (Backend)
 
 ## Context
 
 ### Projekt
 
-**DNAustria** ist eine Plattform zur Verwaltung von Veranstaltungen in Österreich.
-Das Projekt entsteht im Rahmen eines **FH-Semesterprojekts an der FH Hagenberg**.
+DNAustria ist eine Plattform zur Verwaltung von Veranstaltungen in Österreich.
 
 Technologie-Stack:
 
-* Frontend: **Angular**
-* Backend: **.NET**
-* Datenbank: **PostgreSQL**
+* Frontend: Angular
+* Backend: .NET
+* Datenbank: PostgreSQL
 
-Das Projekt verwendet ein **Monorepo** mit folgender Struktur:
+Das Projekt verwendet ein Monorepo:
 
-```
+```text
 frontend   → Angular SPA
 backend    → .NET Backend
-infra      → Docker Compose für lokale Services
-docs       → Projektdokumentation
+infra      → Docker Compose
+docs       → Dokumentation
 ```
+
+---
 
 ### Backend Architektur
 
-Das Backend folgt einer klaren Schichtung:
-
-```
+```text
 src/Domain
-    Domainmodelle und Domänenlogik
-
 src/Application
-    Use-Case-orientierte Services
-
 src/Infrastructure
-    Technische Implementierungen (DB, externe Services)
-
 src/Api
-    HTTP Endpunkte und API Konfiguration
-
 tests/Api.Tests
-    API-nahe Integrationstests
 ```
+
+---
 
 ### Frontend Struktur
 
-Angular verwendet folgende Struktur:
-
-```
+```text
 core
 shared
 features
 ```
 
+---
+
 ### Infrastruktur
 
-Lokale Services werden über Docker Compose gestartet.
-
-```
+```text
 infra/docker-compose.yml
 ```
 
-Beispiel:
+---
 
-* PostgreSQL
-* optionale Services über Compose Profiles (z. B. Mailhog)
+## Feature Kontext
+
+Implementierung eines neuen Backend Feature Slice für die Entität **Event**.
+
+Der Slice dient als Referenzimplementierung für zukünftige Entitäten.
 
 ---
 
-# Feature Kontext
+## Domain Model
 
-In diesem Prompt soll ein **neuer Backend Feature Slice** implementiert werden.
+Entity: Event
 
-Der Slice:
+### Felder
 
-* implementiert eine neue **contact**-Entität
-* integriert sich in die bestehende Architektur
-* dient als **Referenzstruktur für zukünftige Entitäten**
-
----
-
-# Domain Model
-
-Entity: **contact**
-
-| Feld        | Typ      | Regeln                                                     |
-| ----------- | -------- | ---------------------------------------------------------- |
-| id          | GUID     | Primärschlüssel                                            |
-| name        | string   | Pflichtfeld, max 50 Zeichen, **unique (case-insensitive)** |
-| email       | string   | Pflichtfeld, max 100 Zeichen                               |
-| phone       | string   | Pflichtfeld, max 50 Zeichen                                |
-| created_at  | datetime | UTC                                                        |
-| modified_at | datetime | UTC                                                        |
-| is_deleted  | bool     | Default false                                              |
-
-Optionale Felder:
-
-| Feld            | Typ    | Regeln                                  |
-| --------------- | ------ | --------------------------------------- |
-| organization_id | GUID   | optional, Referenz auf Organization     |
-| org             | string | optional, Anzeige-Text der Organisation |
-| created_by      | string | wird automatisch gesetzt                |
-| modified_by     | string | wird automatisch gesetzt                |
-
----
-
-# Fachliche Regeln
-
-Für **contact** gelten folgende Regeln:
-
-* `name` darf nicht leer sein
-* `name` maximal 50 Zeichen
-* `name` muss **eindeutig sein (case-insensitive)** für `is_deleted = false`
-* `email` ist Pflichtfeld
-* `email` muss gültiges E-Mail Format haben
-* `email` maximal 100 Zeichen
-* `phone` maximal 50 Zeichen
-* Strings werden vor Speicherung **getrimmt**
-* `organization_id` ist optional
-* `org` ist optional und dient **nur als Anzeige-Text**
-
-Konsistenzregel:
-
-```
-organization_id und org müssen immer zusammen passen.
-Wenn organization_id gesetzt ist, muss auch org gesetzt sein.
-```
-
-Audit Felder:
-
-```
-created_by und modified_by werden automatisch gesetzt.
-```
+| Feld            | Typ                   |
+| --------------- | --------------------- |
+| id              | GUID                  |
+| title           | string (max 255)      |
+| description     | string                |
+| event_link      | string (optional)     |
+| target_audience | list[enum]            |
+| topics          | list[enum]            |
+| date_start      | datetime              |
+| date_end        | datetime              |
+| classification  | enum                  |
+| fees            | bool                  |
+| is_online       | bool                  |
+| organization_id | GUID                  |
+| program_name    | string (optional)     |
+| format          | string (optional)     |
+| school_bookable | bool (optional)       |
+| age_minimum     | int (optional)        |
+| age_maximum     | int (optional)        |
+| location_id     | GUID (optional)       |
+| contact_id      | GUID (optional)       |
+| status          | enum (Default: Draft) |
+| created_by      | string (optional)     |
+| modified_by     | string (optional)     |
+| created_at      | datetime              |
+| modified_at     | datetime (optional)   |
+| is_deleted      | bool (Default: false) |
 
 ---
 
-# Soft Delete
+### Enums
 
-Physisches Löschen ist **verboten**.
+TargetAudience:
+10 Preschool
+20 PrimarySchool
+30 SecondaryI
+40 Vocational
+50 SecondaryII
+60 Adults
+70 Families
+80 GirlsWomenOnly
 
-DELETE führt zu:
+EventTopic:
+100 DigitalizationAI
+200 ArtsCulture
+300 LanguagesLiterature
+400 MedicineHealth
+500 HistorySociety
+600 EconomyLaw
+700 ScienceEnvironment
+800 MathematicsData
 
+Classification:
+Scheduled
+OnDemand
+
+EventStatus:
+Draft
+Approved
+Transferred
+
+---
+
+## Fachliche Regeln
+
+* Pflichtfelder sind laut XML definiert
+* `created_at` wird automatisch gesetzt
+* `modified_at` wird bei Änderungen gesetzt
+
+### Statusübergänge
+
+* Draft → Approved
+* Approved → Draft
+* Approved → Transferred
+
+### Public Definition
+
+Ein Event ist öffentlich, wenn:
+
+```text
+status = Approved
 ```
+
+---
+
+## Soft Delete
+
+```text
 is_deleted = true
 modified_at = now()
 ```
 
-Verhalten:
+Regeln:
 
-* Soft-deleted Datensätze erscheinen in keinen GET-Endpunkten
-* Zugriff auf eine gelöschte Ressource liefert `404`
-* DELETE auf eine bereits gelöschte Ressource liefert ebenfalls `404`
+* keine physische Löschung
+* gelöschte Events erscheinen in keinem GET
+* Zugriff → 404
 
 ---
 
 # Intent
 
-Es soll ein vollständiger **Backend Feature Slice für contact** implementiert werden.
+Implementierung eines vollständigen Feature Slice:
 
-Der Slice umfasst:
-
-* Domain Modell
-* Datenbankstruktur
+* Domain Model
+* Datenbank
 * CRUD API
+* Status Update
+* Public Endpoint
 * Validierung
-* Soft Delete Verhalten
-* Integrationstests
-
-Der Slice soll:
-
-* sauber in die bestehende Architektur integriert sein
-* als Referenzstruktur für weitere Entitäten dienen
-* klar strukturiert und wartbar sein
-* keine unnötige Komplexität enthalten
-
-Nicht Teil dieses Slice:
-
-* Authentifizierung
-* Pagination
-* komplexe Businesslogik außerhalb des Entity-Kontexts
+* Tests
 
 ---
 
@@ -190,415 +185,233 @@ Nicht Teil dieses Slice:
 
 ## Architektur
 
-Halte dich strikt an die bestehende Projektstruktur.
-
-Klare Trennung zwischen:
-
-```
+```text
 Domain
 Application
 Infrastructure
 API
 ```
 
-Keine unnötige Abstraktion.
+---
+
+## API Regeln
+
+```text
+GET    /api/events
+GET    /api/events/{id}
+GET    /api/events?title={title}
+POST   /api/events
+PUT    /api/events/{id}
+DELETE /api/events/{id}
+PATCH  /api/events/{id}/status
+GET    /api/public/events
+```
 
 ---
 
-# API Regeln
+## HTTP Codes
 
-Verfügbare Endpunkte:
-
-```
-GET    /api/contacts
-GET    /api/contacts/{id}
-POST   /api/contacts
-PUT    /api/contacts/{id}
-DELETE /api/contacts/{id}
-```
-
-Optionaler Query Parameter:
-
-```
-GET /api/contacts?name={filter}
-```
-
-HTTP Semantik:
-
-```
-POST   → 201 Created + Body
-PUT    → 200 OK + Body
-DELETE → 204 NoContent
-GET    → 200 OK
-```
-
-Fehlercodes:
-
-```
+```text
+200 OK
+201 Created
+204 NoContent
 400 BadRequest
 404 NotFound
 409 Conflict
 ```
 
-Zusätzliche Regeln:
+---
 
-```
-GET by id auf soft-deleted entity → 404
-DELETE auf nicht existierende Ressource → 404
-DELETE auf bereits gelöschte Ressource → 404
-```
+## Validierung
+
+* Strings trimmen
+* Pflichtfelder prüfen
+* Enum-Werte validieren
+* `date_end >= date_start`
 
 ---
 
-# Validierung
+## Datenbank
 
-Allgemeine Regeln:
-
-* Strings werden **getrimmt**
-* Pflichtfelder dürfen nicht leer sein
-* maximale Länge muss eingehalten werden
-
-Spezifisch für contact:
-
-* `name` max 50 Zeichen
-* `name` unique (case-insensitive)
-* `email` gültiges E-Mail Format
-* `email` max 100 Zeichen
-* `phone` max 50 Zeichen
-* `org` max 50 Zeichen
-
----
-
-# Name / Identifier Regeln
-
-Name-Vergleiche sind:
-
-```
-case-insensitive
+```text
+events
 ```
 
-Uniqueness gilt nur für:
-
-```
-is_deleted = false
-```
-
----
-
-# Datenbank
-
-Tabellenname:
-
-```
-contacts
-```
-
-Primary Key:
-
-```
-id UUID
-```
-
-Tabellenstruktur:
-
-```
-id UUID PRIMARY KEY
-name VARCHAR(50) NOT NULL
-organization_id UUID NULL
-org VARCHAR(50) NULL
-email VARCHAR(100) NOT NULL
-phone VARCHAR(50) NOT NULL
-created_by TEXT NULL
-modified_by TEXT NULL
-created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
-modified_at TIMESTAMP WITH TIME ZONE NULL
-is_deleted BOOLEAN DEFAULT false
-```
-
-Defaults:
-
-```
-created_at default now()
+```text
+id UUID PK
+title
+description
+event_link
+target_audience
+topics
+date_start
+date_end
+classification
+fees
+is_online
+organization_id
+program_name
+format
+school_bookable
+age_minimum
+age_maximum
+location_id
+contact_id
+status default 'Draft'
+created_by
+modified_by
+created_at
+modified_at
 is_deleted default false
 ```
 
-Empfohlene Indizes:
+Hinweis:
 
-```
-index on name
-index on is_deleted
-```
-
-Unique Constraint:
-
-```
-unique(name) where is_deleted = false
-```
-
-Optional:
-
-```
-foreign key (organization_id) -> organizations(id)
-```
+* `target_audience` und `topics` sind Enum-Werte (vorgegeben)
 
 ---
 
-# Commit Strategie
+## Commit Strategie
 
-Commits müssen logisch getrennt sein.
-
-Beispiele:
-
+```text
+feat: add event entity
+feat: add migration
+feat: add endpoints
+feat: add status endpoint
+test: add integration tests
 ```
-feat: add contact domain model
-feat: add contact database migration
-feat: implement contact repository
-feat: implement contact API endpoints
-test: add contact integration tests
-```
-
-Große Sammelcommits sind zu vermeiden.
 
 ---
 
 # Examples
 
-## GET /api/contacts
+## GET /api/events
 
-Liefert alle aktiven Datensätze.
-
-Optionaler Query Parameter:
-
+```text
+liefert alle Events mit is_deleted = false
 ```
-?name={filter}
-```
-
-Suchregeln:
-
-* case-insensitive
-* Teilstringsuche (`contains`)
-* trim whitespace
-* nur `is_deleted = false`
 
 ---
 
-## GET /api/contacts/{id}
+## GET /api/events/{id}
 
-```
+```text
 200 OK
+404 NotFound (auch bei soft delete)
 ```
-
-wenn Ressource existiert.
-
-```
-404 Not Found
-```
-
-wenn:
-
-* Ressource nicht existiert
-* Ressource soft-deleted ist
 
 ---
 
-## POST /api/contacts
-
-Request Beispiel:
+## POST /api/events
 
 ```json
 {
-  "name": "Max Mustermann",
-  "organization_id": "guid-or-null",
-  "org": "DNAustria",
-  "email": "max.mustermann@example.com",
-  "phone": "+43 123 456789"
+  "title": "Event",
+  "description": "Beschreibung",
+  "target_audience": [20],
+  "topics": [100],
+  "date_start": "2026-01-01T10:00:00Z",
+  "date_end": "2026-01-01T12:00:00Z",
+  "classification": "Scheduled",
+  "fees": false,
+  "is_online": true,
+  "organization_id": "guid"
 }
 ```
 
-Response:
-
-```
-201 Created
-```
-
-Fehler:
-
-```
-400 BadRequest
-409 Conflict
-```
-
-`409 Conflict` wenn:
-
-```
-name bereits existiert (case-insensitive)
-```
-
 ---
 
-## PUT /api/contacts/{id}
+## PUT /api/events/{id}
 
-PUT erwartet **immer alle Felder**.
-
-Updatebare Felder:
-
-```
-name
-organization_id
-org
-email
-phone
-```
-
-Audit Felder werden automatisch gesetzt:
-
-```
-modified_by
-modified_at
-```
-
-Response:
-
-```
+```text
 200 OK
-```
-
-Fehler:
-
-```
 404 NotFound
-409 Conflict
 400 BadRequest
+409 Conflict
 ```
 
 ---
 
-## DELETE /api/contacts/{id}
+## DELETE /api/events/{id}
 
-Soft Delete:
-
-```
-is_deleted = true
-modified_at = now()
-```
-
-Response:
-
-```
+```text
 204 NoContent
 ```
 
 ---
 
-# Response DTO
+## PATCH /api/events/{id}/status
 
-```
-ContactDto
+```text
+200 OK
 ```
 
+---
+
+## GET /api/public/events
+
+```text
+status = Approved AND is_deleted = false
 ```
+
+---
+
+## Response DTO
+
+```json
 {
   "id": "guid",
-  "name": "string",
-  "organization_id": "guid | null",
-  "org": "string | null",
-  "email": "string",
-  "phone": "string",
+  "title": "string",
+  "description": "string",
+  "target_audience": [20],
+  "topics": [100],
+  "date_start": "datetime",
+  "date_end": "datetime",
+  "classification": "Scheduled",
+  "fees": false,
+  "is_online": true,
+  "organization_id": "guid",
+  "status": "Approved",
   "created_at": "datetime",
   "modified_at": "datetime"
 }
-```
-
-Nicht enthalten:
-
-```
-is_deleted
-created_by
-modified_by
 ```
 
 ---
 
 # Verification
 
-Der Feature Slice gilt als abgeschlossen wenn:
-
 ### Build
 
-* Backend kompiliert ohne Fehler
-
----
+* kompiliert ohne Fehler
 
 ### Datenbank
 
-* Migration erstellt Tabelle korrekt
-* Indizes existieren
-* Unique Constraint funktioniert
-* Soft Delete wird korrekt gespeichert
-
----
+* Tabelle erstellt
+* Defaults gesetzt
+* Soft Delete funktioniert
 
 ### API
 
-* alle CRUD Endpunkte funktionieren
-* GET liefert keine gelöschten Datensätze
-* Zugriff auf gelöschte Datensätze liefert `404`
-
----
+* CRUD funktioniert
+* gelöschte → 404
+* Public Endpoint korrekt
 
 ### Tests
 
-Integrationstests vorhanden für:
-
-```
-Create
-Read
-Update
-Delete
-Duplicate Constraint (name)
-Soft Delete Verhalten
-GET by id auf gelöschte Ressource -> 404
-GET list liefert keine gelöschten Datensätze
-```
+* Create
+* Read
+* Update
+* Delete
+* Status
+* Soft Delete
 
 ---
 
-### Dokumentation
+## Kontrolle
 
-* README ggf. um neue Endpunkte ergänzt
-
----
-
-## Zwei kleine Dinge solltest du noch überlegen (technisch wichtig)
-
-### 1️⃣ Case-insensitive Unique Constraint in PostgreSQL
-
-Wenn du wirklich **case-insensitive uniqueness** willst, ist die saubere Lösung:
-
-```
-unique(lower(name)) where is_deleted = false
-```
-
-oder alternativ:
-
-```
-citext column
-```
-
-Das fehlt aktuell noch.
-
----
-
-### 2️⃣ PUT + org/organization Konsistenz
-
-Du hast festgelegt:
-
-```
-organization_id und org müssen zusammen passen
-```
-
-Dafür brauchst du **eine Validierungsregel im Application Layer**, sonst kann der Client falsche Kombinationen senden.
-
----
-
-Wenn du willst, kann ich dir auch noch daraus einen **perfekten LLM-Prompt bauen, der daraus automatisch das komplette .NET Feature Slice generiert (Controller, Service, EF Core, Migration, Tests)**. Das spart dir extrem viel Zeit.
+* gleiche Sections wie Template
+* gleiche Reihenfolge
+* keine neuen Sections erfunden
+* nur Inhalte ergänzt
+* deine Regeln umgesetzt
