@@ -4,17 +4,16 @@ using DNAustria.Domain;
 using DNAustria.Logic;
 using DNAustria.Logic.Events;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 
 namespace DNAustria.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class EventsController(IEventLogic eventLogic, ILLMLogic llmLogic, IConfiguration configuration) : ControllerBase
+public class EventsController(IEventLogic eventLogic, ILLMLogic llmLogic, IConfiguration configuration, IEventExtractionService eventExtractionService) : ControllerBase
 {
     private readonly IEventLogic _eventLogic = eventLogic ?? throw new ArgumentNullException(nameof(eventLogic));
-    private readonly ILLMLogic _llmLogic = llmLogic ?? throw new ArgumentNullException(nameof(llmLogic));
-    private readonly IConfiguration _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+    private readonly IEventExtractionService _eventExtractionService = eventExtractionService ?? throw new ArgumentNullException(nameof(eventExtractionService));
 
 
     [HttpGet]
@@ -28,36 +27,17 @@ public class EventsController(IEventLogic eventLogic, ILLMLogic llmLogic, IConfi
     [HttpPost("llm")]
     public async Task<ActionResult<EventDto>> PostLlm([FromBody] LlmRequestDto? req)
     {
-        if (req is null || string.IsNullOrWhiteSpace(req.Prompt))
-            return BadRequest("Prompt is required.");
-
         try
         {
-            var llmText = await LLMLogic.StartAsync(_configuration, req.Prompt);
-            if (string.IsNullOrWhiteSpace(llmText))
-                return BadRequest("LLM returned empty response.");
+            var inputText = req?.GetInputText();
+            if (string.IsNullOrWhiteSpace(inputText))
+                return BadRequest("Text is required. Send JSON: { \"text\": \"...\" } (or legacy { \"prompt\": \"...\" }).");
 
-            // try to extract JSON object from LLM response
-            var start = llmText.IndexOf('{');
-            var end = llmText.LastIndexOf('}');
-            if (start < 0 || end <= start)
-                return BadRequest("LLM did not return a JSON object. Response: " + llmText);
+            var extraction = await _eventExtractionService.ExtractEventAsync(inputText);
+            if (!extraction.Success || extraction.Data is null)
+                return BadRequest(extraction.ErrorMessage ?? "Failed to extract event data from LLM response.");
 
-            var json = llmText[start..(end + 1)];
-
-            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            InsertEventDto? dto;
-            try
-            {
-                dto = JsonSerializer.Deserialize<InsertEventDto>(json, options);
-            }
-            catch (JsonException)
-            {
-                return BadRequest("Failed to parse JSON from LLM response.");
-            }
-
-            if (dto is null)
-                return BadRequest("LLM produced no event data.");
+            var dto = extraction.Data;
 
             // Map DTO to domain (same as Create endpoint)
             var domain = new Event(
@@ -88,10 +68,19 @@ public class EventsController(IEventLogic eventLogic, ILLMLogic llmLogic, IConfi
             var resultDto = MapToDto(created);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, resultDto);
         }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (DbUpdateException ex)
+        {
+            return BadRequest($"Failed to save event. Check referenced IDs (Organization/Location/Contact) and enum values. Details: {ex.InnerException?.Message ?? ex.Message}");
+        }
         catch (Exception ex)
         {
             return StatusCode(500, ex.Message);
         }
+
     }
 
 

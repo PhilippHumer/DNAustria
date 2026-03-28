@@ -18,6 +18,7 @@ import {
   fromDatetimeLocalValue,
   toDatetimeLocalValue,
 } from '../event-utils';
+import { environment } from '../../environment';
 
 @Component({
   selector: 'app-event-form-popup',
@@ -41,6 +42,9 @@ export class EventFormPopup {
   readonly locations = signal<LocationReplyDto[]>([]);
   readonly submitting = signal(false);
   readonly submitError = signal<string | null>(null);
+  readonly llmPrefillLoading = signal(false);
+  readonly llmPrefillError = signal<string | null>(null);
+  readonly llmPrefillInfo = signal<string | null>(null);
   readonly isEditMode = computed(() => this.editEvent() !== null);
   protected readonly classificationOptions = EVENT_CLASSIFICATION_OPTIONS;
   protected readonly statusOptions = EVENT_STATUS_OPTIONS;
@@ -192,6 +196,57 @@ export class EventFormPopup {
     });
   }
 
+  protected async analyzeAndPrefill(prompt: string): Promise<void> {
+    const trimmedPrompt = prompt.trim();
+    if (!trimmedPrompt) {
+      this.llmPrefillError.set('Please enter text before running the analysis.');
+      this.llmPrefillInfo.set(null);
+      return;
+    }
+
+    this.llmPrefillLoading.set(true);
+    this.llmPrefillError.set(null);
+    this.llmPrefillInfo.set(null);
+
+    const apiBaseUrl = environment.apiUrl.replace(/\/$/, '');
+
+    try {
+      const response = await fetch(`${apiBaseUrl}/api/events/llm`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: trimmedPrompt }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || `HTTP ${response.status}`);
+      }
+
+      const contentType = response.headers.get('content-type') || '';
+      const responseBody: unknown = contentType.includes('application/json')
+        ? await response.json()
+        : await response.text();
+
+      const prefillData = this.extractPrefillPayload(responseBody);
+      if (!prefillData) {
+        throw new Error('The LLM response did not contain a valid JSON object.');
+      }
+
+      const updatedFieldCount = this.applyLlmPrefill(prefillData);
+      if (updatedFieldCount === 0) {
+        this.llmPrefillInfo.set('No matching event fields were found in the LLM response.');
+      } else {
+        this.llmPrefillInfo.set(`Prefilled ${updatedFieldCount} field${updatedFieldCount === 1 ? '' : 's'} from LLM output.`);
+      }
+    } catch (error) {
+      console.error('LLM prefill failed', error);
+      const message = error instanceof Error ? error.message : String(error);
+      this.llmPrefillError.set(`Could not prefill event fields: ${message}`);
+    } finally {
+      this.llmPrefillLoading.set(false);
+    }
+  }
+
   private loadRelatedData(): void {
     this.organizationsService.apiOrganizationsGet().subscribe({
       next: (organizations) => this.organizations.set(Array.isArray(organizations) ? organizations : []),
@@ -239,6 +294,293 @@ export class EventFormPopup {
 
   protected isTopicSelected(topicCode: number): boolean {
     return this.form.controls.topics.value.includes(topicCode);
+  }
+
+  private applyLlmPrefill(data: Record<string, unknown>): number {
+    const patch: Partial<{
+      name: string;
+      description: string;
+      link: string;
+      startDate: string;
+      endDate: string;
+      classification: number;
+      status: number;
+      hasFees: boolean;
+      isOnline: boolean;
+      organization: string;
+      programName: string;
+      format: string;
+      schoolBookable: boolean;
+      ageMinimum: number;
+      ageMaximum: number;
+      location: string;
+      contact: string;
+      targetAudiences: number[];
+      topics: number[];
+    }> = {};
+
+    this.setStringIfPresent(patch, 'name', data['name']);
+    this.setStringIfPresent(patch, 'description', data['description']);
+    this.setStringIfPresent(patch, 'link', data['link']);
+    this.setStringIfPresent(patch, 'programName', data['programName']);
+    this.setStringIfPresent(patch, 'format', data['format']);
+
+    const startDate = this.toDatetimeLocalString(data['startDate']);
+    if (startDate) {
+      patch.startDate = startDate;
+    }
+
+    const endDate = this.toDatetimeLocalString(data['endDate']);
+    if (endDate) {
+      patch.endDate = endDate;
+    }
+
+    const classification = this.toNumber(data['classification']);
+    if (classification !== null) {
+      patch.classification = classification;
+    }
+
+    const status = this.toNumber(data['status']);
+    if (status !== null) {
+      patch.status = status;
+    }
+
+    const hasFees = this.toBoolean(data['hasFees']);
+    if (hasFees !== null) {
+      patch.hasFees = hasFees;
+    }
+
+    const isOnline = this.toBoolean(data['isOnline']);
+    if (isOnline !== null) {
+      patch.isOnline = isOnline;
+    }
+
+    const schoolBookable = this.toBoolean(data['schoolBookable']);
+    if (schoolBookable !== null) {
+      patch.schoolBookable = schoolBookable;
+    }
+
+    const ageMinimum = this.toNumber(data['ageMinimum']);
+    if (ageMinimum !== null) {
+      patch.ageMinimum = ageMinimum;
+    }
+
+    const ageMaximum = this.toNumber(data['ageMaximum']);
+    if (ageMaximum !== null) {
+      patch.ageMaximum = ageMaximum;
+    }
+
+    const targetAudiences = this.toNumberArray(data['targetAudiences']);
+    if (targetAudiences) {
+      const allowedTargetAudiences = new Set(EVENT_TARGET_AUDIENCE_OPTIONS.map((option) => option.value));
+      patch.targetAudiences = targetAudiences.filter((value) => allowedTargetAudiences.has(value));
+    }
+
+    const topics = this.toNumberArray(data['topics']);
+    if (topics) {
+      const allowedTopics = new Set(EVENT_TOPIC_OPTIONS.map((option) => option.value));
+      patch.topics = topics.filter((value) => allowedTopics.has(value));
+    }
+
+    const organizationId = this.resolveEntityId(
+      data['organization'] ?? data['organizationId'] ?? data['organizationName'],
+      this.organizations(),
+      (organization) => organization.id,
+      (organization) => organization.name,
+    );
+    if (organizationId !== null) {
+      patch.organization = String(organizationId);
+    }
+
+    const locationId = this.resolveEntityId(
+      data['location'] ?? data['locationId'] ?? data['locationName'],
+      this.locations(),
+      (location) => location.id,
+      (location) => location.name,
+    );
+    if (locationId !== null) {
+      patch.location = String(locationId);
+    }
+
+    const contactId = this.resolveEntityId(
+      data['contact'] ?? data['contactId'] ?? data['contactName'],
+      this.contacts(),
+      (contact) => contact.id,
+      (contact) => contact.name,
+    );
+    if (contactId !== null) {
+      patch.contact = String(contactId);
+    }
+
+    this.form.patchValue(patch);
+    this.form.markAsDirty();
+    this.form.updateValueAndValidity();
+
+    return Object.keys(patch).length;
+  }
+
+  private extractPrefillPayload(body: unknown): Record<string, unknown> | null {
+    if (this.isRecord(body)) {
+      if (this.isRecord(body['event'])) {
+        return body['event'];
+      }
+
+      if (this.isRecord(body['data'])) {
+        return body['data'];
+      }
+
+      return body;
+    }
+
+    if (typeof body !== 'string') {
+      return null;
+    }
+
+    const candidates = [body.trim()]
+      .concat(this.extractCodeBlock(body))
+      .concat(this.extractJsonObject(body))
+      .filter((candidate) => candidate.length > 0);
+
+    for (const candidate of candidates) {
+      try {
+        const parsed = JSON.parse(candidate) as unknown;
+        if (this.isRecord(parsed)) {
+          if (this.isRecord(parsed['event'])) {
+            return parsed['event'];
+          }
+
+          if (this.isRecord(parsed['data'])) {
+            return parsed['data'];
+          }
+
+          return parsed;
+        }
+      } catch {
+        // Ignore malformed candidate snippets and continue trying others.
+      }
+    }
+
+    return null;
+  }
+
+  private extractCodeBlock(value: string): string {
+    const codeBlockMatch = value.match(/```(?:json)?\s*([\s\S]*?)```/i);
+    return codeBlockMatch?.[1]?.trim() ?? '';
+  }
+
+  private extractJsonObject(value: string): string {
+    const firstBraceIndex = value.indexOf('{');
+    const lastBraceIndex = value.lastIndexOf('}');
+    if (firstBraceIndex < 0 || lastBraceIndex < 0 || lastBraceIndex <= firstBraceIndex) {
+      return '';
+    }
+
+    return value.slice(firstBraceIndex, lastBraceIndex + 1).trim();
+  }
+
+  private isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
+  }
+
+  private setStringIfPresent<T extends Record<string, unknown>>(target: T, key: keyof T, value: unknown): void {
+    if (typeof value !== 'string') {
+      return;
+    }
+
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return;
+    }
+
+    target[key] = trimmed as T[keyof T];
+  }
+
+  private toDatetimeLocalString(value: unknown): string | null {
+    if (typeof value !== 'string' || !value.trim()) {
+      return null;
+    }
+
+    const datetimeLocal = toDatetimeLocalValue(value);
+    return datetimeLocal || null;
+  }
+
+  private toNumber(value: unknown): number | null {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return value;
+    }
+
+    if (typeof value === 'string' && value.trim()) {
+      const numberValue = Number(value);
+      return Number.isFinite(numberValue) ? numberValue : null;
+    }
+
+    return null;
+  }
+
+  private toBoolean(value: unknown): boolean | null {
+    if (typeof value === 'boolean') {
+      return value;
+    }
+
+    if (typeof value === 'string') {
+      const normalized = value.trim().toLowerCase();
+      if (normalized === 'true') {
+        return true;
+      }
+
+      if (normalized === 'false') {
+        return false;
+      }
+    }
+
+    return null;
+  }
+
+  private toNumberArray(value: unknown): number[] | null {
+    if (Array.isArray(value)) {
+      const parsedArray = value
+        .map((entry) => this.toNumber(entry))
+        .filter((entry): entry is number => entry !== null);
+
+      return [...new Set(parsedArray)].sort((left, right) => left - right);
+    }
+
+    if (typeof value === 'string' && value.trim()) {
+      const parsedArray = value
+        .split(',')
+        .map((entry) => this.toNumber(entry))
+        .filter((entry): entry is number => entry !== null);
+
+      return [...new Set(parsedArray)].sort((left, right) => left - right);
+    }
+
+    return null;
+  }
+
+  private resolveEntityId<T>(
+    value: unknown,
+    entries: T[],
+    getId: (entry: T) => number | undefined,
+    getName: (entry: T) => string | undefined,
+  ): number | null {
+    const directId = this.toNumber(value);
+    if (directId !== null) {
+      return directId;
+    }
+
+    if (typeof value !== 'string') {
+      return null;
+    }
+
+    const normalizedValue = value.trim().toLowerCase();
+    if (!normalizedValue) {
+      return null;
+    }
+
+    const matchedEntry = entries.find((entry) => getName(entry)?.trim().toLowerCase() === normalizedValue);
+    const matchedId = matchedEntry ? getId(matchedEntry) : undefined;
+
+    return typeof matchedId === 'number' ? matchedId : null;
   }
 
   private trimmedRequiredValidator(): ValidatorFn {
