@@ -1,4 +1,5 @@
 ﻿using DNAustria.Dal.Data;
+using DNAustria.Logic;
 using DNAustria.Logic.Events;
 using DNAustria.Logic.LocationsService;
 using DNAustria.Logic.Organizations;
@@ -17,6 +18,7 @@ public static class ServiceExtensions
         builder.Services.AddScoped<IEventLogic, EventLogic>();
         builder.Services.AddScoped<Logic.IContactsLogic, Logic.ContactsLogic>();
         builder.Services.AddScoped<IEventTracker, EventTracker>();
+        builder.Services.AddScoped<IEventExtractionService, EventExtractionService>();
         return builder;
     }
 }
