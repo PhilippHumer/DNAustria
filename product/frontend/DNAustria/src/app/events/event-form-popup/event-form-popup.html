@@ -11,6 +11,46 @@
     </div>
 
     <form class="card-body event-popup-body d-flex flex-column gap-4" [formGroup]="form" (ngSubmit)="submit()">
+      @if (!isEditMode()) {
+        <section class="event-form-section event-ai-prefill">
+          <details open>
+            <summary class="event-ai-prefill__summary">
+              <span class="event-ai-prefill__summary-title">AI Event Prefill</span>
+              <span class="event-ai-prefill__summary-hint">Paste unstructured event text and prefill the form with one click.</span>
+            </summary>
+
+            <div class="event-ai-prefill__body">
+              <label for="event-ai-prompt" class="form-label fw-semibold">Event text for LLM analysis</label>
+              <textarea
+                id="event-ai-prompt"
+                #aiPrompt
+                class="form-control"
+                rows="5"
+                placeholder="Paste event information here (description, date, audience, topics, location, etc.)"
+              ></textarea>
+
+              <div class="event-ai-prefill__actions">
+                <button type="button" class="btn btn-primary event-action event-action--primary" (click)="analyzeAndPrefill(aiPrompt.value)" [disabled]="llmPrefillLoading()">
+                  @if (llmPrefillLoading()) {
+                    Analyzing...
+                  } @else {
+                    Analyze And Prefill
+                  }
+                </button>
+              </div>
+
+              @if (llmPrefillError()) {
+                <div class="alert alert-danger py-2 mb-0 event-alert">{{ llmPrefillError() }}</div>
+              }
+
+              @if (llmPrefillInfo()) {
+                <div class="alert alert-info py-2 mb-0 event-alert">{{ llmPrefillInfo() }}</div>
+              }
+            </div>
+          </details>
+        </section>
+      }
+
       <section class="event-form-section">
         <div class="event-form-section__header">
           <h3 class="event-form-section__title">Basics</h3>
