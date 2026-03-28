@@ -100,7 +100,25 @@
 .event-ai-prefill__summary {
   cursor: pointer;
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.event-ai-prefill__summary-copy {
+  display: flex;
   flex-direction: column;
+}
+
+.event-ai-prefill__summary-icon {
+  color: #0f766e;
+  font-size: 1rem;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.event-ai-prefill__details[open] .event-ai-prefill__summary-icon {
+  transform: rotate(180deg);
 }
 
 .event-ai-prefill__body {

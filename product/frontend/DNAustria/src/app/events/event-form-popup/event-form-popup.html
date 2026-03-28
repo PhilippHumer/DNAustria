@@ -13,10 +13,13 @@
     <form class="card-body event-popup-body d-flex flex-column gap-4" [formGroup]="form" (ngSubmit)="submit()">
       @if (!isEditMode()) {
         <section class="event-form-section event-ai-prefill">
-          <details open>
+          <details class="event-ai-prefill__details">
             <summary class="event-ai-prefill__summary">
-              <span class="event-ai-prefill__summary-title">AI Event Prefill</span>
-              <span class="event-ai-prefill__summary-hint">Paste unstructured event text and prefill the form with one click.</span>
+              <span class="event-ai-prefill__summary-copy">
+                <span class="event-ai-prefill__summary-title">AI Event Prefill</span>
+                <span class="event-ai-prefill__summary-hint">Paste unstructured event text and prefill the form with one click.</span>
+              </span>
+              <span class="event-ai-prefill__summary-icon" aria-hidden="true">▾</span>
             </summary>
 
             <div class="event-ai-prefill__body">
