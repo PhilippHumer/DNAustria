@@ -1,6 +1,10 @@
-<div class="d-flex">
-  <app-sidebar></app-sidebar>
-  <main class="app-main-content flex-grow-1 w-100 p-4 p-md-5">
-    <router-outlet></router-outlet>
-  </main>
-</div>
+@if (authService.isAuthenticated()) {
+  <div class="d-flex">
+    <app-sidebar></app-sidebar>
+    <main class="app-main-content flex-grow-1 w-100 p-4 p-md-5">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+} @else {
+  <router-outlet></router-outlet>
+}

@@ -16,6 +16,11 @@
   <!-- Content -->
   <div class="app-sidebar-nav">
     <div class="app-sidebar-group">
+      <div class="px-3 pt-2 pb-3 border-bottom">
+        <div class="fw-semibold text-truncate">{{ authService.displayName() }}</div>
+        <div class="small text-body-secondary text-truncate">{{ authService.username() }}</div>
+      </div>
+
       <div class="app-sidebar-group-label">Main Menu</div>
       <nav class="nav flex-column gap-1">
 
@@ -125,5 +130,15 @@
         </a>
       </nav>
     </div>
+  </div>
+
+  <div class="p-3 border-top">
+    <button type="button" class="btn btn-outline-secondary w-100" (click)="logout()" [disabled]="logoutInProgress">
+      @if (logoutInProgress) {
+        Signing out...
+      } @else {
+        Sign out
+      }
+    </button>
   </div>
 </aside>
