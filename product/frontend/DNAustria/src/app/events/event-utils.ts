@@ -1,8 +1,7 @@
 export const EVENT_STATUS_LABELS: Record<number, string> = {
   0: 'Draft',
   1: 'Published',
-  2: 'Archived',
-  3: 'Cancelled',
+  2: 'Ready For Transmission',
 };
 
 export const EVENT_CLASSIFICATION_LABELS: Record<number, string> = {
@@ -65,9 +64,7 @@ export function getEventStatusBadgeClass(status: number): string {
     case 1:
       return 'bg-success-subtle text-success-emphasis border-success-subtle';
     case 2:
-      return 'bg-secondary-subtle text-secondary-emphasis border-secondary-subtle';
-    case 3:
-      return 'bg-danger-subtle text-danger-emphasis border-danger-subtle';
+      return 'bg-info-subtle text-info-emphasis border-info-subtle';
     default:
       return 'bg-warning-subtle text-warning-emphasis border-warning-subtle';
   }

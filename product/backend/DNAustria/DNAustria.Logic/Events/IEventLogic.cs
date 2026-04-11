@@ -5,7 +5,7 @@ namespace DNAustria.Logic.Events;
 
 public interface IEventLogic
 {
-    Task<IReadOnlyList<Event>> GetAllAsync(string? name);
+    Task<PagedResult<Event>> GetAllAsync(string? name, EventStatus? status, int page, int pageSize);
     Task<Event?> GetByIdAsync(int id);
     Task<IReadOnlyList<EventHistoryEntry>> GetHistoryByEventIdAsync(int id);
 

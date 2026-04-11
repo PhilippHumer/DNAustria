@@ -13,3 +13,7 @@
   width: min(100%, 26rem);
   border-radius: 0.75rem;
 }
+
+.pagination .page-link {
+  min-width: 2.75rem;
+}

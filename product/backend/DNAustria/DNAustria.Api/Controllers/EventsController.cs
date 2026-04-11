@@ -14,14 +14,33 @@ public class EventsController(IEventLogic eventLogic, ILLMLogic llmLogic, IConfi
 {
     private readonly IEventLogic _eventLogic = eventLogic ?? throw new ArgumentNullException(nameof(eventLogic));
     private readonly IEventExtractionService _eventExtractionService = eventExtractionService ?? throw new ArgumentNullException(nameof(eventExtractionService));
+    private const int DefaultPage = 1;
+    private const int DefaultPageSize = 20;
 
 
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<EventDto>>> GetAll([FromQuery] string? name)
+    public async Task<ActionResult<PagedEventsDto>> GetAll([FromQuery] string? name, [FromQuery] EventStatus? status, [FromQuery] int page = DefaultPage, [FromQuery] int pageSize = DefaultPageSize)
     {
-        var events = await _eventLogic.GetAllAsync(name);
-        var dtos = events.Select(e => MapToDto(e)).ToList();
-        return Ok(dtos);
+        if (page < 1)
+        {
+            return BadRequest("Page must be at least 1.");
+        }
+
+        if (pageSize < 1)
+        {
+            return BadRequest("PageSize must be at least 1.");
+        }
+
+        var events = await _eventLogic.GetAllAsync(name, status, page, pageSize);
+
+        return Ok(new PagedEventsDto
+        {
+            Items = events.Items.Select(e => MapToDto(e)).ToList(),
+            Page = events.Page,
+            PageSize = events.PageSize,
+            TotalCount = events.TotalCount,
+            TotalPages = events.TotalPages
+        });
     }
 
     [HttpPost("llm")]

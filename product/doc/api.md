@@ -49,6 +49,12 @@ GET /api/events/{id}
 ### Event nach Name suchen
 GET /api/events?name={name}
 
+### Events nach Status filtern
+GET /api/events?status={status}
+
+### Events paginiert abrufen
+GET /api/events?page={page}&pageSize={pageSize}
+
 ### Event erstellen
 POST /api/events
 

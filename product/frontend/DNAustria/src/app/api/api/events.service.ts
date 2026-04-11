@@ -23,6 +23,8 @@ import { InsertEventDto } from '../model/insertEventDto';
 // @ts-ignore
 import { LlmRequestDto } from '../model/llmRequestDto';
 // @ts-ignore
+import { PagedEventsDto } from '../model/pagedEventsDto';
+// @ts-ignore
 import { UpdateEventDto } from '../model/updateEventDto';
 // @ts-ignore
 import { UpdateEventStatusDto } from '../model/updateEventStatusDto';
@@ -46,14 +48,17 @@ export class EventsService extends BaseService {
     /**
      * @endpoint get /api/Events
      * @param name 
+     * @param status
+     * @param page
+     * @param pageSize
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiEventsGet(name?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<EventDto>>;
-    public apiEventsGet(name?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<EventDto>>>;
-    public apiEventsGet(name?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<EventDto>>>;
-    public apiEventsGet(name?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiEventsGet(name?: string, status?: number, page?: number, pageSize?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<PagedEventsDto>;
+    public apiEventsGet(name?: string, status?: number, page?: number, pageSize?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PagedEventsDto>>;
+    public apiEventsGet(name?: string, status?: number, page?: number, pageSize?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PagedEventsDto>>;
+    public apiEventsGet(name?: string, status?: number, page?: number, pageSize?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 
@@ -61,6 +66,27 @@ export class EventsService extends BaseService {
             localVarQueryParameters,
             'name',
             <any>name,
+            QueryParamStyle.Form,
+            true,
+        );
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'status',
+            <any>status,
+            QueryParamStyle.Form,
+            true,
+        );
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'page',
+            <any>page,
+            QueryParamStyle.Form,
+            true,
+        );
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'pageSize',
+            <any>pageSize,
             QueryParamStyle.Form,
             true,
         );
@@ -95,7 +121,7 @@ export class EventsService extends BaseService {
 
         let localVarPath = `/api/Events`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<EventDto>>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<PagedEventsDto>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters.toHttpParams(),

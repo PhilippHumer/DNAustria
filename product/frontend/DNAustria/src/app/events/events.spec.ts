@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
 import { Events } from './events';
@@ -8,14 +9,17 @@ describe('Events', () => {
   let component: Events;
   let fixture: ComponentFixture<Events>;
   const eventsServiceStub = {
-    apiEventsGet: () => of([]),
+    apiEventsGet: () => of({ items: [], page: 1, pageSize: 20, totalCount: 0, totalPages: 0 }),
     apiEventsIdDelete: () => of(void 0),
   };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Events],
-      providers: [{ provide: EventsService, useValue: eventsServiceStub }]
+      providers: [
+        provideRouter([]),
+        { provide: EventsService, useValue: eventsServiceStub }
+      ]
     })
     .compileComponents();
 

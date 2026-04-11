@@ -18,7 +18,9 @@
 
     <app-filterevents
       [searchTerm]="searchTerm()"
+      [status]="status()"
       (searchTermChange)="handleSearchTermChange($event)"
+      (statusChange)="handleStatusChange($event)"
     ></app-filterevents>
 
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
@@ -45,6 +47,20 @@
         }
       }
     </div>
+
+    @if (totalPages() > 1) {
+      <nav aria-label="Event pagination" class="d-flex justify-content-center">
+        <ul class="pagination mb-0 flex-wrap gap-2">
+          @for (pageNumber of pageNumbers(); track pageNumber) {
+            <li class="page-item" [class.active]="pageNumber === currentPage()">
+              <button type="button" class="page-link rounded" (click)="goToPage(pageNumber)">
+                {{ pageNumber }}
+              </button>
+            </li>
+          }
+        </ul>
+      </nav>
+    }
   </div>
 </main>
 
