@@ -12,6 +12,11 @@
       left: 0;
       height: 100vh;
       border-right: 1px solid var(--bs-border-color);
+      display: flex;
+      flex-direction: column;
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      background: linear-gradient(180deg, #fffdf8 0%, #ffffff 100%);
     }
 
     .app-sidebar-header {

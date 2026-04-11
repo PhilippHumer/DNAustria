@@ -1,6 +1,8 @@
 using DNAustria.Api.BuilderExtensions;
 using DNAustria.Dal.Data;
 using DNAustria.Logic;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Scalar.AspNetCore;
 using Serilog;
 
@@ -13,11 +15,35 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.RegisterServices();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "dnaustria.auth";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.SlidingExpiration = true;
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.Events.OnRedirectToLogin = context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return Task.CompletedTask;
+        };
+        options.Events.OnRedirectToAccessDenied = context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            return Task.CompletedTask;
+        };
+    });
+builder.Services.AddAuthorizationBuilder()
+    .SetFallbackPolicy(new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build());
 
 // Register LLM service for OpenAI integration
 builder.Services.AddScoped<ILLMLogic, LLMLogic>();
 
-builder.Services.ConfigureCors();
+builder.Services.ConfigureCors(builder.Configuration);
 
 var app = builder.Build();
 
@@ -30,12 +56,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCustomCors();
+app.UseAuthentication();
 
 app.UseAuthorization();
 
 app.MapControllers();
-
-app.UseCustomCors();
 
 // Seed database in development
 if (app.Environment.IsDevelopment())

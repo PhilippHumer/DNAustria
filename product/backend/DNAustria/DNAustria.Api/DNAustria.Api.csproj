@@ -14,6 +14,7 @@
         <PackageReference Include="Serilog.AspNetCore" />
         <PackageReference Include="Serilog.Sinks.Console" />
         <PackageReference Include="Serilog.Sinks.File" />
+        <PackageReference Include="System.DirectoryServices.Protocols" VersionOverride="10.0.0" />
     </ItemGroup>
 
     <ItemGroup>

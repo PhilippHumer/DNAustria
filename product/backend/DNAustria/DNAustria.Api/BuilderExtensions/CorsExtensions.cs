@@ -4,12 +4,15 @@ public static class CorsExtensions
 {
     private const string PolicyName = "cors_policy";
 
-    public static IServiceCollection ConfigureCors(this IServiceCollection collection)
+    public static IServiceCollection ConfigureCors(this IServiceCollection collection, IConfiguration configuration)
     {
+        var allowedOrigins = configuration.GetSection("Frontend:AllowedOrigins").Get<string[]>() ?? ["http://localhost:4200"];
+
         collection.AddCors(options => options.AddPolicy(PolicyName, builder => builder
             .AllowAnyHeader()
-            .AllowAnyOrigin() //TODO: set frontend url here...
-            .AllowAnyMethod()));
+            .AllowAnyMethod()
+            .WithOrigins(allowedOrigins)
+            .AllowCredentials()));
         return collection;
     }
     
