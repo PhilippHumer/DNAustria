@@ -219,6 +219,25 @@
             </div>
           </div>
         </div>
+
+        <div class="card shadow-sm mt-4">
+          <div class="card-body">
+            <h5 class="card-title mb-3">Event History</h5>
+
+            @if (sortedHistory().length === 0) {
+              <p class="small text-muted mb-0">No history entries available.</p>
+            } @else {
+              <ul class="event-history-list mb-0 ps-3">
+                @for (entry of sortedHistory(); track entry.createdAt + '-' + entry.action + '-' + entry.username) {
+                  <li class="event-history-list__item">
+                    <div class="fw-semibold">{{ historyEntryLabel(entry) }}</div>
+                    <div class="small text-muted">{{ entry.createdAt | date:'medium' }}</div>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        </div>
       </div>
     </div>
   }

@@ -44,6 +44,16 @@
   line-height: 1.4;
 }
 
+.event-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.event-history-list__item::marker {
+  color: #0f766e;
+}
+
 .delete-confirm-backdrop {
   position: fixed;
   inset: 0;

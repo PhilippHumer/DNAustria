@@ -20,7 +20,7 @@ public class EventsController(IEventLogic eventLogic, ILLMLogic llmLogic, IConfi
     public async Task<ActionResult<IReadOnlyList<EventDto>>> GetAll([FromQuery] string? name)
     {
         var events = await _eventLogic.GetAllAsync(name);
-        var dtos = events.Select(MapToDto).ToList();
+        var dtos = events.Select(e => MapToDto(e)).ToList();
         return Ok(dtos);
     }
 
@@ -93,7 +93,9 @@ public class EventsController(IEventLogic eventLogic, ILLMLogic llmLogic, IConfi
             return NotFound();
         }
 
-        return Ok(MapToDto(e));
+        var history = await _eventLogic.GetHistoryByEventIdAsync(id);
+
+        return Ok(MapToDto(e, history));
     }
 
     [HttpPost]
@@ -198,7 +200,7 @@ public class EventsController(IEventLogic eventLogic, ILLMLogic llmLogic, IConfi
         return Ok(MapToDto(updated));
     }
 
-    private static EventDto MapToDto(Event e)
+    private static EventDto MapToDto(Event e, IReadOnlyList<EventHistoryEntry>? history = null)
     {
         return new EventDto
         {
@@ -221,7 +223,15 @@ public class EventsController(IEventLogic eventLogic, ILLMLogic llmLogic, IConfi
             Location = e.LocationId,
             Contact = e.ContactId,
             TargetAudiences = e.TargetAudiences.Select(x => (int)x.TargetAudience).ToList(),
-            Topics = e.Topics.Select(x => (int)x.Topic).ToList()
+            Topics = e.Topics.Select(x => (int)x.Topic).ToList(),
+            History = history is null
+                ? Array.Empty<EventHistoryDto>()
+                : history.Select(x => new EventHistoryDto
+                {
+                    Action = x.Action,
+                    CreatedAt = x.CreatedAt,
+                    Username = x.Username
+                }).ToList()
         };
     }
 }

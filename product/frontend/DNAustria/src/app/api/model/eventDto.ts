@@ -7,6 +7,7 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { EventHistoryDto } from './eventHistoryDto';
 
 
 export interface EventDto { 
@@ -21,8 +22,8 @@ export interface EventDto {
     hasFees: boolean;
     isOnline: boolean;
     organization: number | null;
-    programName?: string;
-    format?: string;
+    programName?: string | null;
+    format?: string | null;
     schoolBookable: boolean;
     ageMinimum: number;
     ageMaximum: number;
@@ -30,5 +31,6 @@ export interface EventDto {
     contact: number | null;
     targetAudiences: Array<number>;
     topics: Array<number>;
+    history?: Array<EventHistoryDto>;
 }
 

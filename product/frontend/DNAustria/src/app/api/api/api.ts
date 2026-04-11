@@ -6,4 +6,6 @@ export * from './locations.service';
 import { LocationsService } from './locations.service';
 export * from './organizations.service';
 import { OrganizationsService } from './organizations.service';
-export const APIS = [ContactsService, EventsService, LocationsService, OrganizationsService];
+export * from './public.service';
+import { PublicService } from './public.service';
+export const APIS = [ContactsService, EventsService, LocationsService, OrganizationsService, PublicService];
