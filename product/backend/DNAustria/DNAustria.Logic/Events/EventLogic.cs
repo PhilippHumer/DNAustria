@@ -10,23 +10,47 @@ namespace DNAustria.Logic.Events;
 
 public class EventLogic (AppDbContext db, IEventTracker tracker) : IEventLogic
 {
-
-    public async Task<IReadOnlyList<DomainEvent>> GetAllAsync(string? name)
+    public async Task<PagedResult<DomainEvent>> GetAllAsync(string? name, EventStatus? status, int page, int pageSize)
     {
+        var normalizedPage = Math.Max(1, page);
+        var normalizedPageSize = Math.Max(1, pageSize);
+
         var query = db.Events
             .AsNoTracking()
             .Include(e => e.EventTopics)
             .Include(e => e.EventTargetAudiences)
+            .Where(e => !e.IsDeleted)
             .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(name))
+        {
             query = query.Where(e => EF.Functions.ILike(e.Name, $"%{name}%"));
+        }
+
+        if (status is not null)
+        {
+            query = query.Where(e => e.Status == (int)status);
+        }
+
+        var totalCount = await query.CountAsync();
+        var totalPages = totalCount == 0
+            ? 0
+            : (int)Math.Ceiling(totalCount / (double)normalizedPageSize);
 
         var entities = await query
-            .OrderBy(e => e.StartDate).Where(e => !e.IsDeleted)
+            .OrderBy(e => e.StartDate)
+            .Skip((normalizedPage - 1) * normalizedPageSize)
+            .Take(normalizedPageSize)
             .ToListAsync();
 
-        return entities.Select(MapToDomain).ToList();
+        return new PagedResult<DomainEvent>
+        {
+            Items = entities.Select(MapToDomain).ToList(),
+            Page = normalizedPage,
+            PageSize = normalizedPageSize,
+            TotalCount = totalCount,
+            TotalPages = totalPages
+        };
     }
 
     public async Task<DomainEvent?> GetByIdAsync(int id)
