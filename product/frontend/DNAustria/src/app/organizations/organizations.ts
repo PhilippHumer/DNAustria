@@ -1,12 +1,11 @@
 import {Component, ElementRef, inject, OnInit, signal, ViewChild} from '@angular/core';
 import { Organizationcard } from "./organizationcard/organizationcard";
 import {FormsModule, NgForm} from '@angular/forms';
-import {AddressDto, ContactDto, CreateOrganizationDto, OrganizationDto, OrganizationsService} from '../api';
+import {CreateOrganizationDto, OrganizationDto, OrganizationsService} from '../api';
 import { Modal } from 'bootstrap';
-import {Contactcard} from '../contacts/contactcard/contactcard';
 @Component({
   selector: 'app-organizations',
-  imports: [Organizationcard, FormsModule, Contactcard],
+  imports: [Organizationcard, FormsModule],
   templateUrl: './organizations.html',
   styleUrl: './organizations.css',
 })

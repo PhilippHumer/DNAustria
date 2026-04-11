@@ -7,6 +7,12 @@
       <p class="text-muted fs-5">Event management system for FH Upper Austria</p>
     </div>
 
+    @if (loadError()) {
+      <div class="alert alert-warning mb-0" role="alert">
+        {{ loadError() }}
+      </div>
+    }
+
     <!-- Stats grid -->
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
 
@@ -28,7 +34,7 @@
             </div>
           </div>
           <div class="card-body pt-0">
-            <div class="display-6 fw-bold">3</div>
+            <div class="display-6 fw-bold">{{ totalEvents() }}</div>
           </div>
         </div>
       </div>
@@ -49,7 +55,7 @@
             </div>
           </div>
           <div class="card-body pt-0">
-            <div class="display-6 fw-bold">1</div>
+            <div class="display-6 fw-bold">{{ publishedEvents() }}</div>
           </div>
         </div>
       </div>
@@ -72,7 +78,7 @@
             </div>
           </div>
           <div class="card-body pt-0">
-            <div class="display-6 fw-bold">2</div>
+            <div class="display-6 fw-bold">{{ totalContacts() }}</div>
           </div>
         </div>
       </div>
@@ -98,7 +104,7 @@
             </div>
           </div>
           <div class="card-body pt-0">
-            <div class="display-6 fw-bold">2</div>
+            <div class="display-6 fw-bold">{{ totalOrganizations() }}</div>
           </div>
         </div>
       </div>
@@ -113,55 +119,33 @@
           <h3 class="h4 fw-semibold mb-0">Recent Events</h3>
           <p class="text-muted small mb-0 mt-1">Latest events in the system</p>
         </div>
-        <button class="btn btn-outline-secondary d-flex align-items-center gap-2">
+        <a class="btn btn-outline-secondary d-flex align-items-center gap-2" routerLink="/events">
           View All
-        </button>
+        </a>
       </div>
 
       <div class="card-body pt-1">
         <div class="d-flex flex-column gap-3">
-
-          <!-- Event 1 -->
-          <div class="d-flex gap-3 p-3 border rounded-3 hover-bg-light cursor-pointer">
-            <div class="flex-grow-1">
-              <h4 class="fw-semibold mb-1">AI & Machine Learning Workshop</h4>
-              <p class="text-muted small mb-1">
-                Hands-on workshop exploring practical AI and ML applications.
-              </p>
-              <p class="text-muted small mb-0">March 15, 2024</p>
-            </div>
-            <span class="badge bg-success-subtle text-success-emphasis px-3 py-2 align-self-start">
-              Approved
-            </span>
-          </div>
-
-          <!-- Event 2 -->
-          <div class="d-flex gap-3 p-3 border rounded-3 hover-bg-light cursor-pointer">
-            <div class="flex-grow-1">
-              <h4 class="fw-semibold mb-1">Digital Innovation Summit 2024</h4>
-              <p class="text-muted small mb-1">
-                Annual summit covering digital transformation and new tech.
-              </p>
-              <p class="text-muted small mb-0">April 20, 2024</p>
-            </div>
-            <span class="badge bg-primary-subtle text-primary-emphasis px-3 py-2 align-self-start">
-              Transferred
-            </span>
-          </div>
-
-          <!-- Event 3 -->
-          <div class="d-flex gap-3 p-3 border rounded-3 hover-bg-light cursor-pointer">
-            <div class="flex-grow-1">
-              <h4 class="fw-semibold mb-1">Cybersecurity Basics for Developers</h4>
-              <p class="text-muted small mb-1">
-                Essential cybersecurity principles every developer should know.
-              </p>
-              <p class="text-muted small mb-0">May 10, 2024</p>
-            </div> 
-            <span class="badge bg-warning-subtle text-warning-emphasis px-3 py-2 align-self-start">
-              Draft
-            </span>
-          </div>
+          @if (isLoading()) {
+            <div class="text-muted small">Loading dashboard data...</div>
+          } @else if (recentEvents().length === 0) {
+            <div class="text-muted small">No events available yet.</div>
+          } @else {
+            @for (event of recentEvents(); track event.id) {
+              <div class="d-flex gap-3 p-3 border rounded-3 hover-bg-light cursor-pointer">
+                <div class="flex-grow-1">
+                  <h4 class="fw-semibold mb-1">{{ event.name }}</h4>
+                  <p class="text-muted small mb-1">
+                    {{ event.description || 'No description available.' }}
+                  </p>
+                  <p class="text-muted small mb-0">{{ event.startDate | date:'longDate' }}</p>
+                </div>
+                <span class="badge px-3 py-2 align-self-start" [class]="eventStatusBadgeClass(event.status)">
+                  {{ eventStatusLabel(event.status) }}
+                </span>
+              </div>
+            }
+          }
 
         </div>
       </div>
