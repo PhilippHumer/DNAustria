@@ -1,5 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
+import { provideApi } from '../api';
 import { Dashboard } from './dashboard';
 
 describe('Dashboard', () => {
@@ -8,7 +11,12 @@ describe('Dashboard', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Dashboard]
+      imports: [Dashboard],
+      providers: [
+        provideHttpClient(),
+        provideRouter([]),
+        provideApi('http://localhost'),
+      ],
     })
     .compileComponents();
 
