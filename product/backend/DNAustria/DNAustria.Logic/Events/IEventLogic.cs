@@ -7,6 +7,7 @@ public interface IEventLogic
 {
     Task<IReadOnlyList<Event>> GetAllAsync(string? name);
     Task<Event?> GetByIdAsync(int id);
+    Task<IReadOnlyList<EventHistoryEntry>> GetHistoryByEventIdAsync(int id);
 
     Task<Event> CreateAsync(
         Event entity,

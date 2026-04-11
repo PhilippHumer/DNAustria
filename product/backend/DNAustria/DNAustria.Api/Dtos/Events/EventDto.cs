@@ -22,4 +22,5 @@ public record EventDto
     public required int? Contact { get; init; }
     public required IReadOnlyList<int> TargetAudiences { get; init; }
     public required IReadOnlyList<int> Topics { get; init; }
+    public IReadOnlyList<EventHistoryDto> History { get; init; } = Array.Empty<EventHistoryDto>();
 }

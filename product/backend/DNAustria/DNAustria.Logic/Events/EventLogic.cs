@@ -40,6 +40,22 @@ public class EventLogic (AppDbContext db, IEventTracker tracker) : IEventLogic
         return entity is null ? null : MapToDomain(entity);
     }
 
+    public async Task<IReadOnlyList<EventHistoryEntry>> GetHistoryByEventIdAsync(int id)
+    {
+        return await db.EventHistories
+            .AsNoTracking()
+            .Where(h => h.EventId == id)
+            .Include(h => h.User)
+            .OrderByDescending(h => h.CreatedAt)
+            .Select(h => new EventHistoryEntry
+            {
+                Action = h.Action,
+                CreatedAt = h.CreatedAt,
+                Username = h.User.Username
+            })
+            .ToListAsync();
+    }
+
     public async Task<DomainEvent> CreateAsync(
         DomainEvent domain,
         IEnumerable<int>? targetAudiences,

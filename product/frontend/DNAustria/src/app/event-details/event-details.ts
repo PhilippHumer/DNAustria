@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ContactsService } from '../api/api/contacts.service';
 import { EventsService } from '../api/api/events.service';
@@ -7,6 +7,7 @@ import { LocationsService } from '../api/api/locations.service';
 import { OrganizationsService } from '../api/api/organizations.service';
 import { ContactDto } from '../api/model/contactDto';
 import { EventDto } from '../api/model/eventDto';
+import { EventHistoryDto } from '../api/model/eventHistoryDto';
 import { LocationReplyDto } from '../api/model/locationReplyDto';
 import { OrganizationDto } from '../api/model/organizationDto';
 import { EventFormPopup } from '../events/event-form-popup/event-form-popup';
@@ -42,6 +43,11 @@ export class EventDetails {
   protected readonly isDeleting = signal(false);
   protected readonly deleteError = signal<string | null>(null);
   protected readonly isDeleteDialogOpen = signal(false);
+  protected readonly sortedHistory = computed(() =>
+    [...(this.event()?.history ?? [])].sort(
+      (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime(),
+    ),
+  );
 
   constructor() {
     this.route.paramMap.subscribe((params) => {
@@ -74,6 +80,10 @@ export class EventDetails {
 
   protected targetAudienceOption(audience: number) {
     return getEventTargetAudienceOption(audience);
+  }
+
+  protected historyEntryLabel(entry: EventHistoryDto): string {
+    return `${entry.action} by ${entry.username}`;
   }
 
   protected openEditPopup(): void {

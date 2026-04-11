@@ -21,6 +21,8 @@ import { EventDto } from '../model/eventDto';
 // @ts-ignore
 import { InsertEventDto } from '../model/insertEventDto';
 // @ts-ignore
+import { LlmRequestDto } from '../model/llmRequestDto';
+// @ts-ignore
 import { UpdateEventDto } from '../model/updateEventDto';
 // @ts-ignore
 import { UpdateEventStatusDto } from '../model/updateEventStatusDto';
@@ -42,7 +44,7 @@ export class EventsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/events
+     * @endpoint get /api/Events
      * @param name 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -91,7 +93,7 @@ export class EventsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/events`;
+        let localVarPath = `/api/Events`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<EventDto>>('get', `${basePath}${localVarPath}`,
             {
@@ -108,7 +110,7 @@ export class EventsService extends BaseService {
     }
 
     /**
-     * @endpoint delete /api/events/{id}
+     * @endpoint delete /api/Events/{id}
      * @param id 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -146,7 +148,7 @@ export class EventsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/events/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int32"})}`;
+        let localVarPath = `/api/Events/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int32"})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
             {
@@ -162,7 +164,7 @@ export class EventsService extends BaseService {
     }
 
     /**
-     * @endpoint get /api/events/{id}
+     * @endpoint get /api/Events/{id}
      * @param id 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -203,7 +205,7 @@ export class EventsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/events/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int32"})}`;
+        let localVarPath = `/api/Events/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int32"})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<EventDto>('get', `${basePath}${localVarPath}`,
             {
@@ -219,7 +221,7 @@ export class EventsService extends BaseService {
     }
 
     /**
-     * @endpoint put /api/events/{id}
+     * @endpoint put /api/Events/{id}
      * @param id 
      * @param updateEventDto 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -275,7 +277,7 @@ export class EventsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/events/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int32"})}`;
+        let localVarPath = `/api/Events/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int32"})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<EventDto>('put', `${basePath}${localVarPath}`,
             {
@@ -292,7 +294,7 @@ export class EventsService extends BaseService {
     }
 
     /**
-     * @endpoint patch /api/events/{id}/status
+     * @endpoint patch /api/Events/{id}/status
      * @param id 
      * @param updateEventStatusDto 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -348,7 +350,7 @@ export class EventsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/events/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int32"})}/status`;
+        let localVarPath = `/api/Events/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int32"})}/status`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<EventDto>('patch', `${basePath}${localVarPath}`,
             {
@@ -365,7 +367,73 @@ export class EventsService extends BaseService {
     }
 
     /**
-     * @endpoint post /api/events
+     * @endpoint post /api/Events/llm
+     * @param llmRequestDto 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public apiEventsLlmPost(llmRequestDto?: LlmRequestDto, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<EventDto>;
+    public apiEventsLlmPost(llmRequestDto?: LlmRequestDto, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<EventDto>>;
+    public apiEventsLlmPost(llmRequestDto?: LlmRequestDto, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<EventDto>>;
+    public apiEventsLlmPost(llmRequestDto?: LlmRequestDto, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarHeaders = this.defaultHeaders;
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'text/plain',
+            'application/json',
+            'text/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json',
+            'text/json',
+            'application/*+json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/Events/llm`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<EventDto>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: llmRequestDto,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * @endpoint post /api/Events
      * @param insertEventDto 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -417,7 +485,7 @@ export class EventsService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/events`;
+        let localVarPath = `/api/Events`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<EventDto>('post', `${basePath}${localVarPath}`,
             {
