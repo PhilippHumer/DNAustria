@@ -83,7 +83,7 @@ public class EventLogic (AppDbContext db, IEventTracker tracker) : IEventLogic
         await tracker.TrackAsync(
             entity.Id,
             118811,
-            $"Event {entity.Id} - Event created");
+            $"Event created");
 
         return MapToDomain(entity);
     }
@@ -130,7 +130,7 @@ public class EventLogic (AppDbContext db, IEventTracker tracker) : IEventLogic
         await tracker.TrackAsync(
             entity.Id,
             118811,
-            $"Event {entity.Id} - Event updated");
+            $"Event updated");
 
         return MapToDomain(entity);
     }
@@ -147,7 +147,7 @@ public class EventLogic (AppDbContext db, IEventTracker tracker) : IEventLogic
         await tracker.TrackAsync(
             entity.Id,
             118811,
-            $"Event {entity.Id} - Event deleted");
+            $"Event deleted");
         return true;
     }
 
@@ -164,7 +164,7 @@ public class EventLogic (AppDbContext db, IEventTracker tracker) : IEventLogic
         await tracker.TrackAsync(
             entity.Id,
             118811,
-            $"Event {entity.Id} - Event Status set to {status}");
+            $"Event Status set to {status}");
 
         return MapToDomain(entity);
     }

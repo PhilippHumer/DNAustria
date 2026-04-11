@@ -1,8 +1,7 @@
 export const EVENT_STATUS_LABELS: Record<number, string> = {
   0: 'Draft',
   1: 'Published',
-  2: 'Archived',
-  3: 'Cancelled',
+  2: 'Approved',
 };
 
 export const EVENT_CLASSIFICATION_LABELS: Record<number, string> = {
