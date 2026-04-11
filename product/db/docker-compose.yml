@@ -34,6 +34,27 @@ services:
     volumes:
       - pgadmin_data:/var/lib/pgadmin
 
+  ldap:
+    image: rroemhild/test-openldap:latest
+    container_name: dnaustria-ldap
+    restart: unless-stopped
+    user: "0:0"
+    ports:
+      - "389:10389"
+
+  # Optional LDAP web UI
+  phpldapadmin:
+    image: osixia/phpldapadmin:0.9.0
+    container_name: dnaustria-phpldapadmin
+    restart: unless-stopped
+    depends_on:
+      - ldap
+    environment:
+      PHPLDAPADMIN_LDAP_HOSTS: ldap
+      PHPLDAPADMIN_HTTPS: "false"
+    ports:
+      - "8081:80"
+
 volumes:
   pgdata:
   pgadmin_data:

@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 namespace DNAustria.Api.Authentication;
 
 public sealed class LdapAuthenticationService(IOptions<LdapOptions> options, ILogger<LdapAuthenticationService> logger)
-    : IAuthenticationService
+    : IAuthenticationService, ILdapConnectivityProbe
 {
     private static readonly string[] RequestedAttributes = ["cn", "displayName", "mail"];
     private readonly LdapOptions _options = options.Value;
@@ -39,9 +39,23 @@ public sealed class LdapAuthenticationService(IOptions<LdapOptions> options, ILo
         }
         catch (LdapException ex)
         {
-            _logger.LogWarning(ex, "LDAP authentication failed for user {Username}", username);
+            _logger.LogWarning(
+                ex,
+                "LDAP authentication failed for user {Username}. Host={Host}, Port={Port}, SearchBase={SearchBase}, BindDn={BindDn}, UserFilter={UserFilter}",
+                username,
+                _options.Host,
+                _options.Port,
+                _options.SearchBase,
+                _options.BindDn,
+                _options.UserFilter);
             return Task.FromResult<LdapUserInfo?>(null);
         }
+    }
+
+    public Task ProbeAsync(CancellationToken cancellationToken = default)
+    {
+        ExecuteWithConnection(_options.BindDn, _options.BindPassword, connection => connection.Bind());
+        return Task.CompletedTask;
     }
 
     private SearchResultEntry? FindUser(string username)
@@ -51,22 +65,24 @@ public sealed class LdapAuthenticationService(IOptions<LdapOptions> options, ILo
             return null;
         }
 
-        using var connection = CreateConnection(_options.BindDn, _options.BindPassword);
-        connection.Bind();
-
         var filter = string.Format(
             CultureInfo.InvariantCulture,
             _options.UserFilter,
             EscapeFilterValue(username));
 
-        var request = new SearchRequest(
-            _options.SearchBase,
-            filter,
-            SearchScope.Subtree,
-            RequestedAttributes);
+        return ExecuteWithConnection(_options.BindDn, _options.BindPassword, connection =>
+        {
+            connection.Bind();
 
-        var response = (SearchResponse)connection.SendRequest(request);
-        return response.Entries.Cast<SearchResultEntry>().FirstOrDefault();
+            var request = new SearchRequest(
+                _options.SearchBase,
+                filter,
+                SearchScope.Subtree,
+                RequestedAttributes);
+
+            var response = (SearchResponse)connection.SendRequest(request);
+            return response.Entries.Cast<SearchResultEntry>().FirstOrDefault();
+        });
     }
 
     private string BuildUserDn(string username)
@@ -84,13 +100,46 @@ public sealed class LdapAuthenticationService(IOptions<LdapOptions> options, ILo
 
     private void BindUser(string distinguishedName, string password)
     {
-        using var connection = CreateConnection(distinguishedName, password);
-        connection.Bind();
+        ExecuteWithConnection(distinguishedName, password, connection => connection.Bind());
     }
 
-    private LdapConnection CreateConnection(string? username, string? password)
+    private T ExecuteWithConnection<T>(string? username, string? password, Func<LdapConnection, T> operation)
     {
-        var identifier = new LdapDirectoryIdentifier(_options.Host, _options.Port);
+        LdapException? lastException = null;
+
+        foreach (var host in GetCandidateHosts())
+        {
+            try
+            {
+                using var connection = CreateConnection(host, username, password);
+                return operation(connection);
+            }
+            catch (LdapException ex) when (IsServerUnavailable(ex))
+            {
+                lastException = ex;
+                _logger.LogInformation(
+                    ex,
+                    "LDAP connection attempt failed against host {Host}:{Port}. Trying next candidate if available.",
+                    host,
+                    _options.Port);
+            }
+        }
+
+        throw lastException ?? new LdapException("Unable to connect to the LDAP server.");
+    }
+
+    private void ExecuteWithConnection(string? username, string? password, Action<LdapConnection> operation)
+    {
+        ExecuteWithConnection<object?>(username, password, connection =>
+        {
+            operation(connection);
+            return null;
+        });
+    }
+
+    private LdapConnection CreateConnection(string host, string? username, string? password)
+    {
+        var identifier = new LdapDirectoryIdentifier(host, _options.Port, false, false);
         var credential = string.IsNullOrWhiteSpace(username)
             ? null
             : new NetworkCredential(username, password);
@@ -110,6 +159,28 @@ public sealed class LdapAuthenticationService(IOptions<LdapOptions> options, ILo
 
         return connection;
     }
+
+    private IEnumerable<string> GetCandidateHosts()
+    {
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        if (!string.IsNullOrWhiteSpace(_options.Host) && seen.Add(_options.Host))
+        {
+            yield return _options.Host;
+        }
+
+        if (string.Equals(_options.Host, "localhost", StringComparison.OrdinalIgnoreCase))
+        {
+            if (seen.Add("127.0.0.1"))
+            {
+                yield return "127.0.0.1";
+            }
+        }
+    }
+
+    private static bool IsServerUnavailable(LdapException ex) =>
+        ex.ErrorCode == 81
+        || ex.ServerErrorMessage?.Contains("unavailable", StringComparison.OrdinalIgnoreCase) == true;
 
     private static string EscapeFilterValue(string value) => value
         .Replace("\\", "\\5c", StringComparison.Ordinal)

@@ -26,6 +26,8 @@ public static class ServiceExtensions
         builder.Services.AddScoped<IEventExtractionService, EventExtractionService>();
         builder.Services.AddScoped<LdapAuthenticationService>();
         builder.Services.AddScoped<MockAuthenticationService>();
+        builder.Services.AddScoped<ILdapConnectivityProbe>(serviceProvider =>
+            serviceProvider.GetRequiredService<LdapAuthenticationService>());
         builder.Services.AddScoped<IAuthenticationService>(serviceProvider =>
         {
             var options = serviceProvider.GetRequiredService<IOptions<AuthenticationOptions>>().Value;
@@ -33,6 +35,7 @@ public static class ServiceExtensions
                 ? serviceProvider.GetRequiredService<MockAuthenticationService>()
                 : serviceProvider.GetRequiredService<LdapAuthenticationService>();
         });
+        builder.Services.AddHostedService<LdapStartupProbeHostedService>();
         return builder;
     }
 }
