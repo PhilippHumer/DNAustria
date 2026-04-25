@@ -32,8 +32,10 @@ public class ContactsController(IContactsLogic contactLogic) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Create([FromBody] CreateContactDto dto)
     {
-        var created = await contactLogic.CreateAsync(dto.ToDomain());
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created.ToDto());
+        var result = await contactLogic.CreateAsync(dto.ToDomain());
+        return result.contact is not null
+            ? Created("Contact was created", result.contact)
+            : Conflict(result.msg);
     }
 
     [HttpPut("{id:int}")]
