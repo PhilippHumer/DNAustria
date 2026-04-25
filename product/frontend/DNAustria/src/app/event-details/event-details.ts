@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ContactsService } from '../api/api/contacts.service';
 import { EventsService } from '../api/api/events.service';
 import { LocationsService } from '../api/api/locations.service';
@@ -21,7 +21,7 @@ import {
 
 @Component({
   selector: 'app-event-details',
-  imports: [DatePipe, RouterLink, EventFormPopup],
+  imports: [DatePipe, EventFormPopup],
   templateUrl: './event-details.html',
   styleUrl: './event-details.css',
 })
@@ -43,6 +43,7 @@ export class EventDetails {
   protected readonly isDeleting = signal(false);
   protected readonly deleteError = signal<string | null>(null);
   protected readonly isDeleteDialogOpen = signal(false);
+  private readonly shouldRefreshOverview = signal(false);
   protected readonly sortedHistory = computed(() =>
     [...(this.event()?.history ?? [])].sort(
       (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime(),
@@ -97,13 +98,14 @@ export class EventDetails {
   protected handleSaved(): void {
     const id = this.event()?.id;
     this.isFormOpen.set(false);
+    this.shouldRefreshOverview.set(true);
     if (id) {
       this.loadEvent(id);
     }
   }
 
   protected goBack(): void {
-    this.router.navigate(['/events']);
+    void this.navigateToEvents();
   }
 
   protected openDeleteDialog(): void {
@@ -128,7 +130,8 @@ export class EventDetails {
     this.eventsService.apiEventsIdDelete(id).subscribe({
       next: () => {
         this.isDeleting.set(false);
-        this.router.navigate(['/events']);
+        this.shouldRefreshOverview.set(true);
+        void this.navigateToEvents();
       },
       error: () => {
         this.isDeleting.set(false);
@@ -179,5 +182,13 @@ export class EventDetails {
         error: () => this.location.set(null),
       });
     }
+  }
+
+  private navigateToEvents(): Promise<boolean> {
+    return this.router.navigate(['/events'], {
+      queryParams: this.shouldRefreshOverview()
+        ? { refresh: Date.now() }
+        : {},
+    });
   }
 }
