@@ -4,7 +4,6 @@ import { Contacts } from './contacts/contacts';
 import { Dashboard } from './dashboard/dashboard';
 import { EventDetails } from './event-details/event-details';
 import { Events } from './events/events';
-import { Export } from './export/export';
 import { LlmAnalyzer } from './llm-analyzer/llm-analyzer';
 import { Login } from './login/login';
 import { Organizations } from './organizations/organizations';
@@ -20,7 +19,6 @@ export const routes: Routes = [
     { path: 'event-details', redirectTo: 'events' },
     { path: 'contacts', component: Contacts, canActivate: [authGuard] },
     { path: 'organizations', component: Organizations, canActivate: [authGuard] },
-    { path: 'export', component: Export, canActivate: [authGuard] },
     { path: 'llm-analyzer', component: LlmAnalyzer, canActivate: [authGuard] },
     { path: '**', redirectTo: 'dashboard' }
 ];
