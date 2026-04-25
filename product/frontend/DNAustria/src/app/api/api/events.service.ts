@@ -48,9 +48,9 @@ export class EventsService extends BaseService {
     /**
      * @endpoint get /api/Events
      * @param name 
-     * @param status
-     * @param page
-     * @param pageSize
+     * @param status 
+     * @param page 
+     * @param pageSize 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
@@ -69,6 +69,8 @@ export class EventsService extends BaseService {
             QueryParamStyle.Form,
             true,
         );
+
+
         localVarQueryParameters = this.addToHttpParams(
             localVarQueryParameters,
             'status',
@@ -76,6 +78,8 @@ export class EventsService extends BaseService {
             QueryParamStyle.Form,
             true,
         );
+
+
         localVarQueryParameters = this.addToHttpParams(
             localVarQueryParameters,
             'page',
@@ -83,6 +87,8 @@ export class EventsService extends BaseService {
             QueryParamStyle.Form,
             true,
         );
+
+
         localVarQueryParameters = this.addToHttpParams(
             localVarQueryParameters,
             'pageSize',

@@ -3,6 +3,7 @@ README.md
 api.base.service.ts
 api.module.ts
 api/api.ts
+api/auth.service.ts
 api/contacts.service.ts
 api/events.service.ts
 api/locations.service.ts
@@ -24,12 +25,16 @@ model/eventHistoryDto.ts
 model/insertEventDto.ts
 model/llmRequestDto.ts
 model/locationReplyDto.ts
+model/loginRequestDto.ts
+model/loginResponseDto.ts
 model/models.ts
 model/organizationDto.ts
+model/pagedEventsDto.ts
 model/problemDetails.ts
 model/updateContactDto.ts
 model/updateEventDto.ts
 model/updateEventStatusDto.ts
+model/userInfoDto.ts
 param.ts
 provide-api.ts
 query.params.ts

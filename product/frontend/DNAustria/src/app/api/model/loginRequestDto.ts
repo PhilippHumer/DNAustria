@@ -7,14 +7,10 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { EventDto } from './eventDto';
 
 
-export interface PagedEventsDto { 
-    items: Array<EventDto>;
-    page: number;
-    pageSize: number;
-    totalCount: number;
-    totalPages: number;
+export interface LoginRequestDto { 
+    username?: string;
+    password?: string;
 }
 
