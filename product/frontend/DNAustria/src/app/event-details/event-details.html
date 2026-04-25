@@ -8,7 +8,7 @@
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb small text-muted mb-3">
           <li class="breadcrumb-item">
-            <a [routerLink]="['/events']" class="text-decoration-none">Events</a>
+            <a href="" (click)="$event.preventDefault(); goBack()" class="text-decoration-none">Events</a>
           </li>
           <li class="breadcrumb-item active" aria-current="page">
             {{ currentEvent.name }}

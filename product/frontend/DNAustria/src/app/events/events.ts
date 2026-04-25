@@ -67,7 +67,7 @@ export class Events {
   protected handleEventSaved(): void {
     this.isFormOpen.set(false);
     this.editingEvent.set(null);
-    this.loadEvents(this.searchTerm(), this.status(), this.currentPage());
+    this.updateQueryParams(this.searchTerm(), this.status(), this.currentPage(), true);
   }
 
   protected handleSearchTermChange(searchTerm: string): void {
@@ -112,7 +112,7 @@ export class Events {
         const nextPage = this.events().length === 1 && this.currentPage() > 1
           ? this.currentPage() - 1
           : this.currentPage();
-        this.updateQueryParams(this.searchTerm(), this.status(), nextPage);
+        this.updateQueryParams(this.searchTerm(), this.status(), nextPage, true);
       },
       error: () => {
         this.deleteInProgress.set(false);
@@ -146,13 +146,14 @@ export class Events {
     });
   }
 
-  private updateQueryParams(name: string, status: number | null, page: number): void {
+  private updateQueryParams(name: string, status: number | null, page: number, forceRefresh: boolean = false): void {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {
         name: name.trim() || null,
         status,
         page: page > 1 ? page : null,
+        refresh: forceRefresh ? Date.now() : null,
       },
     });
   }
