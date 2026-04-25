@@ -63,7 +63,7 @@ export class EventFormPopup {
       hasFees: [false],
       isOnline: [false],
       organization: ['', [Validators.required]],
-      programName: [''],
+      programName: ['', [this.trimmedRequiredValidator()]],
       format: ['', [this.trimmedRequiredValidator()]],
       schoolBookable: [false],
       ageMinimum: [0, [Validators.min(0)]],
