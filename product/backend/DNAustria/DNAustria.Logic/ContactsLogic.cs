@@ -19,11 +19,16 @@ public class ContactsLogic(AppDbContext context) : IContactsLogic
         return contact?.toDomain() ?? null;
     }
 
-    public async Task<Contact> CreateAsync(Contact contact)
+    public async Task<(Contact? contact, string msg)> CreateAsync(Contact contact)
     {
+        if(_contacts.Any(c => c.Email == contact.Email || c.Phone == contact.Phone))
+        {
+            return (null, "Contact already exists");
+        }
+        
         var created = await _contacts.AddAsync(contact.ToEntity());
         await context.SaveChangesAsync();
-        return created.Entity.toDomain();
+        return (created.Entity.toDomain(), string.Empty);
     }
 
     public async Task<Contact> UpdateAsync(Contact contact)
