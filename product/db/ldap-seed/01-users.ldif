@@ -1,0 +1,19 @@
+dn: ou=people,dc=planetexpress,dc=com
+objectClass: organizationalUnit
+ou: people
+
+dn: uid=developer,ou=people,dc=planetexpress,dc=com
+objectClass: inetOrgPerson
+cn: Local Developer
+sn: Developer
+uid: developer
+mail: developer@example.org
+userPassword: developer
+
+dn: uid=admin,ou=people,dc=planetexpress,dc=com
+objectClass: inetOrgPerson
+cn: Local Admin
+sn: Admin
+uid: admin
+mail: admin@example.org
+userPassword: admin

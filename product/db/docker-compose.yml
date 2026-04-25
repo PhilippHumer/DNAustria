@@ -41,6 +41,31 @@ services:
     user: "0:0"
     ports:
       - "389:10389"
+    healthcheck:
+      test: ["CMD-SHELL", "ldapwhoami -x -H ldap://127.0.0.1:10389 -D 'cn=admin,dc=planetexpress,dc=com' -w GoodNewsEveryone >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  ldap-seed:
+    image: rroemhild/test-openldap:latest
+    container_name: dnaustria-ldap-seed
+    depends_on:
+      ldap:
+        condition: service_healthy
+    restart: "no"
+    entrypoint:
+      - /bin/sh
+      - -lc
+    command:
+      - |
+        ldapadd -c -x -H ldap://ldap:10389 -D 'cn=admin,dc=planetexpress,dc=com' -w GoodNewsEveryone -f /seed/01-users.ldif || true
+        ldapsearch -x -H ldap://ldap:10389 -D 'cn=admin,dc=planetexpress,dc=com' -w GoodNewsEveryone -b 'ou=people,dc=planetexpress,dc=com' '(uid=developer)' dn \
+        | grep -q 'uid=developer,ou=people,dc=planetexpress,dc=com'
+        ldapsearch -x -H ldap://ldap:10389 -D 'cn=admin,dc=planetexpress,dc=com' -w GoodNewsEveryone -b 'ou=people,dc=planetexpress,dc=com' '(uid=admin)' dn \
+        | grep -q 'uid=admin,ou=people,dc=planetexpress,dc=com'
+    volumes:
+      - ./ldap-seed:/seed:ro
 
   # Optional LDAP web UI
   phpldapadmin:
@@ -48,7 +73,10 @@ services:
     container_name: dnaustria-phpldapadmin
     restart: unless-stopped
     depends_on:
-      - ldap
+      ldap:
+        condition: service_started
+      ldap-seed:
+        condition: service_completed_successfully
     environment:
       PHPLDAPADMIN_LDAP_HOSTS: ldap
       PHPLDAPADMIN_HTTPS: "false"
