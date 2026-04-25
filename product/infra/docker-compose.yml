@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:17
-    container_name: postgres
+    container_name: dnaustria-postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: dnaustria
@@ -11,18 +11,18 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./init:/docker-entrypoint-initdb.d:ro
+      - ../db/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U appuser -d appdb"]
+      test: ["CMD-SHELL", "pg_isready -U admin -d dnaustria"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # Optional web UI
   pgadmin:
     image: dpage/pgadmin4:latest
-    container_name: pgadmin
+    container_name: dnaustria-pgadmin
     restart: unless-stopped
+    profiles: ["tools"]
     depends_on:
       postgres:
         condition: service_healthy
@@ -50,10 +50,10 @@ services:
   ldap-seed:
     image: rroemhild/test-openldap:latest
     container_name: dnaustria-ldap-seed
+    restart: "no"
     depends_on:
       ldap:
         condition: service_healthy
-    restart: "no"
     entrypoint:
       - /bin/sh
       - -lc
@@ -65,13 +65,13 @@ services:
         ldapsearch -x -H ldap://ldap:10389 -D 'cn=admin,dc=planetexpress,dc=com' -w GoodNewsEveryone -b 'ou=people,dc=planetexpress,dc=com' '(uid=admin)' dn \
         | grep -q 'uid=admin,ou=people,dc=planetexpress,dc=com'
     volumes:
-      - ./ldap-seed:/seed:ro
+      - ../db/ldap-seed:/seed:ro
 
-  # Optional LDAP web UI
   phpldapadmin:
     image: osixia/phpldapadmin:0.9.0
     container_name: dnaustria-phpldapadmin
     restart: unless-stopped
+    profiles: ["tools"]
     depends_on:
       ldap:
         condition: service_started
@@ -83,6 +83,51 @@ services:
     ports:
       - "8081:80"
 
+  backend:
+    build:
+      context: ../backend/DNAustria
+      dockerfile: Dockerfile
+    container_name: dnaustria-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ldap:
+        condition: service_healthy
+      ldap-seed:
+        condition: service_completed_successfully
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:5001
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=dnaustria;Username=admin;Password=pass
+      Frontend__AllowedOrigins__0: http://localhost:4200
+      Ldap__Host: ldap
+      Ldap__Port: 10389
+      Ldap__UseSsl: "false"
+      Ldap__IgnoreCertificateErrors: "false"
+      Ldap__SearchBase: ou=people,dc=planetexpress,dc=com
+      Ldap__UserFilter: (uid={0})
+      Ldap__UserDnPattern: ""
+      Ldap__BindDn: cn=admin,dc=planetexpress,dc=com
+      Ldap__BindPassword: GoodNewsEveryone
+    ports:
+      - "5001:5001"
+    volumes:
+      - backend_keys:/root/.aspnet/DataProtection-Keys
+
+  frontend:
+    build:
+      context: ../frontend/DNAustria
+      dockerfile: Dockerfile
+    container_name: dnaustria-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_started
+    ports:
+      - "4200:80"
+
 volumes:
+  backend_keys:
   pgdata:
   pgadmin_data:

@@ -5,7 +5,7 @@
 Start the database stack:
 
 ```bash
-docker compose -f db/docker-compose.yml up -d postgres pgadmin
+docker compose -f infra/docker-compose.yml up -d postgres
 ```
 
 ## LDAP
@@ -13,7 +13,21 @@ docker compose -f db/docker-compose.yml up -d postgres pgadmin
 Start the LDAP test stack:
 
 ```bash
-docker compose -f db/docker-compose.yml up -d ldap ldap-seed phpldapadmin
+docker compose -f infra/docker-compose.yml up -d ldap ldap-seed
+```
+
+## Full Stack
+
+Start backend, frontend, PostgreSQL, and LDAP together:
+
+```bash
+docker compose -f infra/docker-compose.yml up --build -d
+```
+
+Start the optional admin tools as well:
+
+```bash
+docker compose -f infra/docker-compose.yml --profile tools up --build -d
 ```
 
 LDAP connection details for the backend:
@@ -38,14 +52,13 @@ Notes:
 Clean reset:
 
 ```bash
-docker compose -f db/docker-compose.yml down
-docker compose -f db/docker-compose.yml up -d ldap ldap-seed phpldapadmin
+docker compose -f infra/docker-compose.yml down
+docker compose -f infra/docker-compose.yml up -d ldap ldap-seed
 ```
 
-Optional web UI:
+Available URLs:
 
+- pgAdmin: `http://localhost:8080`
 - phpLDAPadmin: `http://localhost:8081`
-
-To test the real LDAP path, switch `backend/DNAustria/DNAustria.Api/appsettings.Development.json`:
-
-- `Authentication:Mode` from `Mock` to `Ldap`
+- Frontend: `http://localhost:4200`
+- Backend API: `http://localhost:5001`
