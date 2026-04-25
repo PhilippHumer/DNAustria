@@ -189,8 +189,20 @@
         </div>
 
         <div class="col-md-6">
-          <label for="event-program" class="form-label fw-semibold">Program</label>
-          <input id="event-program" type="text" class="form-control" formControlName="programName" placeholder="Program name" />
+          <label for="event-program" class="form-label fw-semibold">
+            Program <span class="text-danger">*</span>
+          </label>
+          <input
+            id="event-program"
+            type="text"
+            class="form-control"
+            formControlName="programName"
+            [class.is-invalid]="form.controls.programName.invalid && form.controls.programName.touched"
+            placeholder="Program name"
+          />
+          @if (hasControlError('programName', 'required')) {
+            <div class="invalid-feedback d-block">Please enter a program.</div>
+          }
         </div>
 
         <div class="col-12">
