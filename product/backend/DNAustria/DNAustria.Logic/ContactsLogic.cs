@@ -45,7 +45,8 @@ public class ContactsLogic(AppDbContext context) : IContactsLogic
         var existing = _contacts.Find(id);
         if (existing is null) throw new NotFoundException($"Contact with id {id} not found");
         
-        _contacts.Remove(existing);
+        existing.IsDeleted = true;
+        _contacts.Update(existing);
         return context.SaveChangesAsync();
     }
 }
