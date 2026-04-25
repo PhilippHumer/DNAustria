@@ -64,7 +64,7 @@ export class EventFormPopup {
       isOnline: [false],
       organization: ['', [Validators.required]],
       programName: [''],
-      format: [''],
+      format: ['', [this.trimmedRequiredValidator()]],
       schoolBookable: [false],
       ageMinimum: [0, [Validators.min(0)]],
       ageMaximum: [999, [Validators.min(0)]],
