@@ -231,8 +231,20 @@
 
         <div class="row g-3">
         <div class="col-md-4">
-          <label for="event-format" class="form-label fw-semibold">Format</label>
-          <input id="event-format" type="text" class="form-control" formControlName="format" placeholder="e.g. lecture" />
+          <label for="event-format" class="form-label fw-semibold">
+            Format <span class="text-danger">*</span>
+          </label>
+          <input
+            id="event-format"
+            type="text"
+            class="form-control"
+            formControlName="format"
+            [class.is-invalid]="form.controls.format.invalid && form.controls.format.touched"
+            placeholder="e.g. lecture"
+          />
+          @if (hasControlError('format', 'required')) {
+            <div class="invalid-feedback d-block">Please enter a format.</div>
+          }
         </div>
 
         <div class="col-md-4">
