@@ -25,7 +25,7 @@ The dashboard gives a quick overview of the current system data.
 
 ### 2.1 Overview
 
-![Dashboard](images/dashboard.png)
+![Dashboard](img/dashboard.png)
 
 On this page, users can:
 
@@ -51,7 +51,7 @@ This page is useful as a starting point because it summarizes the current state 
 
 The lower section of the dashboard contains a list of the most recent events.
 
-![Recent Events](images/dashboard_recentEvents.png)
+![Recent Events](img/dashboard_recentEvents.png)
 
 Each event card in this section shows:
 
@@ -70,7 +70,7 @@ The `View All` button opens the complete event overview.
 
 The event overview is the central place for browsing and managing events.
 
-![Event Overview](images/events_overview.png)
+![Event Overview](img/events_overview.png)
 
 On this page, users can:
 
@@ -95,7 +95,7 @@ The `Filter Events` area helps users narrow down the result list.
 
 Users can type a keyword into the search field to find events by name.
 
-![Filter Events by Name](images/events_filterName.png)
+![Filter Events by Name](img/events_filterName.png)
 
 This is useful when looking for a specific event or a group of similarly named events.
 
@@ -103,7 +103,7 @@ This is useful when looking for a specific event or a group of similarly named e
 
 Users can also filter the list by event status.
 
-![Filter Events by Status](images/events_filterStatus.png)
+![Filter Events by Status](img/events_filterStatus.png)
 
 Example use cases:
 
@@ -117,7 +117,7 @@ Name search and status filtering can be used together to reduce the list further
 
 The event details page provides a complete view of a single event.
 
-![Event Details](images/events_detail.png)
+![Event Details](img/events_detail.png)
 
 This page includes:
 
@@ -145,7 +145,7 @@ This screen is intended for reviewing event information in more detail before ma
 
 Users can create a new event from the event overview by clicking `Create Event`.
 
-![Create Event](images/events_create.png)
+![Create Event](img/events_create.png)
 
 The event creation dialog contains structured sections, for example:
 
