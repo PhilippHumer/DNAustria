@@ -99,11 +99,11 @@ Hier ist es besonders Hilfreich, wenn man die Definietion nochmal von einem Chat
 
 Auch bei rückfragen der Modelle gibt es Unterschiede - die Gratis-Modelle brauchen sehr viele revisionen, weil die Fragen tlw nicht zielgerichtet gestellt werden, informationen verschluckt oder nicht richtig interpretiert werden.
 
-## 2026-
+## 2026-03-27
 
+Wir haben die swagger.json aus den beiden Projekten mit ChatGPT vergleichen und analysieren lassen um konkrete unterscheide zwischen den Endpunkten zu finden. Nachdem wir die Endpunkte im vorhinein schon definiert hatten sollten diese zwar recht gering ausfallen, allerdings gibt es schon einige Unterschiede.
 
-
-## Vergleich API-Endpunkte:
+### Vergleich API-Endpunkte:
 
 - **Dateien:** swagger-vibe.json, swagger-diy.json
 
@@ -118,3 +118,237 @@ Auch bei rückfragen der Modelle gibt es Unterschiede - die Gratis-Modelle brauc
 - **Organisationen / Adressen:** vibe `OrganizationDto` enthält `adress` (Schreibfehler) und eingebettetes `AddressDto`; diy trennt über `addressId` (Referenz-Id) in Create/Update.
 - **Query-Parameter:** Suche/Filter-Parameter differieren (z.B. vibe `/api/events` query `name`, diy uses `title`).
 - **Semantik der Events:** vibe hat starke, typed EventDto mit integer IDs und many required fields; diy ist weniger restriktiv, verwendet andere Feldnamen und nullable Werte.
+
+
+## 2026-04-11
+Für die Code-Qualität haben wir uns für Stryker (Mutation Testing) und 
+
+# Mutation Testing Analyse (Stryker)
+
+## Überblick
+
+Im Rahmen der Qualitätssicherung wurde das Projekt mittels Mutation Testing mit Stryker analysiert. Ziel ist es, die Effektivität der bestehenden Tests zu bewerten, indem gezielt kleine Codeveränderungen (Mutationen) eingeführt und überprüft wird, ob diese durch Tests erkannt werden.
+
+### Ergebniszusammenfassung
+
+* **Gesamtanzahl Mutants:** 1010
+* **Killed:** 407
+* **Survived:** 193
+* **No Coverage:** 319
+* **Ignored:** 87
+* **Compile Errors:** 4
+
+→ **Mutation Score: ~44,3 %**
+
+Der definierte Mindestwert (Threshold) von 60 % wurde somit **nicht erreicht**.
+
+---
+
+## Interpretation der Ergebnisse
+
+Der Mutation Score liegt im unteren Bereich und zeigt Verbesserungspotenzial. Wichtig ist jedoch die differenzierte Betrachtung:
+
+### 1. Fehlende Testabdeckung
+
+Ein signifikanter Anteil der Mutanten (**319 von 1010**) wurde nicht ausgeführt, da entsprechende Codebereiche **nicht durch Tests abgedeckt sind**.
+
+➡️ Interpretation:
+Ein Teil des niedrigen Scores ist nicht auf fehlerhafte Tests zurückzuführen, sondern auf **fehlende Tests**.
+
+---
+
+### 2. Unzureichende Testtiefe
+
+Zusätzlich überleben **193 Mutanten**, obwohl sie ausgeführt wurden.
+
+➡️ Interpretation:
+Vorhandene Tests prüfen oft nur oberflächlich:
+
+* Methoden werden aufgerufen, aber Ergebnisse nicht ausreichend verifiziert
+* Seiteneffekte (z. B. Datenbankoperationen) werden nicht überprüft
+* Grenzwerte (Boundary Conditions) werden nicht getestet
+
+---
+
+## Analyse nach Komponenten
+
+Die meisten überlebenden Mutanten konzentrieren sich auf wenige zentrale Klassen:
+
+### Kritische Bereiche
+
+* **AppDbContext.cs**
+
+  * 162 Mutanten, davon 85 survived
+  * hoher Anteil infrastruktureller Logik
+
+* **EventService.cs**
+
+  * 126 Mutanten, davon 19 survived
+
+* **AddressService.cs**
+
+  * 95 Mutanten, davon 17 survived
+
+* **ContactService.cs**
+
+  * 84 Mutanten, davon 17 survived
+
+* **LocationService.cs**
+
+  * 55 Mutanten, davon 12 survived
+
+* **Program.cs**
+
+  * 27 Mutanten, davon 12 survived
+
+---
+
+## Typische Schwachstellen
+
+Die Analyse der Mutationen zeigt wiederkehrende Muster:
+
+### 1. Boundary-Tests fehlen
+
+Beispiel:
+
+* `Length > 50` wird zu `Length >= 50` mutiert → Test schlägt nicht fehl
+
+➡️ Problem:
+Grenzwerte werden nicht explizit getestet (z. B. genau 50 Zeichen).
+
+---
+
+### 2. Exception-Inhalte werden nicht geprüft
+
+Mutationen von String-Werten (z. B. Fehlermeldungen) bleiben oft unentdeckt.
+
+➡️ Problem:
+Tests prüfen nur, **dass** eine Exception geworfen wird, aber nicht **welche**.
+
+---
+
+### 3. Seiteneffekte werden nicht verifiziert
+
+Beispiele:
+
+* `SaveChangesAsync()` wird entfernt → Test erkennt es nicht
+* Properties werden nicht gesetzt → Test erkennt es nicht
+
+➡️ Problem:
+Tests validieren nicht:
+
+* Persistierung
+* Zustandsänderungen
+* Mapping-Ergebnisse
+
+---
+
+### 4. Infrastruktur-Code nur teilweise sinnvoll testbar
+
+Insbesondere:
+
+* `AppDbContext`
+* `Program.cs`
+
+➡️ Problem:
+Ein Teil der Mutationen betrifft Code, der:
+
+* schwer isoliert testbar ist
+* oder nur begrenzten fachlichen Mehrwert hat
+
+---
+
+## Bewertung
+
+Der aktuelle Zustand lässt sich wie folgt einordnen:
+
+| Bereich        | Bewertung             |
+| -------------- | --------------------- |
+| Testabdeckung  | unvollständig         |
+| Testqualität   | ausbaufähig           |
+| Architektur    | grundsätzlich testbar |
+| Mutation Score | unter Zielwert        |
+
+➡️ Wichtig:
+Die Tests sind **nicht grundsätzlich schlecht**, aber:
+
+* zu wenig präzise
+* nicht vollständig
+* nicht ausreichend auf Randfälle ausgelegt
+
+---
+
+## Maßnahmen zur Verbesserung
+
+### Priorität 1 – Service-Logik absichern
+
+* Boundary-Tests ergänzen (z. B. exakt 50 Zeichen)
+* Validierungslogik vollständig abdecken
+* Rückgabewerte exakt prüfen
+
+---
+
+### Priorität 2 – Seiteneffekte testen
+
+* Verifizieren von:
+
+  * `SaveChangesAsync`
+  * Änderungen an Entities
+  * Statusfeldern (z. B. `ModifiedAt`, `IsDeleted`)
+
+---
+
+### Priorität 3 – Testabdeckung erhöhen
+
+* Fokus auf:
+
+  * Services
+  * Repositories
+* weniger Fokus auf:
+
+  * `Program.cs`
+  * rein technischen Boilerplate-Code
+
+---
+
+### Priorität 4 – Exception-Handling präzisieren
+
+* gezielt prüfen:
+
+  * Exception-Typ
+  * relevante Fehlermeldungen (falls Teil des Vertrags)
+
+---
+
+### Priorität 5 – Infrastruktur bewusst behandeln
+
+* entscheiden:
+
+  * welche Teile sinnvoll getestet werden
+  * welche ggf. ignoriert werden können (z. B. via Stryker-Config)
+
+---
+
+## Fazit
+
+Der Mutation-Test zeigt klar:
+
+* Die bestehende Testbasis deckt grundlegende Funktionalität ab
+* Es fehlen jedoch:
+
+  * präzise Assertions
+  * Grenzwerttests
+  * vollständige Abdeckung zentraler Logik
+
+Der größte Hebel zur Verbesserung liegt **nicht in der Menge der Tests**, sondern in deren **Qualität und Zielgerichtetheit**.
+
+---
+
+Wenn du willst, kann ich dir als nächsten Schritt:
+
+* konkrete Testfälle für z. B. `AddressService` formulieren
+* oder dir zeigen, wie du gezielt von ~44 % auf >70 % kommst ohne unnötigen Overhead 🚀
+
+## 2026-04-25
+
+Das reine Vibe-Coding ist relativ monoton, weil hier grundsätzlich nur Anforderungen in ein passendes Schema gebracht werden, dann geprüft und schlussendlich wieder im Chat-Fenster vom Copilot/Claude landen. Als "Entwickler" sieht man die meiste Zeit nur zu. Aus Sicht eines Product Owner würde das schon etwas mehr sinn machen, allerdings ist auch die Implementierung ohne technisches Verständnis eher eine Blackbox. Debugging wird da sehr repetitiv und ohne konkrete Inputs haben die KI-Modelle teilweise Schwierigkeiten den Fehler aus den gegebenen Fehlermeldungen bzw. Logs herauszulesen.
