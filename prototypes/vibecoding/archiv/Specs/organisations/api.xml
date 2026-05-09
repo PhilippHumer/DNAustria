@@ -1,0 +1,14 @@
+<api>
+    <endpoint name="Alle Organisationen" method="GET" path="/api/organizations" />
+    <endpoint name="Einzelne Organisation" method="GET" path="/api/organizations/{id}" />
+    <endpoint name="Organisation nach Name suchen" method="GET" path="/api/organizations?name={name}" />
+    <endpoint name="Organisation erstellen" method="POST" path="/api/organizations" />
+    <endpoint name="Organisation aktualisieren" method="PUT" path="/api/organizations/{id}" />
+    <endpoint name="Organisation löschen" method="DELETE" path="/api/organizations/{id}" />
+    <responseConventions>
+        <rule>
+      Bei PUT, PATCH und POST: Rückgabe des aktualisierten/erstellten Objekts
+      mit Statuscode 200 (OK) oder 201 (Created).
+        </rule>
+    </responseConventions>
+</api>

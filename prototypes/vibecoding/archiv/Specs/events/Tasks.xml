@@ -1,0 +1,105 @@
+<backend>
+    <api>
+
+        <endpoint name="Alle Events" method="GET" path="/api/events" />
+        <endpoint name="Einzelnes Event" method="GET" path="/api/events/{id}" />
+        <endpoint name="Event nach Name suchen" method="GET" path="/api/events?name={name}" />
+        <endpoint name="Event erstellen" method="POST" path="/api/events" />
+        <endpoint name="Event aktualisieren" method="PUT" path="/api/events/{id}" />
+        <endpoint name="Event löschen" method="DELETE" path="/api/events/{id}" />
+        <endpoint name="Eventstatus aktualisieren" method="PATCH" path="/api/events/{id}/status" />
+        <endpoint name="Öffentliche Events abrufen" method="GET" path="/api/public/events" />
+        <endpoint name="LLM Generierung anstoßen" method="POST" path="/api/events/llm" />
+
+
+        <responseConventions>
+            <rule>POST → 201 Created + Body</rule>
+            <rule>PUT → 200 OK + Body</rule>
+            <rule>DELETE → 204 NoContent</rule>
+        </responseConventions>
+    </api>
+
+    <tasks>
+        <enums>
+
+            <enum name="TargetAudience" type="int">
+                <value code="10" name="Preschool" label="Vorschulkinder: Elementarstufe" />
+                <value code="20" name="PrimarySchool" label="Schulkinder: Primarstufe" />
+                <value code="30" name="SecondaryI" label="Jugendliche: Sekundarstufe I" />
+                <value code="40" name="Vocational" label="Jugendliche: Berufsschulen, PTS" />
+                <value code="50" name="SecondaryII" label="Jugendliche: Sekundarstufe II" />
+                <value code="60" name="Adults" label="Erwachsene" />
+                <value code="70" name="Families" label="Familien" />
+                <value code="80" name="GirlsWomenOnly" label="nur Mädchen/Frauen" />
+            </enum>
+
+            <enum name="EventTopic" type="int">
+                <value code="100" name="DigitalizationAI" label="Digitalisierung, KI, IT, Technik" />
+                <value code="200" name="ArtsCulture" label="Kunst, Kultur" />
+                <value code="300" name="LanguagesLiterature" label="Sprachen, Literatur" />
+                <value code="400" name="MedicineHealth" label="Medizin, Gesundheit" />
+                <value code="500" name="HistorySociety" label="Geschichte, Demokratie, Gesellschaft" />
+                <value code="600" name="EconomyLaw" label="Wirtschaft, Recht" />
+                <value code="700" name="ScienceEnvironment" label="Naturwissenschaft, Klima, Umwelt" />
+                <value code="800" name="MathematicsData" label="Mathematik, Zahlen, Daten" />
+            </enum>
+
+            <enum name="Classification" type="string">
+                <value code="Scheduled" name="Scheduled" label="Scheduled" />
+                <value code="OnDemand" name="OnDemand" label="OnDemand" />
+            </enum>
+
+            <enum name="EventStatus" type="string">
+                <value code="Draft" name="Draft" label="Draft" />
+                <value code="Approved" name="Approved" label="Approved" />
+                <value code="Transferred" name="Transferred" label="Transferred" />
+            </enum>
+
+        </enums>
+
+        <entity name="Event">
+            <field name="id" type="guid" required="true" />
+            <field name="title" type="string" max="255" required="true" />
+            <field name="description" type="string" required="true" />
+            <field name="event_link" type="string" required="false" />
+            <field name="target_audience" type="list[enum:TargetAudience]" required="true" />
+            <field name="topics" type="list[enum:EventTopic]" required="true" />
+            <field name="date_start" type="datetime" required="true" />
+            <field name="date_end" type="datetime" required="true" />
+            <field name="classification" type="enum:Classification" required="true" />
+            <field name="fees" type="bool" required="true" />
+            <field name="is_online" type="bool" required="true" />
+            <field name="organization_id" type="guid" required="true" reference="Organization" />
+            <field name="program_name" type="string" required="false" />
+            <field name="format" type="string" required="false" />
+            <field name="school_bookable" type="bool" required="false" />
+            <field name="age_minimum" type="int" required="false" />
+            <field name="age_maximum" type="int" required="false" />
+            <field name="location_id" type="guid" required="false" reference="Address" />
+            <field name="contact_id" type="guid" required="false" reference="Contact" />
+            <field name="status" type="enum:EventStatus" required="true" default="Draft" />
+            <field name="created_by" type="string" required="false" />
+            <field name="modified_by" type="string" required="false" />
+            <field name="modified_at" type="datetime" required="false" />
+            <field name="is_deleted" type="bool" default="false" />
+        </entity>
+
+
+        <implement>
+            <function name="softDelete">
+                DELETE setzt is_deleted = true.
+                Physisches Löschen ist verboten.
+                LIST/GET liefern nur is_deleted = false.
+                GET /api/events/{id} für soft-deleted → 404.
+            </function>
+
+            <function name="statusRules">
+                Erlaubte Übergänge:
+                Draft -> Approved
+                Approved -> Draft (optional, falls gewünscht)
+                Approved -> Transferred
+            </function>
+
+        </implement>
+    </tasks>
+</backend>
