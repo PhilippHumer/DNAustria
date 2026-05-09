@@ -210,6 +210,10 @@ public class EventLogic (AppDbContext db, IEventTracker tracker) : IEventLogic
         foreach (var e in events)
         {
             e.Status = (int)EventStatus.Published;
+            await tracker.TrackAsync(
+                e.Id,
+                118811,
+                $"Event published");
         }
 
         await db.SaveChangesAsync();
