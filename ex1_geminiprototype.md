@@ -1,21 +1,23 @@
 # Gemini Frontend + Backed documenatation
 
+Author: Markus Ortner<br>
+Experiment conducted by: Philipp Humer, Michael Wöckinger, Markus Ortner<br>
+Date: 28.02.2026
+
 ## table of contents
-- [Gemini Frontend + Backed documenatation](#gemini-frontend--backed-documenatation)
-  - [table of contents](#table-of-contents)
 - [Introduction](#introduction)
-- [the creation process](#the-creation-process)
-- [docker setup](#docker-setup)
-- [backend](#backend)
-- [frontend](#frontend)
-- [implemented features](#implemented-features)
-- [personal remarks](#personal-remarks)
+- [The creation process](#the-creation-process)
+- [Docker setup](#docker-setup)
+- [Backend](#backend)
+- [Frontend](#frontend)
+- [Implemented features](#implemented-features)
+- [Personal remarks](#personal-remarks)
 
 
 <a id="introduction"></a>
 # Introduction
 
-in this scenario, both the angular frontend and the .NET Web API backend were created using the LLM Gemini 3 Pro. The goal was to create a full ready-to-run system which meets our defined requirements. In the process of the agent creating the system we (as perspective of software developers) did not give hints in terms of architectural - or coding knowledge. The requirements of the system + some config settings for the LLM were provided via the following start prompt:
+In this scenario, both the angular frontend and the .NET Web API backend were created using the LLM Gemini 3 Pro. The goal was to create a full ready-to-run system which meets our defined requirements. In the process of the agent creating the system we (as perspective of software developers) did not give hints in terms of architectural - or coding knowledge. The requirements of the system + some config settings for the LLM were provided via the following start prompt:
 
 <fieldset>
 
@@ -25,8 +27,9 @@ in this scenario, both the angular frontend and the .NET Web API backend were cr
  - You are an agent - please keep going until the user's query is completely resolved, before ending your turn and yielding back to the user.
  - Only terminate your turn when you are sure that the problem is solved.
  - Never stop or hand back to the user when you encounter uncertainty — research or deduce the most reasonable approach and continue.
- - Do not ask the human to confirm or clarify assumptions, as you can always adjust later — decide what the most reasonable assumption is,  proceed with it, and document it for the user's reference after you finish acting  
- <br>&lt;/persistence&gt;
+ - Do not ask the human to confirm or clarify assumptions, as you can always adjust later — decide what the most reasonable assumption is,  proceed with it, and document it for the user's reference after you finish acting .
+
+ &lt;/persistence&gt;
 
 <self_reflection>
 - First, spend time thinking of a rubric until you are confident.
@@ -67,7 +70,7 @@ in this scenario, both the angular frontend and the .NET Web API backend were cr
 
 </ui_ux_best_practices>
 
-<code_editing_rules>
+</code_editing_rules>
 
 <functional-requirements>
 
@@ -75,61 +78,61 @@ in this scenario, both the angular frontend and the .NET Web API backend were cr
 
 <event-summary>
 
- events can be displayed in a list and filtered with a searchbar by title + description
+ Events can be displayed in a list and filtered with a searchbar by title + description.
 
- each event in the list should be represented as a card. When the card is clicked the app should navigate to the detail view of the selected event.
+ Each event in the list should be represented as a card. When the card is clicked the app should navigate to the detail view of the selected event.
 
- via a create button the user can navigate to the create event form.
+ Via a create button the user can navigate to the create event form.
 
- each entry in the list should be deletable and updatable in the detail-view
+ Each entry in the list should be deletable and updatable in the detail-view
 
 </event-summary>
 
 <event-create>
 
-form for creating a new event. The user should have the option to either enter the data manually or import event data from an unstructured format (either text or HTML page) using the LLM-call in the backend.
+Form for creating a new event. The user should have the option to either enter the data manually or import event data from an unstructured format (either text or HTML page) using the LLM-call in the backend.
 
-the form should support autocomplete (f.e the user enters the name of the address and the corresponding address in the DB is autofilled into the form).
+The form should support autocomplete (f.e the user enters the name of the address and the corresponding address in the DB is autofilled into the form).
 
 </event-create>
 
 <event-detail>
 
- a form for updating and displaying the event details. 
+ A form for updating and displaying the event details. 
 
- a seperate option for updating the status of an event should be easily accessible. A confirmation for update and delete should be asked from the user.
+ A seperate option for updating the status of an event should be easily accessible. A confirmation for update and delete should be asked from the user.
 
 </event-detail>
 
 <contacts>
 
-add button for navigating to the create contact view
+Add button for navigating to the create contact view
 
-the contacts should be displayed via a list. The name, email, phone-number and organization of the contact should be displayed in each list entry.
+The contacts should be displayed via a list. The name, email, phone-number and organization of the contact should be displayed in each list entry.
 
-when selecting an entry in the list the app should navigate to a contact-details view
+When selecting an entry in the list the app should navigate to a contact-details view.
 
 </contacts>
 
 <contact-details>
 
-view for updating / deleting contacts
+View for updating / deleting contacts.
 
 </contact-details>
 
 <organizations>
 
-add button for navigating to the create organization view
+Add button for navigating to the create organization view.
 
-the organizations should be displayed via a list. The name and address of the organization should be displayed in each list entry.
+The organizations should be displayed via a list. The name and address of the organization should be displayed in each list entry.
 
-when selecting an entry in the list the app should navigate to a organization-details view
+When selecting an entry in the list the app should navigate to a organization-details view.
 
 </organizations>
 
 <organization-details>
 
-view for updating / deleting organizations
+View for updating / deleting organizations.
 
 </organization-details>
 
@@ -255,13 +258,13 @@ The application is an event management system for a University.
 
 <actions>
 
-- Create events: newly created events can be saved as a draft or marked as approved
-- Get events: fetch all existing events (filterable by status)
-- Mark events: marking the status of selected events
-- Delete events: events can be deleted
-- Update events: events are only allowed to be edited when they were not already transferred (status != Transferred)
-- Import events: import events via frontend form (use LLM-Call to fill out fields of the form automatically). This should for for normal text but also for whole HTML pages (f.e. https://fh-ooe.at/events)
-- CRUD for Address and Contact
+- Create events: newly created events can be saved as a draft or marked as approved.
+- Get events: fetch all existing events (filterable by status).
+- Mark events: marking the status of selected events.
+- Delete events: events can be deleted.
+- Update events: events are only allowed to be edited when they were not already transferred (status != Transferred).
+- Import events: import events via frontend form (use LLM-Call to fill out fields of the form automatically). This should for for normal text but also for whole HTML pages (f.e. https://fh-ooe.at/events).
+- CRUD for Address and Contact.
 - Addresses and Contact should be reused for Event and stored in a seperate entity. For example, if an event's address is updated the system should check if an adress with the new values is already present in the system (matching zipcode, latitute/longitude) and if a an entity is already present only the FK should be changed, else a new entity should be created.
 
 </actions>
@@ -277,12 +280,12 @@ The application is an event management system for a University.
 <a id="creation-process"></a>
 # the creation process
 
-For development we used VS Code as a "development environment" (in our case we primarily used it for code highlighting) and selected the Gemini 3 Pro Model. We did not give additional information, we only copy pasted the start prompt and hit enter. During the development process of the agent we only gave permissions to execute commands on the operating system, we did not give any hints / improvements. 
+For development we used VS Code as a "development environment" (in our case we primarily used it for code highlighting) and selected the Gemini 3 Pro Model. We did not give additional information, we only copy pasted the start prompt and hit enter. During the development process of the agent we only gave permissions to execute commands on the operating system, we did not give any hints / improvements. The creation process for creating frontend, backend and database took around 5 hours.
 
 <a id="docker-setup"></a>
 # docker setup
 
-we did not give any information about the development environment, we only specified the framework versions. Gemini decided to create a docker compose file with a postgres database container:
+We did not give any information about the development environment, we only specified the framework versions. Gemini decided to create a docker compose file with a postgres database container:
 
 ```
 version: '3.8'
@@ -305,7 +308,7 @@ volumes:
 
 ```
 
-a positive remark is that Gemini automatically created a volume for the database storage directory so that container data is not lost between container restarts. The most negavite aspect here is that the database password is defined as plain text (not passed via environment). This could lead to huge security risks where non-aware users push clear text passwords to a repository. It is worth to mention that since we did not specify to use docker as a runtime environment the agent may have implemented this differently.
+A positive remark is that Gemini automatically created a volume for the database storage directory so that container data is not lost between container restarts. The most negavite aspect here is that the database password is defined as plain text (not passed via environment). This could lead to huge security risks where non-aware users push clear text passwords to a repository. It is worth to mention that since we did not specify to use docker as a runtime environment the agent may have implemented this differently.
 
 
 <a href="backend"></a>
