@@ -57,43 +57,11 @@ public class EventsController(IEventLogic eventLogic, ILLMLogic llmLogic, IConfi
                 return BadRequest(extraction.ErrorMessage ?? "Failed to extract event data from LLM response.");
 
             var dto = extraction.Data;
-
-            // Map DTO to domain (same as Create endpoint)
-            var domain = new Event(
-                name: dto.Name,
-                description: dto.Description,
-                link: dto.Link,
-                startDate: dto.StartDate,
-                endDate: dto.EndDate,
-                classification: (EventClassification)dto.Classification,
-                status: (EventStatus)dto.Status,
-                hasFees: dto.HasFees,
-                isOnline: dto.IsOnline,
-                programName: dto.ProgramName,
-                format: dto.Format,
-                schoolBookable: dto.SchoolBookable,
-                ageMinimum: dto.AgeMinimum,
-                ageMaximum: dto.AgeMaximum,
-                organizationId: dto.Organization,
-                locationId: dto.Location,
-                contactId: dto.Contact
-            );
-
-            var created = await _eventLogic.CreateAsync(
-                domain,
-                targetAudiences: dto.TargetAudiences,
-                topics: dto.Topics);
-
-            var resultDto = MapToDto(created);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, resultDto);
+            return Ok(dto);
         }
         catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
-        }
-        catch (DbUpdateException ex)
-        {
-            return BadRequest($"Failed to save event. Check referenced IDs (Organization/Location/Contact) and enum values. Details: {ex.InnerException?.Message ?? ex.Message}");
         }
         catch (Exception ex)
         {

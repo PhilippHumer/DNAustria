@@ -55,7 +55,10 @@ if (app.Environment.IsDevelopment())
     Log.Information("OpenAPI-doc reachable at http://localhost:5001/scalar");
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 app.UseCustomCors();
 app.UseAuthentication();
 

@@ -1,5 +1,7 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 import { ContactsService } from '../../api/api/contacts.service';
 import { EventsService } from '../../api/api/events.service';
 import { LocationsService } from '../../api/api/locations.service';
@@ -18,7 +20,6 @@ import {
   fromDatetimeLocalValue,
   toDatetimeLocalValue,
 } from '../event-utils';
-import { environment } from '../../environment';
 
 @Component({
   selector: 'app-event-form-popup',
@@ -208,24 +209,10 @@ export class EventFormPopup {
     this.llmPrefillError.set(null);
     this.llmPrefillInfo.set(null);
 
-    const apiBaseUrl = environment.apiUrl.replace(/\/$/, '');
-
     try {
-      const response = await fetch(`${apiBaseUrl}/api/events/llm`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: trimmedPrompt }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || `HTTP ${response.status}`);
-      }
-
-      const contentType = response.headers.get('content-type') || '';
-      const responseBody: unknown = contentType.includes('application/json')
-        ? await response.json()
-        : await response.text();
+      const responseBody = await firstValueFrom(
+        this.eventsService.apiEventsLlmPost({ prompt: trimmedPrompt, text: trimmedPrompt }),
+      );
 
       const prefillData = this.extractPrefillPayload(responseBody);
       if (!prefillData) {
@@ -240,7 +227,7 @@ export class EventFormPopup {
       }
     } catch (error) {
       console.error('LLM prefill failed', error);
-      const message = error instanceof Error ? error.message : String(error);
+      const message = this.formatLlmPrefillError(error);
       this.llmPrefillError.set(`Could not prefill event fields: ${message}`);
     } finally {
       this.llmPrefillLoading.set(false);
@@ -480,6 +467,72 @@ export class EventFormPopup {
 
   private isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === 'object' && value !== null && !Array.isArray(value);
+  }
+
+  private formatLlmPrefillError(error: unknown): string {
+    if (error instanceof HttpErrorResponse) {
+      const bodyMessage = this.collectErrorMessages(error.error);
+      if (bodyMessage) {
+        return bodyMessage;
+      }
+
+      return error.message || `HTTP ${error.status}`;
+    }
+
+    if (error instanceof Error) {
+      return error.message;
+    }
+
+    if (typeof error === 'string') {
+      return error;
+    }
+
+    return 'An unexpected error occurred.';
+  }
+
+  private collectErrorMessages(value: unknown, visited = new Set<object>()): string | null {
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      return trimmed || null;
+    }
+
+    if (typeof value === 'number' || typeof value === 'boolean') {
+      return String(value);
+    }
+
+    if (Array.isArray(value)) {
+      const messages = value
+        .map((entry) => this.collectErrorMessages(entry, visited))
+        .filter((entry): entry is string => Boolean(entry));
+
+      return messages.length > 0 ? messages.join('; ') : null;
+    }
+
+    if (!this.isRecord(value)) {
+      return null;
+    }
+
+    if (visited.has(value)) {
+      return null;
+    }
+
+    visited.add(value);
+
+    const record = value;
+    const prioritizedKeys = ['message', 'detail', 'title', 'error', 'errors'];
+    const prioritizedMessages = prioritizedKeys
+      .map((key) => this.collectErrorMessages(record[key], visited))
+      .filter((entry): entry is string => Boolean(entry));
+
+    if (prioritizedMessages.length > 0) {
+      return prioritizedMessages.join('; ');
+    }
+
+    const fallbackMessages = Object.values(record)
+      .map((entry) => this.collectErrorMessages(entry, visited))
+      .filter((entry): entry is string => Boolean(entry));
+
+    return fallbackMessages.length > 0 ? fallbackMessages.join('; ') : null;
   }
 
   private setStringIfPresent<T extends Record<string, unknown>>(target: T, key: keyof T, value: unknown): void {
